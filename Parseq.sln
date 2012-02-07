@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parseq", "Parseq\Parseq.csproj", "{3DA79348-7C7D-432B-B415-D5E1D2705CCA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parseq.Test", "Parseq.Test\Parseq.Test.csproj", "{17B9DCC2-4BBE-4A94-AB66-AA5CA07135FF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3DA79348-7C7D-432B-B415-D5E1D2705CCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DA79348-7C7D-432B-B415-D5E1D2705CCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DA79348-7C7D-432B-B415-D5E1D2705CCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DA79348-7C7D-432B-B415-D5E1D2705CCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17B9DCC2-4BBE-4A94-AB66-AA5CA07135FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17B9DCC2-4BBE-4A94-AB66-AA5CA07135FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17B9DCC2-4BBE-4A94-AB66-AA5CA07135FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17B9DCC2-4BBE-4A94-AB66-AA5CA07135FF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
