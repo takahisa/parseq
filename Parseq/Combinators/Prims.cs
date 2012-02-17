@@ -263,5 +263,29 @@ namespace Parseq.Combinators
         {
             return parser.SepEndBy(0, separator);
         }
+
+        public static Parser<TToken, TResult[]> While<TToken, TResult>(
+            this Parser<TToken, TResult> parser, Parser<TToken, TResult> condition)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (condition == null)
+                throw new ArgumentNullException("condition");
+
+            return (condition.Not().Right(parser)).Many();
+        }
+
+        public static Parser<TToken, TResult[]> DoWhile<TToken, TResult>(
+            this Parser<TToken, TResult> parser, Parser<TToken, TResult> condition)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (condition == null)
+                throw new ArgumentNullException("condition");
+
+            return from x in parser
+                   from y in parser.While(condition)
+                   select (new[] { x }).Concat(y).ToArray();
+        }
     }
 }

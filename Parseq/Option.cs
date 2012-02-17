@@ -105,5 +105,39 @@ namespace Parseq
         public static Option<T> None<T>(){
             return new Option<T>.None();
         }
+
+        public static Option<T> Try<T, TException>(Func<T> selector)
+            where TException : Exception
+        {
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+            try {
+                return Option.Just(selector());
+            }
+            catch (TException) {
+                return Option.None<T>();
+            }
+        }
+
+        public static Option<T> Try<T, TException>(Func<Option<T>> selector)
+            where TException : Exception
+        {
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+            try {
+                return selector();
+            }
+            catch (TException) {
+                return Option.None<T>();
+            }
+        }
+
+        public static Option<T> Try<T>(Func<T> selector){
+            return Option.Try<T, Exception>(selector);
+        }
+
+        public static Option<T> Try<T>(Func<Option<T>> selector){
+            return Option.Try<T, Exception>(selector);
+        }
     }
 }
