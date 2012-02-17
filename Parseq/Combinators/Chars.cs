@@ -6,6 +6,11 @@ using System.Text;
 namespace Parseq.Combinators
 {
     public static class Chars {
+
+        public static Parser<char, char> Match(this char c){
+            return Chars.Satisfy(_ => _ == c);
+        }
+
         public static Parser<char, char> Any(){
             return Prims.Any<char>();
         }

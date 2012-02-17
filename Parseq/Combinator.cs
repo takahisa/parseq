@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Parseq.Combinators;
+
 namespace Parseq
 {
     public static class Combinator {
@@ -207,24 +209,6 @@ namespace Parseq
                         return Reply.Success<TToken, Option<TResult>>(stream, Option.None<TResult>());
                     default:
                         return Reply.Error<TToken, Option<TResult>>(stream, message);
-                }
-            };
-        }
-
-        public static Parser<TToken, Option<TResult>> Try<TToken, TResult>(
-            this Parser<TToken, TResult> parser)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-
-            return stream => {
-                Reply<TToken, TResult> reply;
-                TResult result; ErrorMessage message;
-                switch ((reply = parser(stream)).TryGetValue(out result, out message)){
-                    case ReplyStatus.Success:
-                        return Reply.Success<TToken, Option<TResult>>(reply.Stream, Option.Just(result));
-                    default:
-                        return Reply.Success<TToken, Option<TResult>>(stream, Option.None<TResult>());
                 }
             };
         }
