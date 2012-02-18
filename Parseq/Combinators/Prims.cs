@@ -7,15 +7,6 @@ namespace Parseq.Combinators
 {
     public static class Prims{
 
-        public static Parser<TToken, Unit> Ignore<TToken,TResult>(
-            this Parser<TToken,TResult> parser)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-
-            return parser.Select(_ => Unit.Instance);
-        }
-
         public static Parser<TToken, TToken> Satisfy<TToken>(
             Func<TToken, bool> predicate)
         {
@@ -224,7 +215,7 @@ namespace Parseq.Combinators
                    select y;
         }
 
-        public static Parser<TToken, TResult[]> SepBy<TToken, TResult, TSeparator>(
+        public static Parser<TToken, IEnumerable<TResult>> SepBy<TToken, TResult, TSeparator>(
             this Parser<TToken, TResult> parser,
             int count,
             Parser<TToken, TSeparator> separator)
@@ -238,17 +229,17 @@ namespace Parseq.Combinators
 
             return from x in parser.Many(count)
                    from y in separator.Right(parser).Many()
-                   select Enumerable.Concat(x, y).ToArray();
+                   select x.Concat(y);
         }
 
-        public static Parser<TToken, TResult[]> SepBy<TToken, TResult, TSeparator>(
+        public static Parser<TToken, IEnumerable<TResult>> SepBy<TToken, TResult, TSeparator>(
             this Parser<TToken, TResult> parser,
             Parser<TToken, TSeparator> separator)
         {
             return parser.SepBy(0, separator);
         }
 
-        public static Parser<TToken, TResult[]> SepEndBy<TToken, TResult, TSeparator>(
+        public static Parser<TToken, IEnumerable<TResult>> SepEndBy<TToken, TResult, TSeparator>(
             this Parser<TToken, TResult> parser,
             int count,
             Parser<TToken, TSeparator> separator)
@@ -263,17 +254,17 @@ namespace Parseq.Combinators
             return from x in parser.Many(count)
                    from y in separator.Right(parser).Many()
                    from z in separator.Maybe()
-                   select Enumerable.Concat(x, y).ToArray();
+                   select x.Concat(y);
         }
 
-        public static Parser<TToken, TResult[]> SepEndBy<TToken, TResult, TSeparator>(
+        public static Parser<TToken, IEnumerable<TResult>> SepEndBy<TToken, TResult, TSeparator>(
             this Parser<TToken, TResult> parser,
             Parser<TToken, TSeparator> separator)
         {
             return parser.SepEndBy(0, separator);
         }
 
-        public static Parser<TToken, TResult[]> While<TToken,T, TResult>(
+        public static Parser<TToken, TResult> Include<TToken, T, TResult>(
             this Parser<TToken, TResult> parser, Parser<TToken, T> condition)
         {
             if (parser == null)
@@ -281,20 +272,57 @@ namespace Parseq.Combinators
             if (condition == null)
                 throw new ArgumentNullException("condition");
 
-            return (condition.Not().Right(parser)).Many();
+            return parser.And().Left(condition.And());
         }
 
-        public static Parser<TToken, TResult[]> DoWhile<TToken,T, TResult>(
-            this Parser<TToken, TResult> parser, Parser<TToken,T> condition)
+        public static Parser<TToken, TResult> Exclude<TToken, T, TResult>(
+            this Parser<TToken, TResult> parser, Parser<TToken, T> condition)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
             if (condition == null)
                 throw new ArgumentNullException("condition");
 
-            return from x in parser
-                   from y in parser.While(condition)
-                   select (new[] { x }).Concat(y).ToArray();
+            return parser.And().Left(condition.Not());
+        }
+
+        public static Parser<TToken, IEnumerable<TResult>> While<TToken, T, TResult>(
+            this Parser<TToken, TResult> parser, Parser<TToken, T> condition)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (condition == null)
+                throw new ArgumentNullException("condition");
+
+            return (condition.And().Right(parser)).Many();
+        }
+
+        public static Parser<TToken, TResult> If<TToken, T, TResult>(
+            this Parser<TToken, Option<T>> parser,
+            Parser<TToken, TResult> thenParser,
+            Parser<TToken, TResult> elseParser)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (thenParser == null)
+                throw new ArgumentNullException("thenParser");
+            if (elseParser == null)
+                throw new ArgumentNullException("elseParser");
+
+            Reply<TToken, Option<T>> reply;
+            Option<T> result; ErrorMessage message;
+            return stream =>
+            {
+                switch ((reply = parser(stream)).TryGetValue(out result, out message))
+                {
+                    case ReplyStatus.Success:
+                        return thenParser(reply.Stream);
+                    case ReplyStatus.Failure:
+                        return elseParser(reply.Stream);
+                    default:
+                        return Reply.Error<TToken, TResult>(reply.Stream, message);
+                }
+            };
         }
     }
 }

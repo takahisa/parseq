@@ -79,7 +79,7 @@ namespace Parseq
             };
         }
 
-        public static Parser<TToken, TResult[]> Sequence<TToken, TResult>(
+        public static Parser<TToken, IEnumerable<TResult>> Sequence<TToken, TResult>(
             params Parser<TToken, TResult>[] parsers)
         {
             if (parsers == null)
@@ -88,20 +88,20 @@ namespace Parseq
             return stream => {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-                var list = new List<TResult>();
+                var collection = new List<TResult>();
                 foreach (var p in parsers){
                     switch ((reply = p(stream)).TryGetValue(out result, out message)){
                         case ReplyStatus.Success:
-                            list.Add(result);
+                            collection.Add(result);
                             break;
                         case ReplyStatus.Failure:
-                            return Reply.Failure<TToken, TResult[]>(stream);
+                            return Reply.Failure<TToken, IEnumerable<TResult>>(stream);
                         default:
-                            return Reply.Error<TToken, TResult[]>(stream, message);
+                            return Reply.Error<TToken, IEnumerable<TResult>>(stream, message);
                     }
                     stream = reply.Stream;
                 }
-                return Reply.Success(stream, list.ToArray());
+                return Reply.Success<TToken,IEnumerable<TResult>>(stream, collection);
             };
         }
 
@@ -126,7 +126,7 @@ namespace Parseq
             };
         }
 
-        public static Parser<TToken, TResult[]> Repeat<TToken, TResult>(
+        public static Parser<TToken, IEnumerable<TResult>> Repeat<TToken, TResult>(
             this Parser<TToken, TResult> parser, int count)
         {
             if (parser == null)
@@ -137,25 +137,24 @@ namespace Parseq
             return stream => {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-
-                var list = new List<TResult>();
+                var collection = new List<TResult>();
                 foreach (var i in Enumerable.Range(0, count)){
                     switch ((reply = parser(stream)).TryGetValue(out result, out message)){
                         case ReplyStatus.Success:
-                            list.Add(result);
+                            collection.Add(result);
                             break;
                         case ReplyStatus.Failure:
-                            return Reply.Failure<TToken, TResult[]>(stream);
+                            return Reply.Failure<TToken, IEnumerable<TResult>>(stream);
                         case ReplyStatus.Error:
-                            return Reply.Error<TToken, TResult[]>(stream, message);
+                            return Reply.Error<TToken, IEnumerable<TResult>>(stream, message);
                     }
                     stream = reply.Stream;
                 }
-                return Reply.Success(stream, list.ToArray());
+                return Reply.Success<TToken,IEnumerable<TResult>>(stream, collection);
             };
         }
 
-        public static Parser<TToken, TResult[]> Many<TToken, TResult>(
+        public static Parser<TToken, IEnumerable<TResult>> Many<TToken, TResult>(
             this Parser<TToken, TResult> parser)
         {
             if (parser == null)
@@ -164,23 +163,23 @@ namespace Parseq
             return stream => {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-                var list = new List<TResult>();
+                var collection = new List<TResult>();
                 while (true){
                     switch ((reply = parser(stream)).TryGetValue(out result, out message)){
                         case ReplyStatus.Success:
-                            list.Add(result);
+                            collection.Add(result);
                             break;
                         case ReplyStatus.Failure:
-                            return Reply.Success<TToken, TResult[]>(stream, list.ToArray());
+                            return Reply.Success<TToken, IEnumerable<TResult>>(stream, collection);
                         case ReplyStatus.Error:
-                            return Reply.Error<TToken, TResult[]>(stream, message);
+                            return Reply.Error<TToken, IEnumerable<TResult>>(stream, message);
                     }
                     stream = reply.Stream;
                 }
             };
         }
 
-        public static Parser<TToken, TResult[]> Many<TToken, TResult>(
+        public static Parser<TToken, IEnumerable<TResult>> Many<TToken, TResult>(
             this Parser<TToken, TResult> parser, int count)
         {
             if (parser == null)
@@ -190,27 +189,16 @@ namespace Parseq
 
             return from x in parser.Repeat(count)
                    from y in parser.Many()
-                   select Enumerable.Concat(x, y).ToArray();
+                   select x.Concat(y);
         }
 
-        public static Parser<TToken, Option<TResult>> Attempt<TToken, TResult>(
+        public static Parser<TToken, Unit> Ignore<TToken, TResult>(
             this Parser<TToken, TResult> parser)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
 
-            return stream => {
-                Reply<TToken, TResult> reply;
-                TResult result; ErrorMessage message;
-                switch ((reply = parser(stream)).TryGetValue(out result, out message)){
-                    case ReplyStatus.Success:
-                        return Reply.Success<TToken, Option<TResult>>(reply.Stream, Option.Just(result));
-                    case ReplyStatus.Failure:
-                        return Reply.Success<TToken, Option<TResult>>(stream, Option.None<TResult>());
-                    default:
-                        return Reply.Error<TToken, Option<TResult>>(stream, message);
-                }
-            };
+            return parser.Select(_ => Unit.Instance);
         }
     }
 }
