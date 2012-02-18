@@ -9,11 +9,11 @@ namespace Parseq
     public class ErrorMessage : Exception {
         private readonly ErrorMessageType _messageType;
         private readonly string _message;
-        private readonly Location _beginning;
-        private readonly Location _end;
+        private readonly Position _beginning;
+        private readonly Position _end;
 
         public ErrorMessage(ErrorMessageType messageType, string message,Exception cause,
-            Location beginning, Location end)
+            Position beginning, Position end)
             :base(message,cause)
         {
             if (message == null)
@@ -25,7 +25,7 @@ namespace Parseq
         }
 
         public ErrorMessage(ErrorMessageType messageType, string message,
-            Location beginning, Location end)
+            Position beginning, Position end)
             : this(messageType, message,null, beginning, end)
         {
 
@@ -46,11 +46,11 @@ namespace Parseq
             }
         }
 
-        public Location Beginning {
+        public Position Beginning {
             get { return _beginning; }
         }
 
-        public Location End {
+        public Position End {
             get { return _end; }
         }
 
