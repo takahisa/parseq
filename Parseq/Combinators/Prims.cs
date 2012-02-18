@@ -7,6 +7,15 @@ namespace Parseq.Combinators
 {
     public static class Prims{
 
+        public static Parser<TToken, Unit> Ignore<TToken,TResult>(
+            this Parser<TToken,TResult> parser)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+
+            return parser.Select(_ => Unit.Instance);
+        }
+
         public static Parser<TToken, TToken> Satisfy<TToken>(
             Func<TToken, bool> predicate)
         {
@@ -264,8 +273,8 @@ namespace Parseq.Combinators
             return parser.SepEndBy(0, separator);
         }
 
-        public static Parser<TToken, TResult[]> While<TToken, TResult>(
-            this Parser<TToken, TResult> parser, Parser<TToken, TResult> condition)
+        public static Parser<TToken, TResult[]> While<TToken,T, TResult>(
+            this Parser<TToken, TResult> parser, Parser<TToken, T> condition)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
@@ -275,8 +284,8 @@ namespace Parseq.Combinators
             return (condition.Not().Right(parser)).Many();
         }
 
-        public static Parser<TToken, TResult[]> DoWhile<TToken, TResult>(
-            this Parser<TToken, TResult> parser, Parser<TToken, TResult> condition)
+        public static Parser<TToken, TResult[]> DoWhile<TToken,T, TResult>(
+            this Parser<TToken, TResult> parser, Parser<TToken,T> condition)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
