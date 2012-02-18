@@ -10,7 +10,7 @@ namespace Parseq
         , IComparable<Stream<TToken>>
         , IDisposable
     {
-        public abstract Position Location { get; }
+        public abstract Position Position { get; }
         public abstract bool CanNext();
         public abstract bool CanRewind();
         public abstract Stream<TToken> Next();
@@ -24,23 +24,23 @@ namespace Parseq
         , IDisposable
     {
         public virtual int CompareTo(Stream<TToken> other){
-            return (this.Location.Index - other.Location.Index);
+            return (this.Position.Index - other.Position.Index);
         }
 
         public static bool operator >(Stream<TToken> x, Stream<TToken> y){
-            return x.Location > y.Location;
+            return x.Position > y.Position;
         }
 
         public static bool operator >=(Stream<TToken> x, Stream<TToken> y){
-            return x.Location >= y.Location;
+            return x.Position >= y.Position;
         }
 
         public static bool operator <(Stream<TToken> x, Stream<TToken> y){
-            return x.Location < y.Location;
+            return x.Position < y.Position;
         }
 
         public static bool operator <=(Stream<TToken> x, Stream<TToken> y){
-            return x.Location <= y.Location;
+            return x.Position <= y.Position;
         }
 
         public static Stream<TToken> operator >>(Stream<TToken> stream, int count){

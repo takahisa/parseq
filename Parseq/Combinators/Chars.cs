@@ -7,8 +7,11 @@ namespace Parseq.Combinators
 {
     public static class Chars {
 
-        public static Parser<char, char> Match(this char c){
-            return Chars.Satisfy(_ => _ == c);
+        public static Parser<char, Unit> Eof(){
+            char result;
+            return stream => stream.TryGetValue(out result) ?
+                Reply.Failure<char, Unit>(stream) :
+                Reply.Success<char, Unit>(stream, Unit.Instance);
         }
 
         public static Parser<char, char> Any(){
@@ -54,6 +57,10 @@ namespace Parseq.Combinators
             return Prims.Satisfy<char>(char.IsControl);
         }
 
+        public static Parser<char, char> Satisfy(this char c){
+            return Chars.Satisfy(_ => _ == c);
+        }
+
         public static Parser<char, char> Satisfy(Func<char, bool> predicate){
             return Prims.Satisfy<char>(predicate);
         }
@@ -62,8 +69,7 @@ namespace Parseq.Combinators
             return Prims.OneOf<char>(candidates);
         }
 
-        public static Parser<char, char> NoneOf(params char[] candidates)
-        {
+        public static Parser<char, char> NoneOf(params char[] candidates){
             return Prims.NoneOf<char>(candidates);
         }
 

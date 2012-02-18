@@ -9,17 +9,17 @@ namespace Parseq.Combinators
 
         public static Parser<TToken, Unit> Fail<TToken>(string message){
             return stream => Reply.Error<TToken, Unit>(stream,
-                new ErrorMessage(ErrorMessageType.Error,message,stream.Location,stream.Location));
+                new ErrorMessage(ErrorMessageType.Error,message,stream.Position,stream.Position));
         }
 
         public static Parser<TToken, Unit> Warn<TToken>(string message){
             return stream => Reply.Error<TToken, Unit>(stream,
-                new ErrorMessage(ErrorMessageType.Warn, message, stream.Location, stream.Location));
+                new ErrorMessage(ErrorMessageType.Warn, message, stream.Position, stream.Position));
         }
 
         public static Parser<TToken, Unit> Message<TToken>(string message){
             return stream => Reply.Error<TToken, Unit>(stream,
-                new ErrorMessage(ErrorMessageType.Message, message, stream.Location, stream.Location));
+                new ErrorMessage(ErrorMessageType.Message, message, stream.Position, stream.Position));
         }
 
         public static Parser<TToken, TResult> Try<TToken, TResult>(
@@ -75,7 +75,7 @@ namespace Parseq.Combinators
                         return reply;
                     default:
                         return Reply.Error<TToken,TResult>(stream,
-                            new ErrorMessage(ErrorMessageType.Error,message,reply.Stream.Location,reply.Stream.Location));
+                            new ErrorMessage(ErrorMessageType.Error,message,reply.Stream.Position,reply.Stream.Position));
                 }
             };
         }
@@ -84,6 +84,36 @@ namespace Parseq.Combinators
             this Parser<TToken, TResult> parser)
         {
             return Errors.Assert(parser, "assertion failed");
+        }
+
+        public static Parser<TToken, Unit> FollowedBy<TToken,TResult>(
+            this Parser<TToken, TResult> parser,string label)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            return parser.And().Ignore()
+                .Or(Errors.Fail<TToken>("expect " + label));
+        }
+
+        public static Parser<TToken, Unit> FollowedBy<TToken, TResult>(
+            this Parser<TToken, TResult> parser)
+        {
+            return parser.FollowedBy("syntax error");
+        }
+
+        public static Parser<TToken, Unit> NotFollowedBy<TToken, TResult>(
+            this Parser<TToken, TResult> parser, string label)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            return parser.Not()
+                .Or(Errors.Fail<TToken>("expect " + label));
+        }
+
+        public static Parser<TToken, Unit> NotFollowedBy<TToken, TResult>(
+            this Parser<TToken, TResult> parser)
+        {
+            return parser.NotFollowedBy("syntax error");
         }
     }
 }
