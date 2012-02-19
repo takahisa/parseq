@@ -5,7 +5,6 @@ using System.Text;
 
 namespace Parseq
 {
-    [Serializable]
     public struct Location : IEquatable<Location>
     {
         private readonly int _column;
