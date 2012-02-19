@@ -5,8 +5,9 @@ using System.Text;
 
 namespace Parseq
 {
-    [Serializable]
-    public class ErrorMessage : Exception {
+    public class ErrorMessage 
+        : Exception
+    {
         private readonly ErrorMessageType _messageType;
         private readonly string _message;
         private readonly Position _beginning;
