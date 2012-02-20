@@ -34,7 +34,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>key.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\key.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -67,7 +67,9 @@
     <Compile Include="Unit.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="key.pfx" />
+    <None Include="..\key.pfx">
+      <Link>key.pfx</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
