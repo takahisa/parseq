@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Parseq
 {
-    public static class StreamExtensions {
-
+    public static class StreamExtensions
+    {
     }
 }

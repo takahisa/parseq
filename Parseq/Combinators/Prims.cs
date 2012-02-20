@@ -264,28 +264,6 @@ namespace Parseq.Combinators
             return parser.SepEndBy(0, separator);
         }
 
-        public static Parser<TToken, TResult> Include<TToken, T, TResult>(
-            this Parser<TToken, TResult> parser, Parser<TToken, T> condition)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-            if (condition == null)
-                throw new ArgumentNullException("condition");
-
-            return parser.And().Left(condition.And());
-        }
-
-        public static Parser<TToken, TResult> Exclude<TToken, T, TResult>(
-            this Parser<TToken, TResult> parser, Parser<TToken, T> condition)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-            if (condition == null)
-                throw new ArgumentNullException("condition");
-
-            return parser.And().Left(condition.Not());
-        }
-
         public static Parser<TToken, IEnumerable<TResult>> While<TToken, T, TResult>(
             this Parser<TToken, TResult> parser, Parser<TToken, T> condition)
         {
