@@ -17,3 +17,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: CLSCompliant(true)]
+
+#pragma warning disable 1699
+#if !NOSIGN
+[assembly: AssemblyKeyFile(@"../Parseq.snk")]
+[assembly: AssemblyDelaySign(false)]
+#endif
+#pragma warning restore 1699
