@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\key.pfx</AssemblyOriginatorKeyFile>
@@ -65,11 +65,6 @@
     <Compile Include="Stream.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="Unit.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\key.pfx">
-      <Link>key.pfx</Link>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
