@@ -7,113 +7,114 @@ namespace Parseq.Combinators
 {
     public static class Errors {
 
-        public static Parser<TToken, Unit> Fail<TToken>(string message){
-            return stream => Reply.Error<TToken, Unit>(stream,
-                new ErrorMessage(ErrorMessageType.Error,message,stream.Position,stream.Position));
+        public static Parser<TToken, TResult> Fail<TToken, TResult>(string message){
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return stream => Reply.Error<TToken, TResult>(
+                stream, new ErrorMessage(ErrorMessageType.Error, message, stream.Position, stream.Position));
         }
 
-        public static Parser<TToken, Unit> Warn<TToken>(string message){
-            return stream => Reply.Error<TToken, Unit>(stream,
-                new ErrorMessage(ErrorMessageType.Warn, message, stream.Position, stream.Position));
+        public static Parser<TToken, TResult> Warn<TToken, TResult>(string message){
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return stream => Reply.Error<TToken, TResult>(
+                stream, new ErrorMessage(ErrorMessageType.Warn, message, stream.Position, stream.Position));
         }
 
-        public static Parser<TToken, Unit> Message<TToken>(string message){
-            return stream => Reply.Error<TToken, Unit>(stream,
-                new ErrorMessage(ErrorMessageType.Message, message, stream.Position, stream.Position));
+        public static Parser<TToken, TResult> Message<TToken, TResult>(string message){
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return stream => Reply.Error<TToken, TResult>(
+                stream, new ErrorMessage(ErrorMessageType.Message, message, stream.Position, stream.Position));
         }
 
-        public static Parser<TToken, TResult> Try<TToken, TResult>(
-            this Parser<TToken, TResult> parser)
-        {
+        public static Parser<TToken, Unit> FollowedBy<TToken, TResult>(Parser<TToken, TResult> parser, string message){
             if (parser == null)
                 throw new ArgumentNullException("parser");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
             return stream => {
-                Reply<TToken,TResult> reply;
-                ErrorMessage message; TResult result;
-                switch ((reply = parser(stream)).TryGetValue(out result,out message)){
+                TResult result; ErrorMessage error;
+                switch (parser(stream).TryGetValue(out result, out error)){
                     case ReplyStatus.Success:
+                        return Reply.Success<TToken, Unit>(stream, Unit.Instance);
                     case ReplyStatus.Failure:
-                        return reply;
+                        return Reply.Error<TToken, Unit>(stream,
+                            new ErrorMessage(ErrorMessageType.Error, message, stream.Position, stream.Position));
                     default:
-                        return Reply.Failure<TToken, TResult>(stream);
+                        return Reply.Error<TToken, Unit>(stream, error);
                 }
             };
         }
 
-        public static Parser<TToken, TResult> Try<TToken, TResult>(
-            this Parser<TToken, TResult> parser,Parser<TToken,TResult> catcher)
-        {
+        public static Parser<TToken, Unit> FollowedBy<TToken, TResult>(Parser<TToken, TResult> parser){
+            return FollowedBy(parser, "Syntax Error");
+        }
+
+        public static Parser<TToken, Unit> NotFollowedBy<TToken, TResult>(Parser<TToken, TResult> parser, string message){
             if (parser == null)
                 throw new ArgumentNullException("parser");
-            if (catcher == null)
-                throw new ArgumentNullException("catcher");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
             return stream => {
-                Reply<TToken, TResult> reply;
-                ErrorMessage message; TResult result;
-                switch ((reply = parser(stream)).TryGetValue(out result, out message)){
+                TResult result; ErrorMessage error;
+                switch (parser(stream).TryGetValue(out result, out error)){
                     case ReplyStatus.Success:
+                        return Reply.Error<TToken, Unit>(stream,
+                            new ErrorMessage(ErrorMessageType.Error, message, stream.Position, stream.Position));
                     case ReplyStatus.Failure:
-                        return reply;
+                        return Reply.Success<TToken, Unit>(stream, Unit.Instance);
                     default:
-                        return catcher(stream);
+                        return Reply.Error<TToken, Unit>(stream, error);
                 }
             };
         }
 
-        public static Parser<TToken, TResult> Assert<TToken,TResult>(
-            this Parser<TToken, TResult> parser,string message)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
+        public static Parser<TToken, Unit> NotFollowedBy<TToken, TResult>(Parser<TToken, TResult> parser){
+            return NotFollowedBy(parser, "Syntax Error");
+        }
+
+        public static Parser<TToken, Unit> Consume<TToken>(Func<TToken, bool> predicate,string message){
+            if (predicate == null)
+                throw new ArgumentNullException("preducate");
+            if (message == null)
+                throw new ArgumentNullException("message");
 
             return stream => {
-                Reply<TToken, TResult> reply;
-                ErrorMessage error; TResult result;
-                switch ((reply = parser(stream)).TryGetValue(out result,out error)){
-                    case ReplyStatus.Success:
-                    case ReplyStatus.Error:
-                        return reply;
-                    default:
-                        return Reply.Error<TToken,TResult>(stream,
-                            new ErrorMessage(ErrorMessageType.Error,message,reply.Stream.Position,reply.Stream.Position));
-                }
+                TToken result;
+                return stream.TryGetValue(out result) && predicate(result)
+                    ? Reply.Success<TToken, Unit>(stream.Next(), Unit.Instance)
+                    : Reply.Error<TToken, Unit>(stream,
+                        new ErrorMessage(ErrorMessageType.Error, message, stream.Position, stream.Position));
             };
         }
 
-        public static Parser<TToken, TResult> Assert<TToken, TResult>(
-            this Parser<TToken, TResult> parser)
-        {
-            return Errors.Assert(parser, "assertion failed");
+        public static Parser<TToken, Unit> Consume<TToken>(Func<TToken, bool> predicate){
+            return Consume(predicate, "Syntax Error");
         }
 
-        public static Parser<TToken, Unit> FollowedBy<TToken,TResult>(
-            this Parser<TToken, TResult> parser,string label)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-            return parser.And().Ignore()
-                .Or(Errors.Fail<TToken>("expect " + label));
+        public static Parser<TToken, Unit> Expect<TToken>(Func<TToken, bool> predicate, string message){
+            if (predicate == null)
+                throw new ArgumentNullException("preducate");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return stream => {
+                TToken result;
+                return stream.TryGetValue(out result) && predicate(result)
+                    ? Reply.Success<TToken, Unit>(stream, Unit.Instance)
+                    : Reply.Error<TToken, Unit>(stream,
+                        new ErrorMessage(ErrorMessageType.Error, message, stream.Position, stream.Position));
+            };
         }
 
-        public static Parser<TToken, Unit> FollowedBy<TToken, TResult>(
-            this Parser<TToken, TResult> parser)
-        {
-            return parser.FollowedBy("syntax error");
-        }
-
-        public static Parser<TToken, Unit> NotFollowedBy<TToken, TResult>(
-            this Parser<TToken, TResult> parser, string label)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-            return parser.Not()
-                .Or(Errors.Fail<TToken>("expect " + label));
-        }
-
-        public static Parser<TToken, Unit> NotFollowedBy<TToken, TResult>(
-            this Parser<TToken, TResult> parser)
-        {
-            return parser.NotFollowedBy("syntax error");
+        public static Parser<TToken, Unit> Expect<TToken>(Func<TToken, bool> predicate){
+            return Expect(predicate, "Syntax Error");
         }
     }
 }
