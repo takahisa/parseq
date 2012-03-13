@@ -137,6 +137,6 @@ namespace Parseq.Combinators
             return stream => !condition.Success(stream)
                 ? thenParser(stream).Select(_ => Either.Left<TResult0, TResult1>(_))
                 : elseParser(stream).Select(_ => Either.Right<TResult0, TResult1>(_));
-        }
+        } 
     }
 }

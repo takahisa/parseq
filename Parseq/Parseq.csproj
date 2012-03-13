@@ -49,6 +49,7 @@
     <Compile Include="Combinator.cs" />
     <Compile Include="Combinators\Chars.cs" />
     <Compile Include="Combinators\Errors.cs" />
+    <Compile Include="Combinators\Flows.cs" />
     <Compile Include="Combinators\Prims.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="EitherExtensions.cs" />

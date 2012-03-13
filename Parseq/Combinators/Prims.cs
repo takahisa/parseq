@@ -263,44 +263,5 @@ namespace Parseq.Combinators
         {
             return parser.SepEndBy(0, separator);
         }
-
-        public static Parser<TToken, IEnumerable<TResult>> While<TToken, T, TResult>(
-            this Parser<TToken, TResult> parser, Parser<TToken, T> condition)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-            if (condition == null)
-                throw new ArgumentNullException("condition");
-
-            return (condition.And().Right(parser)).Many();
-        }
-
-        public static Parser<TToken, TResult> If<TToken, T, TResult>(
-            this Parser<TToken, Option<T>> parser,
-            Parser<TToken, TResult> thenParser,
-            Parser<TToken, TResult> elseParser)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-            if (thenParser == null)
-                throw new ArgumentNullException("thenParser");
-            if (elseParser == null)
-                throw new ArgumentNullException("elseParser");
-
-            Reply<TToken, Option<T>> reply;
-            Option<T> result; ErrorMessage message;
-            return stream =>
-            {
-                switch ((reply = parser(stream)).TryGetValue(out result, out message))
-                {
-                    case ReplyStatus.Success:
-                        return thenParser(reply.Stream);
-                    case ReplyStatus.Failure:
-                        return elseParser(reply.Stream);
-                    default:
-                        return Reply.Error<TToken, TResult>(reply.Stream, message);
-                }
-            };
-        }
     }
 }
