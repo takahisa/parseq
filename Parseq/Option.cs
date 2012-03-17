@@ -13,9 +13,7 @@ namespace Parseq
         public abstract bool TryGetValue(out T value);
     }
 
-    public abstract partial class Option<T>
-        : IEquatable<Option<T>>
-        , IEquatable<T>
+    partial class Option<T>
     {
         public sealed class Just : Option<T>{
             private readonly T _value;
@@ -53,9 +51,7 @@ namespace Parseq
 
     }
 
-    public abstract partial class Option<T>
-        : IEquatable<Option<T>>
-        , IEquatable<T>
+    partial class Option<T>
     {
         public virtual bool Equals(Option<T> other){
             if (other == null)
