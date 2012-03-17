@@ -18,10 +18,7 @@ namespace Parseq
         public abstract void Dispose();
     }
 
-    public abstract partial class Stream<TToken>
-        : Option<TToken>
-        , IComparable<Stream<TToken>>
-        , IDisposable
+    partial class Stream<TToken>
     {
         public virtual int CompareTo(Stream<TToken> other){
             return (this.Position.Index - other.Position.Index);

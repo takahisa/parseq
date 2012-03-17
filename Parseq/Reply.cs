@@ -18,8 +18,7 @@ namespace Parseq
         public abstract ReplyStatus TryGetValue(out TResult result, out ErrorMessage error);
     }
 
-    public abstract partial class Reply<TToken, TResult>
-        : Either<Option<TResult>, ErrorMessage>
+    partial class Reply<TToken, TResult>
     {
         public sealed class Success : Reply<TToken, TResult> {
             private readonly Stream<TToken> _stream;
@@ -110,8 +109,7 @@ namespace Parseq
         }
     }
 
-    public abstract partial class Reply<TToken, TResult>
-        : Either<Option<TResult>, ErrorMessage>
+    partial class Reply<TToken, TResult>
     {
         public virtual bool TryGetValue(out TResult result){
             ErrorMessage message;
