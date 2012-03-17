@@ -16,8 +16,7 @@ namespace Parseq
         public abstract Hand TryGetValue(out TLeft left, out TRight right);
     }
 
-    public abstract partial class Either<TLeft, TRight>
-        : IEquatable<Either<TLeft, TRight>>
+    partial class Either<TLeft, TRight>
     {
         public sealed class LeftProduction : Either<TLeft,TRight>{
             private readonly TLeft _left;
@@ -68,8 +67,7 @@ namespace Parseq
         }
     }
 
-    public abstract partial class Either<TLeft, TRight>
-        : IEquatable<Either<TLeft, TRight>>
+    partial class Either<TLeft, TRight>
     {
         public virtual bool TryGetLeft(out TLeft value){
             TRight right;
