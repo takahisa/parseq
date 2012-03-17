@@ -1,5 +1,0 @@
-C:\Users\linerlock\WorkSpace\yacq\packages\Parseq\Parseq.Silverlight\obj\Release\ResolveAssemblyReference.cache
-C:\Users\linerlock\WorkSpace\yacq\packages\Parseq\Parseq.Silverlight\Bin\Release\Parseq.Silverlight.dll
-C:\Users\linerlock\WorkSpace\yacq\packages\Parseq\Parseq.Silverlight\Bin\Release\Parseq.Silverlight.pdb
-C:\Users\linerlock\WorkSpace\yacq\packages\Parseq\Parseq.Silverlight\obj\Release\Parseq.Silverlight.dll
-C:\Users\linerlock\WorkSpace\yacq\packages\Parseq\Parseq.Silverlight\obj\Release\Parseq.Silverlight.pdb

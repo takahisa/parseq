@@ -1,5 +1,0 @@
-C:\Users\linerlock\WorkSpace\parseq\Parseq.Silverlight\Bin\Debug\Parseq.Silverlight.dll
-C:\Users\linerlock\WorkSpace\parseq\Parseq.Silverlight\Bin\Debug\Parseq.Silverlight.pdb
-C:\Users\linerlock\WorkSpace\parseq\Parseq.Silverlight\obj\Debug\ResolveAssemblyReference.cache
-C:\Users\linerlock\WorkSpace\parseq\Parseq.Silverlight\obj\Debug\Parseq.Silverlight.dll
-C:\Users\linerlock\WorkSpace\parseq\Parseq.Silverlight\obj\Debug\Parseq.Silverlight.pdb
