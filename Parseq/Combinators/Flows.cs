@@ -34,8 +34,8 @@ namespace Parseq.Combinators
             return ReplyStatus.Error == parser(stream).TryGetValue(out result, out message);
         }
 
-        public static Parser<TToken, IEnumerable<TResult>> While<TToken, T, TResult>(
-            this Parser<TToken, TResult> parser, Parser<TToken, T> condition)
+        public static Parser<TToken, IEnumerable<TResult>> While<TToken,TResult,TCond>(
+            this Parser<TToken, TResult> parser, Parser<TToken, TCond> condition)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
@@ -65,14 +65,14 @@ namespace Parseq.Combinators
             };
         }
 
-        public static Parser<TToken, IEnumerable<TResult>> Until<TToken, T, TResult>(
-            this Parser<TToken, TResult> parser, Parser<TToken, T> condition)
+        public static Parser<TToken, IEnumerable<TResult>> Until<TToken,TResult,TCond>(
+            this Parser<TToken, TResult> parser, Parser<TToken,TCond> condition)
         {
             return parser.While(condition.Not());
         }
 
-        public static Parser<TToken, TResult> If<TToken, T, TResult>(
-            Parser<TToken, T> condition, 
+        public static Parser<TToken, TResult> If<TToken, TCond, TResult>(
+            Parser<TToken, TCond> condition, 
             Parser<TToken, TResult> thenParser,
             Parser<TToken, TResult> elseParser)
         {
@@ -88,8 +88,8 @@ namespace Parseq.Combinators
                 : elseParser(stream);
         }
 
-        public static Parser<TToken, Either<TResult0, TResult1>> If<TToken, T, TResult0, TResult1>(
-            Parser<TToken, T> condition,
+        public static Parser<TToken, Either<TResult0, TResult1>> If<TToken, TCond, TResult0, TResult1>(
+            Parser<TToken, TCond> condition,
             Parser<TToken, TResult0> thenParser,
             Parser<TToken, TResult1> elseParser)
         {
@@ -105,8 +105,8 @@ namespace Parseq.Combinators
                 : elseParser(stream).Select(_ => Either.Right<TResult0, TResult1>(_));
         }
 
-        public static Parser<TToken, TResult> Unless<TToken, T, TResult>(
-            Parser<TToken, T> condition,
+        public static Parser<TToken, TResult> Unless<TToken, TCond, TResult>(
+            Parser<TToken, TCond> condition,
             Parser<TToken, TResult> thenParser,
             Parser<TToken, TResult> elseParser)
         {
@@ -122,8 +122,8 @@ namespace Parseq.Combinators
                 : elseParser(stream);
         }
 
-        public static Parser<TToken, Either<TResult0, TResult1>> Unless<TToken, T, TResult0, TResult1>(
-            Parser<TToken, T> condition,
+        public static Parser<TToken, Either<TResult0, TResult1>> Unless<TToken, TCond, TResult0, TResult1>(
+            Parser<TToken, TCond> condition,
             Parser<TToken, TResult0> thenParser,
             Parser<TToken, TResult1> elseParser)
         {
