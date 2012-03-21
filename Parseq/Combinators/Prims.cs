@@ -263,5 +263,71 @@ namespace Parseq.Combinators
         {
             return parser.SepEndBy(0, separator);
         }
+
+        public static Parser<TToken, TResult> WhenSuccess<TToken, TResult>(
+            this Parser<TToken, TResult> parser0, Parser<TToken,TResult> parser1)
+        {
+            if (parser0 == null)
+                throw new ArgumentNullException("parser0");
+            if (parser1 == null)
+                throw new ArgumentNullException("parser1");
+
+            return stream => {
+                Reply<TToken, TResult> reply;
+                TResult result; ErrorMessage message;
+                switch ((reply = parser0(stream)).TryGetValue(out result, out message)) {
+                    case ReplyStatus.Success:
+                        return parser1(reply.Stream);
+                    case ReplyStatus.Failure:
+                        return Reply.Failure<TToken, TResult>(stream);
+                    default:
+                        return Reply.Error<TToken, TResult>(stream, message);
+                }
+            };
+        }
+
+        public static Parser<TToken, TResult> WhenFailure<TToken, TResult>(
+            this Parser<TToken, TResult> parser0, Parser<TToken,TResult> parser1)
+        {
+            if (parser0 == null)
+                throw new ArgumentNullException("parser0");
+            if (parser1 == null)
+                throw new ArgumentNullException("parser1");
+
+            return stream => {
+                Reply<TToken, TResult> reply;
+                TResult result; ErrorMessage message;
+                switch ((reply = parser0(stream)).TryGetValue(out result, out message)){
+                    case ReplyStatus.Success:
+                        return Reply.Success<TToken, TResult>(reply.Stream, result);
+                    case ReplyStatus.Failure:
+                        return parser1(stream);
+                    default:
+                        return Reply.Error<TToken, TResult>(stream, message);
+                }
+            };
+        }
+
+        public static Parser<TToken, TResult> WhenError<TToken, TResult>(
+            this Parser<TToken, TResult> parser0, Parser<TToken,TResult> parser1)
+        {
+            if (parser0 == null)
+                throw new ArgumentNullException("parser0");
+            if (parser1 == null)
+                throw new ArgumentNullException("parser1");
+
+            return stream => {
+                Reply<TToken, TResult> reply;
+                TResult result; ErrorMessage message;
+                switch ((reply = parser0(stream)).TryGetValue(out result, out message)){
+                    case ReplyStatus.Success:
+                        return Reply.Success<TToken, TResult>(reply.Stream, result);
+                    case ReplyStatus.Failure:
+                        return Reply.Failure<TToken, TResult>(stream);
+                    default:
+                        return parser1(stream);
+                }
+            };
+        }
     }
 }

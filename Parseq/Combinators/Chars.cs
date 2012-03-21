@@ -64,6 +64,18 @@ namespace Parseq.Combinators
             return Prims.Satisfy<char>(predicate);
         }
 
+        public static Parser<char, IEnumerable<char>> Sequence(params char[] cs){
+            if(cs == null)
+                throw new ArgumentNullException("cs");
+            return Combinator.Sequence(cs.Select(c => c.Satisfy()).ToArray());
+        }
+
+        public static Parser<char, IEnumerable<char>> Sequence(string s){
+            if (s == null)
+                throw new ArgumentNullException("s");
+            return Chars.Sequence(s.ToArray());
+        }
+
         public static Parser<char, char> OneOf(params char[] candidates){
             return Prims.OneOf<char>(candidates);
         }
