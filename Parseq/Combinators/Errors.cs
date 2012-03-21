@@ -31,6 +31,105 @@ namespace Parseq.Combinators
                 stream, new ErrorMessage(ErrorMessageType.Message, message, stream.Position, stream.Position));
         }
 
+        public static Parser<TToken, TResult> FailWhenSuccess<TToken, TResult>(
+            this Parser<TToken, TResult> parser, string message)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return parser.WhenSuccess(Errors.Fail<TToken, TResult>(message));
+        }
+
+        public static Parser<TToken, TResult> FailWhenFailure<TToken, TResult>(
+            this Parser<TToken, TResult> parser, string message)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return parser.WhenFailure(Errors.Fail<TToken, TResult>(message));
+        }
+
+        public static Parser<TToken, TResult> FailWhenError<TToken, TResult>(
+            this Parser<TToken, TResult> parser, string message)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return parser.WhenError(Errors.Fail<TToken, TResult>(message));
+        }
+
+        public static Parser<TToken, TResult> WarnWhenSuccess<TToken, TResult>(
+            this Parser<TToken, TResult> parser, string message)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return parser.WhenSuccess(Errors.Warn<TToken, TResult>(message));
+        }
+
+        public static Parser<TToken, TResult> WarnWhenFailure<TToken, TResult>(
+            this Parser<TToken, TResult> parser, string message)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return parser.WhenFailure(Errors.Warn<TToken, TResult>(message));
+        }
+
+        public static Parser<TToken, TResult> WarnWhenError<TToken, TResult>(
+            this Parser<TToken, TResult> parser, string message)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return parser.WhenError(Errors.Warn<TToken, TResult>(message));
+        }
+
+        public static Parser<TToken, TResult> MessageWhenSuccess<TToken, TResult>(
+            this Parser<TToken, TResult> parser, string message)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return parser.WhenSuccess(Errors.Message<TToken, TResult>(message));
+        }
+
+        public static Parser<TToken, TResult> MessageWhenFailure<TToken, TResult>(
+            this Parser<TToken, TResult> parser, string message)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return parser.WhenFailure(Errors.Message<TToken, TResult>(message));
+        }
+
+        public static Parser<TToken, TResult> MessageWhenError<TToken, TResult>(
+            this Parser<TToken, TResult> parser, string message)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            return parser.WhenError(Errors.Message<TToken, TResult>(message));
+        }
+
         public static Parser<TToken, Unit> FollowedBy<TToken, TResult>(Parser<TToken, TResult> parser, string message){
             if (parser == null)
                 throw new ArgumentNullException("parser");
