@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <title>Parseq - a monadic parser combinator library for C#</title>
+    <id>Parseq</id>
+    <version>0.1</version>
+    <authors>linerlock</authors>
+    <owners>linerlock</owners>
+    <licenseUrl>http://github.com/linerlock/parseq/LICENSE</licenseUrl>
+    <projectUrl>http://github.com/linerlock/parseq</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>a monadic parser combinator library using LINQ</description>
+    <dependencies/>
+    <copyright>Copyright 2012</copyright>
+    <tags>parser combinator parsec csharp</tags>
+    <language>en-US</language>
+  </metadata>
+  <files>
+    <file src="Parseq\bin\Release\Parseq.dll" target="lib/net40/Parseq.dll" />
+    <file src="Parseq.Silverlight\bin\Release\Parseq.Silverlight.dll" target="lib/sl40/Parseq.Silverlight" />
+  </files>
+</package>
