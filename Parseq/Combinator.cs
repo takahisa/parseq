@@ -177,15 +177,50 @@ namespace Parseq
         }
 
         public static Parser<TToken, IEnumerable<TResult>> Many<TToken, TResult>(
-            this Parser<TToken, TResult> parser, int count)
+            this Parser<TToken, TResult> parser, int min)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
-            if (count < 0)
-                throw new ArgumentOutOfRangeException("count");
+            if (min < 0)
+                throw new ArgumentOutOfRangeException("min");
 
-            return from x in parser.Repeat(count)
+            return from x in parser.Repeat(min)
                    from y in parser.Many()
+                   select x.Concat(y);
+        }
+
+        public static Parser<TToken, IEnumerable<TResult>> Many<TToken, TResult>(
+            this Parser<TToken, TResult> parser, int min, int max)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (min < 0)
+                throw new ArgumentOutOfRangeException("min");
+            if (max < min)
+                throw new ArgumentOutOfRangeException("max");
+
+            Parser<TToken,IEnumerable<TResult>> cont = stream => {
+                var results = new List<TResult>();
+                var current = stream;
+                foreach (var i in Enumerable.Range(0, max - min)){
+                    Reply<TToken,TResult> reply;
+                    TResult result; ErrorMessage message;
+                    switch ((reply = parser(stream)).TryGetValue(out result, out message)){
+                        case ReplyStatus.Success:
+                            results.Add(result);
+                            current = reply.Stream;
+                            break;
+                        case ReplyStatus.Failure:
+                            return Reply.Success<TToken,IEnumerable<TResult>>(current,results);
+                        default:
+                            return Reply.Error<TToken, IEnumerable<TResult>>(stream, message);
+                    }
+                }
+                return Reply.Success<TToken, IEnumerable<TResult>>(current, results);
+            };
+
+            return from x in parser.Many(min)
+                   from y in cont
                    select x.Concat(y);
         }
 
