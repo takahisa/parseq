@@ -71,7 +71,7 @@ namespace Parseq.Combinators
             return parser.While(condition.Not());
         }
 
-        public static Parser<TToken, TResult> WhenSuccess<TToken, TResult>(
+        public static Parser<TToken, TResult> DoWhenSuccess<TToken, TResult>(
             this Parser<TToken, TResult> parser, Action<TResult> action)
         {
             if (parser == null)
@@ -94,7 +94,7 @@ namespace Parseq.Combinators
             };
         }
 
-        public static Parser<TToken, TResult> WhenFailure<TToken, TResult>(
+        public static Parser<TToken, TResult> DoWhenFailure<TToken, TResult>(
             this Parser<TToken, TResult> parser, Action action)
         {
             if (parser == null)
@@ -118,7 +118,7 @@ namespace Parseq.Combinators
             };
         }
 
-        public static Parser<TToken, TResult> WhenError<TToken, TResult>(
+        public static Parser<TToken, TResult> DoWhenError<TToken, TResult>(
             this Parser<TToken, TResult> parser, Action<ErrorMessage> action)
         {
             if (parser == null)
