@@ -67,6 +67,9 @@
     <Compile Include="..\Parseq\Combinators\Errors.cs">
       <Link>Combinators\Errors.cs</Link>
     </Compile>
+    <Compile Include="..\Parseq\Combinators\Flows.cs">
+      <Link>Combinators\Flows.cs</Link>
+    </Compile>
     <Compile Include="..\Parseq\Combinators\Prims.cs">
       <Link>Combinators\Prims.cs</Link>
     </Compile>
