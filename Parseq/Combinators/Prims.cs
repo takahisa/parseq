@@ -51,9 +51,8 @@ namespace Parseq.Combinators
             if (candidates == null)
                 throw new ArgumentNullException("candidates");
 
-            return Combinator.Choice(candidates.Select(x =>
-                Prims.Satisfy<TToken>(y =>
-                    !predicate(x, y))).ToArray());
+            return Combinator.Sequence(candidates.Select(x =>
+                Prims.Satisfy<TToken>(y => !predicate(x, y))).ToArray()).And().Right(Prims.Any<TToken>());
         }
 
         public static Parser<TToken, TToken> NoneOf<TToken>(
