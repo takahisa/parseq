@@ -1,1 +1,6 @@
-monadic parser combinator library using LINQ
+Parseq is a monadic parser combinator library for C#.
+The design of Parseq have been affected by FParsec (F#) and Parsec (Haskell) 
+but Parseq is different these libraries, you can create parsers using LINQ.
+
+ParseqはC#向けのモナディックなパーサーコンビネーターライブラリです。
+F#のFParsecやHaskellのParsecの影響を受けて設計されていますが、Parseqはこれらのライブラリと異なりLINQを用いてパーサを構築することが可能です。
