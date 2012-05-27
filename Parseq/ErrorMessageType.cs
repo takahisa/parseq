@@ -5,7 +5,8 @@ using System.Text;
 
 namespace Parseq
 {
-    public enum ErrorMessageType {
+    public enum ErrorMessageType
+    {
         Error,
         Warn,
         Message,

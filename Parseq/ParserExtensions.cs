@@ -20,7 +20,7 @@ namespace Parseq
 
         public static Parser<TToken, T> Where<TToken, T>(
             this Parser<TToken, T> parser,
-            Func<T, bool> predicate)
+            Func<T, Boolean> predicate)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");

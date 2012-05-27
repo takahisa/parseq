@@ -85,9 +85,6 @@
     <Compile Include="..\Parseq\ErrorMessageType.cs">
       <Link>ErrorMessageType.cs</Link>
     </Compile>
-    <Compile Include="..\Parseq\Location.cs">
-      <Link>Location.cs</Link>
-    </Compile>
     <Compile Include="..\Parseq\Option.cs">
       <Link>Option.cs</Link>
     </Compile>
