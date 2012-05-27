@@ -8,32 +8,35 @@ namespace Parseq.Combinators
     public static class Prims{
 
         public static Parser<TToken, TToken> Satisfy<TToken>(
-            Func<TToken, bool> predicate)
+            Func<TToken, Boolean> predicate)
         {
             if (predicate == null)
                 throw new ArgumentNullException("selector");
-            return stream => {
+
+            return stream =>
+            {
                 TToken value;
-                return stream.TryGetValue(out value) && predicate(value) ?
-                    Reply.Success<TToken, TToken>(stream.Next(), value) :
-                    Reply.Failure<TToken, TToken>(stream);
+                return stream.TryGetValue(out value) && predicate(value)
+                    ? Reply.Success<TToken, TToken>(stream.Next(), value)
+                    : Reply.Failure<TToken, TToken>(stream);
             };
         }
 
-        public static Parser<TToken, TToken> Any<TToken>(){
+        public static Parser<TToken, TToken> Any<TToken>()
+        {
             return Prims.Satisfy<TToken>(_ => true);
         }
 
         public static Parser<TToken, TToken> OneOf<TToken>(
-            Func<TToken, TToken, bool> predicate, params TToken[] candidates){
+            Func<TToken, TToken, Boolean> predicate, params TToken[] candidates)
+        {
             if (predicate == null)
                 throw new ArgumentNullException("predicate");
             if (candidates == null)
                 throw new ArgumentNullException("candidates");
 
             return Combinator.Choice(candidates.Select(x =>
-                Prims.Satisfy<TToken>(y =>
-                    predicate(x, y))).ToArray());
+                Prims.Satisfy<TToken>(y => predicate(x, y))).ToArray());
         }
 
         public static Parser<TToken, TToken> OneOf<TToken>(
@@ -44,7 +47,7 @@ namespace Parseq.Combinators
         }
 
         public static Parser<TToken, TToken> NoneOf<TToken>(
-            Func<TToken, TToken, bool> predicate, params TToken[] candidates)
+            Func<TToken, TToken, Boolean> predicate, params TToken[] candidates)
         {
             if (predicate == null)
                 throw new ArgumentNullException("predicate");
@@ -216,7 +219,7 @@ namespace Parseq.Combinators
 
         public static Parser<TToken, IEnumerable<TResult>> SepBy<TToken, TResult, TSeparator>(
             this Parser<TToken, TResult> parser,
-            int count,
+            Int32 count,
             Parser<TToken, TSeparator> separator)
         {
             if (parser == null)
@@ -240,7 +243,7 @@ namespace Parseq.Combinators
 
         public static Parser<TToken, IEnumerable<TResult>> SepEndBy<TToken, TResult, TSeparator>(
             this Parser<TToken, TResult> parser,
-            int count,
+            Int32 count,
             Parser<TToken, TSeparator> separator)
         {
             if (parser == null)
@@ -264,17 +267,19 @@ namespace Parseq.Combinators
         }
 
         public static Parser<TToken, TResult> WhenSuccess<TToken, TResult>(
-            this Parser<TToken, TResult> parser0, Parser<TToken,TResult> parser1)
+            this Parser<TToken, TResult> parser0, Parser<TToken, TResult> parser1)
         {
             if (parser0 == null)
                 throw new ArgumentNullException("parser0");
             if (parser1 == null)
                 throw new ArgumentNullException("parser1");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-                switch ((reply = parser0(stream)).TryGetValue(out result, out message)) {
+                switch ((reply = parser0(stream)).TryGetValue(out result, out message))
+                {
                     case ReplyStatus.Success:
                         return parser1(reply.Stream);
                     case ReplyStatus.Failure:
@@ -286,17 +291,19 @@ namespace Parseq.Combinators
         }
 
         public static Parser<TToken, TResult> WhenFailure<TToken, TResult>(
-            this Parser<TToken, TResult> parser0, Parser<TToken,TResult> parser1)
+            this Parser<TToken, TResult> parser0, Parser<TToken, TResult> parser1)
         {
             if (parser0 == null)
                 throw new ArgumentNullException("parser0");
             if (parser1 == null)
                 throw new ArgumentNullException("parser1");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-                switch ((reply = parser0(stream)).TryGetValue(out result, out message)){
+                switch ((reply = parser0(stream)).TryGetValue(out result, out message))
+                {
                     case ReplyStatus.Success:
                         return Reply.Success<TToken, TResult>(reply.Stream, result);
                     case ReplyStatus.Failure:
@@ -308,17 +315,19 @@ namespace Parseq.Combinators
         }
 
         public static Parser<TToken, TResult> WhenError<TToken, TResult>(
-            this Parser<TToken, TResult> parser0, Parser<TToken,TResult> parser1)
+            this Parser<TToken, TResult> parser0, Parser<TToken, TResult> parser1)
         {
             if (parser0 == null)
                 throw new ArgumentNullException("parser0");
             if (parser1 == null)
                 throw new ArgumentNullException("parser1");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-                switch ((reply = parser0(stream)).TryGetValue(out result, out message)){
+                switch ((reply = parser0(stream)).TryGetValue(out result, out message))
+                {
                     case ReplyStatus.Success:
                         return Reply.Success<TToken, TResult>(reply.Stream, result);
                     case ReplyStatus.Failure:

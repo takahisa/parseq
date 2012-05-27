@@ -5,9 +5,10 @@ using System.Text;
 
 namespace Parseq.Combinators
 {
-    public static class Flows {
-
-        public static bool Success<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream){
+    public static class Flows
+    {
+        public static Boolean Success<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
+        {
             if (parser == null)
                 throw new ArgumentNullException("parser");
             if (stream == null)
@@ -17,7 +18,8 @@ namespace Parseq.Combinators
             return ReplyStatus.Success == parser(stream).TryGetValue(out result, out message);
         }
 
-        public static bool Failure<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream){
+        public static Boolean Failure<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
+        {
             if (parser == null)
                 throw new ArgumentNullException("parser");
 
@@ -25,7 +27,8 @@ namespace Parseq.Combinators
             return ReplyStatus.Failure == parser(stream).TryGetValue(out result, out message);
         }
 
-        public static bool Error<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream){
+        public static Boolean Error<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
+        {
             if (parser == null)
                 throw new ArgumentNullException("parser");
             if (stream == null)
@@ -34,7 +37,7 @@ namespace Parseq.Combinators
             return ReplyStatus.Error == parser(stream).TryGetValue(out result, out message);
         }
 
-        public static Parser<TToken, IEnumerable<TResult>> While<TToken,TResult,TCond>(
+        public static Parser<TToken, IEnumerable<TResult>> While<TToken, TResult, TCond>(
             this Parser<TToken, TResult> parser, Parser<TToken, TCond> condition)
         {
             if (parser == null)
@@ -42,15 +45,16 @@ namespace Parseq.Combinators
             if (condition == null)
                 throw new ArgumentNullException("condition");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-
                 var results = new List<TResult>();
                 var current = stream;
-
-                while (condition.Success(current)){
-                    switch ((reply = parser(current)).TryGetValue(out result, out message)){
+                while (condition.Success(current))
+                {
+                    switch ((reply = parser(current)).TryGetValue(out result, out message))
+                    {
                         case ReplyStatus.Success:
                             results.Add(result);
                             current = reply.Stream;
@@ -65,8 +69,8 @@ namespace Parseq.Combinators
             };
         }
 
-        public static Parser<TToken, IEnumerable<TResult>> Until<TToken,TResult,TCond>(
-            this Parser<TToken, TResult> parser, Parser<TToken,TCond> condition)
+        public static Parser<TToken, IEnumerable<TResult>> Until<TToken, TResult, TCond>(
+            this Parser<TToken, TResult> parser, Parser<TToken, TCond> condition)
         {
             return parser.While(condition.Not());
         }
@@ -79,10 +83,12 @@ namespace Parseq.Combinators
             if (action == null)
                 throw new ArgumentNullException("action");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-                switch ((reply = parser(stream)).TryGetValue(out result, out message)){
+                switch ((reply = parser(stream)).TryGetValue(out result, out message))
+                {
                     case ReplyStatus.Success:
                         action(result);
                         return Reply.Success<TToken, TResult>(reply.Stream, result);
@@ -102,7 +108,8 @@ namespace Parseq.Combinators
             if (action == null)
                 throw new ArgumentNullException("action");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
@@ -126,7 +133,8 @@ namespace Parseq.Combinators
             if (action == null)
                 throw new ArgumentNullException("action");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
@@ -143,7 +151,7 @@ namespace Parseq.Combinators
         }
 
         public static Parser<TToken, TResult> If<TToken, TCond, TResult>(
-            Parser<TToken, TCond> condition, 
+            Parser<TToken, TCond> condition,
             Parser<TToken, TResult> thenParser,
             Parser<TToken, TResult> elseParser)
         {
@@ -208,6 +216,6 @@ namespace Parseq.Combinators
             return stream => !condition.Success(stream)
                 ? thenParser(stream).Select(_ => Either.Left<TResult0, TResult1>(_))
                 : elseParser(stream).Select(_ => Either.Right<TResult0, TResult1>(_));
-        } 
+        }
     }
 }

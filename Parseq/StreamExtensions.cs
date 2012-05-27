@@ -7,7 +7,7 @@ namespace Parseq
 {
     public static class StreamExtensions {
 
-        public static Stream<T> Where<T>(this Stream<T> stream, Func<T, bool> predicate){
+        public static Stream<T> Where<T>(this Stream<T> stream, Func<T, Boolean> predicate){
             if (stream == null)
                 throw new ArgumentNullException("stream");
             if (predicate == null)
@@ -20,7 +20,7 @@ namespace Parseq
             return current;
         }
 
-        public static Stream<T> Where<T>(this Stream<T> stream, Func<Stream<T>, T, bool> predicate){
+        public static Stream<T> Where<T>(this Stream<T> stream, Func<Stream<T>, T, Boolean> predicate){
             return stream.Where(_ => predicate(stream, _));
         }
 
@@ -79,11 +79,11 @@ namespace Parseq
                 get { return _stream.Position; }
             }
 
-            public override bool CanNext() {
+            public override Boolean CanNext() {
                 return _stream.CanNext();
             }
 
-            public override bool CanRewind() {
+            public override Boolean CanRewind() {
                 return _stream.CanRewind();
             }
 
@@ -95,7 +95,7 @@ namespace Parseq
                 return new StreamMapper<T, U>(_stream.Rewind(), _selector);
             }
 
-            public override bool TryGetValue(out U value) {
+            public override Boolean TryGetValue(out U value) {
                 T result;
                 if (_stream.TryGetValue(out result)) {
                     value = _selector(result);

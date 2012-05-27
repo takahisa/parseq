@@ -5,10 +5,10 @@ using System.Text;
 
 namespace Parseq
 {
-    public static class ReplyExtensions {
-
+    public static class ReplyExtensions
+    {
         public static Reply<TToken, T> Where<TToken, T>(this Reply<TToken, T> reply,
-            Func<T, bool> predicate)
+            Func<T, Boolean> predicate)
         {
             if (reply == null)
                 throw new ArgumentNullException("reply");
@@ -16,7 +16,8 @@ namespace Parseq
                 throw new ArgumentNullException("predicate");
 
             Option<T> result; T value; ErrorMessage message;
-            switch (reply.TryGetValue(out result,out message)){
+            switch (reply.TryGetValue(out result, out message))
+            {
                 case Hand.Left:
                     return result.TryGetValue(out value) && predicate(value) ?
                         Reply.Success<TToken, T>(reply.Stream, value) :
@@ -35,7 +36,8 @@ namespace Parseq
                 throw new ArgumentNullException("selector");
 
             T result; ErrorMessage message;
-            switch (reply.TryGetValue(out result, out message)){
+            switch (reply.TryGetValue(out result, out message))
+            {
                 case ReplyStatus.Success:
                     return Reply.Success<TToken, U>(reply.Stream, selector(result));
                 case ReplyStatus.Failure:
@@ -46,7 +48,7 @@ namespace Parseq
         }
 
         public static Reply<TToken, U> SelectMany<TToken, T, U>(this Reply<TToken, T> reply,
-            Func<T, Reply<TToken,U>> selector)
+            Func<T, Reply<TToken, U>> selector)
         {
             if (reply == null)
                 throw new ArgumentNullException("reply");
@@ -54,7 +56,8 @@ namespace Parseq
                 throw new ArgumentNullException("selector");
 
             T result; ErrorMessage message;
-            switch (reply.TryGetValue(out result, out message)){
+            switch (reply.TryGetValue(out result, out message))
+            {
                 case ReplyStatus.Success:
                     return selector(result);
                 case ReplyStatus.Failure:
@@ -65,7 +68,7 @@ namespace Parseq
         }
 
         public static Reply<TToken, V> SelectMany<TToken, T, U, V>(this Reply<TToken, T> reply,
-            Func<T, Reply<TToken, U>> selector,Func<T, U, V> projector)
+            Func<T, Reply<TToken, U>> selector, Func<T, U, V> projector)
         {
             if (reply == null)
                 throw new ArgumentNullException("reply");

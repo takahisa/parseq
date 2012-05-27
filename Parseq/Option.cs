@@ -10,81 +10,95 @@ namespace Parseq
         , IEquatable<T>
     {
         public abstract T Perform();
-        public abstract bool TryGetValue(out T value);
+        public abstract Boolean TryGetValue(out T value);
     }
 
     partial class Option<T>
     {
-        public sealed class Just : Option<T>{
+        public sealed class Just : Option<T>
+        {
             private readonly T _value;
 
-            public Just(T value){
+            public Just(T value)
+            {
                 this._value = value;
             }
 
-            public T Value {
+            public T Value
+            {
                 get { return _value; }
             }
 
-            public override T Perform(){
+            public override T Perform()
+            {
                 return this.Value;
             }
 
-            public override bool TryGetValue(out T value){
+            public override Boolean TryGetValue(out T value)
+            {
                 value = this.Value;
                 return true;
             }
         }
 
-        public sealed class None : Option<T>{
+        public sealed class None : Option<T>
+        {
             public None() { }
 
-            public override T Perform(){
+            public override T Perform()
+            {
                 throw new InvalidOperationException();
             }
 
-            public override bool TryGetValue(out T value){
+            public override Boolean TryGetValue(out T value)
+            {
                 value = default(T);
                 return false;
             }
         }
-
     }
 
     partial class Option<T>
     {
-        public virtual bool Equals(Option<T> other){
+        public virtual Boolean Equals(Option<T> other)
+        {
             if (other == null)
                 throw new ArgumentNullException("other");
 
             T a, b;
             var ra = this.TryGetValue(out a);
             var rb = other.TryGetValue(out b);
-            return (ra == rb) && ( !ra || EqualityComparer<T>.Default.Equals(a, b));
+            return (ra == rb) && (!ra || EqualityComparer<T>.Default.Equals(a, b));
         }
 
-        public virtual bool Equals(T other){
+        public virtual Boolean Equals(T other)
+        {
             return this.Equals(Option.Just(other));
         }
 
-        public override int GetHashCode(){
+        public override Int32 GetHashCode()
+        {
             return base.GetHashCode();
         }
 
-        public override bool Equals(object obj){
+        public override Boolean Equals(object obj)
+        {
             return ((obj is Option<T>) && this.Equals((Option<T>)obj))
                 || ((obj is T) && this.Equals((T)obj));
         }
 
-        public override string ToString(){
+        public override String ToString()
+        {
             return base.ToString();
         }
 
-        public static implicit operator Option<T>(T value){
+        public static implicit operator Option<T>(T value)
+        {
             return new Option<T>.Just(value);
         }
 
-        public static explicit operator T(Option<T> option){
+        public static explicit operator T(Option<T> option)
+        {
             T value;
             if (option.TryGetValue(out value))
                 return value;
@@ -93,12 +107,15 @@ namespace Parseq
         }
     }
 
-    public static class Option {
-        public static Option<T> Just<T>(T value){
+    public static class Option
+    {
+        public static Option<T> Just<T>(T value)
+        {
             return new Option<T>.Just(value);
         }
 
-        public static Option<T> None<T>(){
+        public static Option<T> None<T>()
+        {
             return new Option<T>.None();
         }
 
@@ -107,10 +124,13 @@ namespace Parseq
         {
             if (selector == null)
                 throw new ArgumentNullException("selector");
-            try {
+
+            try
+            {
                 return Option.Just(selector());
             }
-            catch (TException) {
+            catch (TException)
+            {
                 return Option.None<T>();
             }
         }
@@ -120,19 +140,24 @@ namespace Parseq
         {
             if (selector == null)
                 throw new ArgumentNullException("selector");
-            try {
+
+            try
+            {
                 return selector();
             }
-            catch (TException) {
+            catch (TException)
+            {
                 return Option.None<T>();
             }
         }
 
-        public static Option<T> Try<T>(Func<T> selector){
+        public static Option<T> Try<T>(Func<T> selector)
+        {
             return Option.Try<T, Exception>(selector);
         }
 
-        public static Option<T> Try<T>(Func<Option<T>> selector){
+        public static Option<T> Try<T>(Func<Option<T>> selector)
+        {
             return Option.Try<T, Exception>(selector);
         }
     }

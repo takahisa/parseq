@@ -7,22 +7,24 @@ using Parseq.Combinators;
 
 namespace Parseq
 {
-    public static class Combinator {
-
+    public static class Combinator
+    {
         public static Parser<TToken, IEnumerable<TResult>> Sequence<TToken, TResult>(
             params Parser<TToken, TResult>[] parsers)
         {
             if (parsers == null)
                 throw new ArgumentNullException("parsers");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 var results = new List<TResult>();
                 var current = stream;
-
-                foreach(var parser in parsers){
-                    switch ((reply = parser(current)).TryGetValue(out result, out message)){
+                foreach (var parser in parsers)
+                {
+                    switch ((reply = parser(current)).TryGetValue(out result, out message))
+                    {
                         case ReplyStatus.Success:
                             results.Add(result);
                             current = reply.Stream;
@@ -33,7 +35,7 @@ namespace Parseq
                             return Reply.Error<TToken, IEnumerable<TResult>>(stream, message);
                     }
                 }
-                return Reply.Success<TToken,IEnumerable<TResult>>(current, results);
+                return Reply.Success<TToken, IEnumerable<TResult>>(current, results);
             };
         }
 
@@ -43,13 +45,15 @@ namespace Parseq
             if (parsers == null)
                 throw new ArgumentNullException("parsers");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-
-                foreach (var parser in parsers) {
-                    switch ((reply = parser(stream)).TryGetValue(out result, out message)) {
-                        case ReplyStatus.Success: 
+                foreach (var parser in parsers)
+                {
+                    switch ((reply = parser(stream)).TryGetValue(out result, out message))
+                    {
+                        case ReplyStatus.Success:
                             return Reply.Success<TToken, TResult>(reply.Stream, result);
                         case ReplyStatus.Error:
                             return Reply.Error<TToken, TResult>(stream, message);
@@ -69,11 +73,12 @@ namespace Parseq
             if (parser1 == null)
                 throw new ArgumentNullException("parser1");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-
-                switch ((reply = parser0(stream)).TryGetValue(out result, out message)){
+                switch ((reply = parser0(stream)).TryGetValue(out result, out message))
+                {
                     case ReplyStatus.Success:
                         return Reply.Success<TToken, TResult>(reply.Stream, result);
                     case ReplyStatus.Error:
@@ -84,16 +89,18 @@ namespace Parseq
             };
         }
 
-        public static Parser<TToken, Unit> And<TToken,TResult>(
+        public static Parser<TToken, Unit> And<TToken, TResult>(
             this Parser<TToken, TResult> parser)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-                switch ((reply = parser(stream)).TryGetValue(out result,out message)){
+                switch ((reply = parser(stream)).TryGetValue(out result, out message))
+                {
                     case ReplyStatus.Success: return Reply.Success<TToken, Unit>(stream, Unit.Instance);
                     case ReplyStatus.Failure: return Reply.Failure<TToken, Unit>(stream);
                     default:
@@ -108,10 +115,12 @@ namespace Parseq
             if (parser == null)
                 throw new ArgumentNullException("parser");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-                switch ((reply = parser(stream)).TryGetValue(out result, out message)){
+                switch ((reply = parser(stream)).TryGetValue(out result, out message))
+                {
                     case ReplyStatus.Success: return Reply.Failure<TToken, Unit>(stream);
                     case ReplyStatus.Failure: return Reply.Success<TToken, Unit>(stream, Unit.Instance);
                     default:
@@ -121,21 +130,24 @@ namespace Parseq
         }
 
         public static Parser<TToken, IEnumerable<TResult>> Repeat<TToken, TResult>(
-            this Parser<TToken, TResult> parser, int count)
+            this Parser<TToken, TResult> parser, Int32 count)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
             if (count < 0)
                 throw new ArgumentOutOfRangeException("count");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 var results = new List<TResult>();
                 var current = stream;
 
-                foreach (var i in Enumerable.Range(0, count)){
-                    switch ((reply = parser(current)).TryGetValue(out result, out message)){
+                foreach (var i in Enumerable.Range(0, count))
+                {
+                    switch ((reply = parser(current)).TryGetValue(out result, out message))
+                    {
                         case ReplyStatus.Success:
                             results.Add(result);
                             current = reply.Stream;
@@ -155,14 +167,17 @@ namespace Parseq
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 var results = new List<TResult>();
                 var current = stream;
 
-                while (true){
-                    switch ((reply = parser(current)).TryGetValue(out result, out message)){
+                while (true)
+                {
+                    switch ((reply = parser(current)).TryGetValue(out result, out message))
+                    {
                         case ReplyStatus.Success:
                             results.Add(result);
                             current = reply.Stream;
@@ -177,7 +192,7 @@ namespace Parseq
         }
 
         public static Parser<TToken, IEnumerable<TResult>> Many<TToken, TResult>(
-            this Parser<TToken, TResult> parser, int min)
+            this Parser<TToken, TResult> parser, Int32 min)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
@@ -190,7 +205,7 @@ namespace Parseq
         }
 
         public static Parser<TToken, IEnumerable<TResult>> Many<TToken, TResult>(
-            this Parser<TToken, TResult> parser, int min, int max)
+            this Parser<TToken, TResult> parser, Int32 min, Int32 max)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
@@ -199,19 +214,22 @@ namespace Parseq
             if (max < min)
                 throw new ArgumentOutOfRangeException("max");
 
-            Parser<TToken,IEnumerable<TResult>> cont = stream => {
+            Parser<TToken, IEnumerable<TResult>> cont = stream =>
+            {
                 var results = new List<TResult>();
                 var current = stream;
-                foreach (var i in Enumerable.Range(0, max - min)){
-                    Reply<TToken,TResult> reply;
+                foreach (var i in Enumerable.Range(0, max - min))
+                {
+                    Reply<TToken, TResult> reply;
                     TResult result; ErrorMessage message;
-                    switch ((reply = parser(stream)).TryGetValue(out result, out message)){
+                    switch ((reply = parser(stream)).TryGetValue(out result, out message))
+                    {
                         case ReplyStatus.Success:
                             results.Add(result);
                             current = reply.Stream;
                             break;
                         case ReplyStatus.Failure:
-                            return Reply.Success<TToken,IEnumerable<TResult>>(current,results);
+                            return Reply.Success<TToken, IEnumerable<TResult>>(current, results);
                         default:
                             return Reply.Error<TToken, IEnumerable<TResult>>(stream, message);
                     }
@@ -230,10 +248,12 @@ namespace Parseq
             if (parser == null)
                 throw new ArgumentNullException("parser");
 
-            return stream => {
+            return stream =>
+            {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-                switch ((reply = parser(stream)).TryGetValue(out result, out message)){
+                switch ((reply = parser(stream)).TryGetValue(out result, out message))
+                {
                     case ReplyStatus.Success: return Reply.Success<TToken, Option<TResult>>(reply.Stream, Option.Just(result));
                     case ReplyStatus.Failure: return Reply.Success<TToken, Option<TResult>>(stream, Option.None<TResult>());
                     default:
@@ -247,6 +267,7 @@ namespace Parseq
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
+
             return parser.Select(_ => Unit.Instance);
         }
     }
