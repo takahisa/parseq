@@ -119,5 +119,112 @@ namespace Parseq
                 _stream.Dispose();
             }
         }
+
+        private class StreamAdapter<T> : StreamAdapterNode<T>
+        {
+            public StreamAdapter(IEnumerable<T> enumerable)
+                : this(enumerable.GetEnumerator())
+            {
+
+            }
+
+            public StreamAdapter(IEnumerator<T> enumerator)
+                : base(
+                    enumerator,
+                    Option.None<T>(),
+                    new Position(1, 1, 0),
+                    Option.None<Stream<T>>(),
+                    Option.None<Stream<T>>())
+            {
+
+            }
+        }
+
+        private class StreamAdapterNode<T> : Stream<T>
+        {
+            private readonly IEnumerator<T> _enumerator;
+            private readonly Option<T> _current;
+            private readonly Position _position;
+            private Option<Stream<T>> _upper;
+            private Option<Stream<T>> _lower;
+
+            public StreamAdapterNode(
+                IEnumerator<T> enumerator,
+                Option<T> current,
+                Position position,
+                Option<Stream<T>> upper,
+                Option<Stream<T>> lower)
+            {
+                _enumerator = enumerator;
+                _current = current;
+                _position = position;
+                _upper = upper;
+                _lower = lower;
+            }
+
+            public override Position Position
+            {
+                get { return _position; }
+            }
+
+            public override Boolean CanNext()
+            {
+                if (_lower.Exists())
+                    return true;
+                if (!_current.Exists())
+                    return false;
+
+                var position = new Position(
+                        _position.Column + 1,
+                        _position.Line,
+                        _position.Index + 1);
+
+                var upper = Option.Just<Stream<T>>(this);
+                var lower = Option.None<Stream<T>>();
+
+                _lower = _enumerator.MoveNext()
+                   ? new StreamAdapterNode<T>(_enumerator, _enumerator.Current, position, upper, lower)
+                   : new StreamAdapterNode<T>(_enumerator, Option.None<T>(), position, upper, lower);
+                return true;
+            }
+
+            public override Boolean CanRewind()
+            {
+                return _upper.Exists();
+            }
+
+            public override Stream<T> Next()
+            {
+                Stream<T> stream;
+                if (this.CanNext() && _lower.TryGetValue(out stream))
+                    return stream;
+                else
+                    throw new InvalidOperationException();
+            }
+
+            public override Stream<T> Rewind()
+            {
+                Stream<T> stream;
+                if (this.CanRewind() && _upper.TryGetValue(out stream))
+                    return stream;
+                else
+                    throw new InvalidOperationException();
+            }
+
+            public override Boolean TryGetValue(out T value)
+            {
+                return _current.TryGetValue(out value);
+            }
+
+            public override T Perform()
+            {
+                return _current.Perform();
+            }
+
+            public override void Dispose()
+            {
+
+            }
+        }
     }
 }

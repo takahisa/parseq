@@ -7,6 +7,12 @@ namespace Parseq
 {
     public static class OptionExtensions
     {
+        public static Boolean Exists<T>(this Option<T> option)
+        {
+            T value;
+            return option.TryGetValue(out value);
+        }
+
         public static T Otherwise<T>(this Option<T> option, Func<T> selector)
         {
             if (option == null)
