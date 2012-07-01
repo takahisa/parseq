@@ -43,6 +43,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CharStream.cs" />
     <Compile Include="Combinator.cs" />
     <Compile Include="Combinators\Chars.cs" />
     <Compile Include="Combinators\Errors.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="EitherExtensions.cs" />
     <Compile Include="ErrorMessage.cs" />
     <Compile Include="ErrorMessageType.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Option.cs" />
     <Compile Include="OptionExtensions.cs" />
@@ -62,6 +64,7 @@
     <Compile Include="ReplyExtensions.cs" />
     <Compile Include="Stream.cs" />
     <Compile Include="StreamExtensions.cs" />
+    <Compile Include="CharBuffer.cs" />
     <Compile Include="Unit.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

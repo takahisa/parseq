@@ -23,4 +23,3 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyKeyFile(@"../Parseq.snk")]
 [assembly: AssemblyDelaySign(false)]
 #endif
-#pragma warning restore 1699
