@@ -263,7 +263,9 @@ namespace Parseq
 
             public override Int32 Read()
             {
-                return this.Peek().With(v => this.MoveNext());
+                var ch = this.Peek();
+                this.MoveNext();
+                return ch;
             }
 
             public override Int32 Peek()
