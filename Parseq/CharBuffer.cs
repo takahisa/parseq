@@ -51,7 +51,9 @@ namespace Parseq
 
         public virtual Int32 Read(Int32 count)
         {
-            return this.Peek(count).With(v => _bufferPtrBegin += count);
+            var ch = this.Peek(count);
+            _bufferPtrBegin += (count + 1);
+            return ch;
         }
 
         public override Int32 Read(Char[] buffer, Int32 index, Int32 count)
