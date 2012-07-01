@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace Parseq
 {
@@ -62,6 +63,21 @@ namespace Parseq
             return stream.SelectMany((T _) => selector(stream, _));
         }
 
+        public static Stream<Char> AsStream(this TextReader reader)
+        {
+            return new CharStream(new CharBuffer(reader));
+        }
+
+        public static Stream<Char> AsStream(this IEnumerable<Char> enumerable)
+        {
+            return new CharStream(new TextReaderAdapter(enumerable));
+        }
+
+        public static Stream<T> AsStream<T>(this IEnumerable<T> enumerable)
+        {
+            return new StreamAdapter<T>(enumerable);
+        }
+
         private class StreamMapper<T, U> : Stream<U> {
             private readonly Stream<T> _stream;
             private readonly Func<T, U> _selector;
@@ -120,8 +136,14 @@ namespace Parseq
             }
         }
 
-        private class StreamAdapter<T> : StreamAdapterNode<T>
+        private class StreamAdapter<T> : Stream<T>
         {
+            private readonly IEnumerator<T> _enumerator;
+            private readonly Option<T> _current;
+            private readonly Position _position;
+            private Option<Stream<T>> _upper;
+            private Option<Stream<T>> _lower;
+
             public StreamAdapter(IEnumerable<T> enumerable)
                 : this(enumerable.GetEnumerator())
             {
@@ -129,7 +151,7 @@ namespace Parseq
             }
 
             public StreamAdapter(IEnumerator<T> enumerator)
-                : base(
+                : this(
                     enumerator,
                     Option.None<T>(),
                     new Position(1, 1, 0),
@@ -138,17 +160,8 @@ namespace Parseq
             {
 
             }
-        }
 
-        private class StreamAdapterNode<T> : Stream<T>
-        {
-            private readonly IEnumerator<T> _enumerator;
-            private readonly Option<T> _current;
-            private readonly Position _position;
-            private Option<Stream<T>> _upper;
-            private Option<Stream<T>> _lower;
-
-            public StreamAdapterNode(
+            private StreamAdapter(
                 IEnumerator<T> enumerator,
                 Option<T> current,
                 Position position,
@@ -183,8 +196,8 @@ namespace Parseq
                 var lower = Option.None<Stream<T>>();
 
                 _lower = _enumerator.MoveNext()
-                   ? new StreamAdapterNode<T>(_enumerator, _enumerator.Current, position, upper, lower)
-                   : new StreamAdapterNode<T>(_enumerator, Option.None<T>(), position, upper, lower);
+                   ? new StreamAdapter<T>(_enumerator, _enumerator.Current, position, upper, lower)
+                   : new StreamAdapter<T>(_enumerator, Option.None<T>(), position, upper, lower);
                 return true;
             }
 
@@ -225,6 +238,59 @@ namespace Parseq
             {
 
             }
+        }
+
+        private class TextReaderAdapter : TextReader
+        {
+            private IEnumerator<Char> _enumerator;
+            private Option<Char> _current;
+
+            public TextReaderAdapter(IEnumerable<Char> enumerable)
+                : this(enumerable.GetEnumerator())
+            {
+
+            }
+
+            public TextReaderAdapter(IEnumerator<Char> enumerator)
+            {
+                if (enumerator == null)
+                    throw new ArgumentNullException("enumerator");
+
+                _enumerator = enumerator;
+
+                this.MoveNext();
+            }
+
+            public override Int32 Read()
+            {
+                return this.Peek().With(v => this.MoveNext());
+            }
+
+            public override Int32 Peek()
+            {
+                return _current.Select(t => (Int32)t).Otherwise(() => -1);
+            }
+
+            private void MoveNext()
+            {
+                if (_enumerator == null)
+                    throw new ObjectDisposedException("enumerator");
+
+                _current = Option.Try(() =>
+                    _enumerator.MoveNext()
+                    ? Option.Just<Char>(_enumerator.Current)
+                    : Option.None<Char>());
+            }
+
+            protected override void Dispose(Boolean disposing)
+            {
+                if (disposing && _enumerator != null)
+                {
+                    _enumerator.Dispose();
+                    _enumerator = null;
+                }
+            }
+
         }
     }
 }
