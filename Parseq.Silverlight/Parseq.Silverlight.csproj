@@ -79,6 +79,12 @@
     <Compile Include="..\Parseq\Combinators\Prims.cs">
       <Link>Combinators\Prims.cs</Link>
     </Compile>
+    <Compile Include="..\Parseq\Continuation.cs">
+      <Link>Continuation.cs</Link>
+    </Compile>
+    <Compile Include="..\Parseq\ContinuationExtensions.cs">
+      <Link>ContinuationExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\Parseq\Either.cs">
       <Link>Either.cs</Link>
     </Compile>
@@ -90,6 +96,9 @@
     </Compile>
     <Compile Include="..\Parseq\ErrorMessageType.cs">
       <Link>ErrorMessageType.cs</Link>
+    </Compile>
+    <Compile Include="..\Parseq\Extensions.cs">
+      <Link>Extensions.cs</Link>
     </Compile>
     <Compile Include="..\Parseq\Option.cs">
       <Link>Option.cs</Link>

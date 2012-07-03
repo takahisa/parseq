@@ -49,8 +49,11 @@
     <Compile Include="Combinators\Errors.cs" />
     <Compile Include="Combinators\Flows.cs" />
     <Compile Include="Combinators\Prims.cs" />
+    <Compile Include="Continuation.cs" />
+    <Compile Include="ContinuationExtensions.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="EitherExtensions.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="ErrorMessage.cs" />
     <Compile Include="ErrorMessageType.cs" />
     <Compile Include="Position.cs" />
