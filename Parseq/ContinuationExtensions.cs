@@ -23,7 +23,7 @@ namespace Parseq
 
         public static Continuation<Unit, Unit> For<TResult, T>(
             this IEnumerable<T> enumerable,
-            Func<T, Continuation<Unit, Unit>> func)
+            Func<T, Continuation<Unit, T>> func)
         {
             if (enumerable == null)
                 throw new ArgumentNullException("enumerable");
@@ -33,7 +33,7 @@ namespace Parseq
             return enumerable.Match(
                 () => Unit.Instance.ToContinuation<Unit,Unit>(),
                 (head, tail) => tail.Aggregate(func(head),
-                    (x, y) => x.SelectMany(_ => func(y))));
+                    (x, y) => x.SelectMany(_ => func(y))).Select(_ => Unit.Instance));
         }
 
         public static Continuation<Unit,Unit> ForEach<TResult,T>(
@@ -42,7 +42,7 @@ namespace Parseq
                 T,
                 Continuation<Unit,Unit>,
                 Continuation<Unit,Unit>,
-                Continuation<Unit,Unit>> selector)
+                Continuation<Unit,T>> selector)
         {
             if (enumerable == null)
                 throw new ArgumentNullException("enumerable");
