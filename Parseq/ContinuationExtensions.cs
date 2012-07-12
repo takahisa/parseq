@@ -13,7 +13,7 @@ namespace Parseq
         }
 
         public static Continuation<TResult, T> CallCC<TResult, T, U>(
-            Func<Func<T, Continuation<TResult, U>>,Continuation<TResult, T>> selector)
+            Func<Func<T, Continuation<TResult, U>>, Continuation<TResult, T>> selector)
         {
             if (selector == null)
                 throw new ArgumentNullException("selector");
@@ -21,38 +21,65 @@ namespace Parseq
             return k => selector(t => _ => k(t))(k);
         }
 
-        public static Continuation<Unit, Unit> For<TResult, T>(
-            this IEnumerable<T> enumerable,
-            Func<T, Continuation<Unit, T>> func)
+        public static Continuation<TResult, T> Yield<TResult, T>(TResult value)
         {
-            if (enumerable == null)
-                throw new ArgumentNullException("enumerable");
-            if (func == null)
-                throw new ArgumentNullException("func");
-
-            return enumerable.Match(
-                () => Unit.Instance.ToContinuation<Unit,Unit>(),
-                (head, tail) => tail.Aggregate(func(head),
-                    (x, y) => x.SelectMany(_ => func(y))).Select(_ => Unit.Instance));
+            return k => value;
         }
 
-        public static Continuation<Unit,Unit> ForEach<TResult,T>(
+        public static Continuation<TResult, U> Combine<TResult, T, U>(
+            this Continuation<TResult, T> first,
+            Continuation<TResult, U> second)
+        {
+            return first.SelectMany(_ => second);
+        }
+
+        public static Continuation<TResult, U> For<TResult, T, U>(
             this IEnumerable<T> enumerable,
-            Func<
-                T,
-                Continuation<Unit,Unit>,
-                Continuation<Unit,Unit>,
-                Continuation<Unit,T>> selector)
+            Func<T,Continuation<TResult,U>> selector)
         {
             if (enumerable == null)
                 throw new ArgumentNullException("enumerable");
             if (selector == null)
                 throw new ArgumentNullException("selector");
 
-            return Continuations.CallCC<Unit, Unit, Unit>(
-                @break => Continuations.CallCC<Unit, Unit, Unit>(
-                    @continue => enumerable.For<Unit,T>(
-                        i => selector(i, @break(Unit.Instance), @continue(Unit.Instance)))));
+            return enumerable.Match(
+                () => { throw new InvalidOperationException(); },
+                (head, tail) => tail.Aggregate(selector(head), (x, y) => x.Combine<TResult,U,U>(selector(y))));
+        }
+
+        public static Continuation<TResult, IEnumerable<U>> Map<TResult, T,U>(
+            this IEnumerable<T> enumerable,
+            Func<T, Continuation<TResult, U>> selector)
+        {
+            if (enumerable == null)
+                throw new ArgumentNullException("enumerable");
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+
+            return enumerable.Match(
+                () => Enumerable.Empty<U>().ToContinuation<TResult, IEnumerable<U>>(),
+                (head, tail) => tail.Aggregate(
+                    selector(head).Select(t => t.ToEnumerable()),
+                    (x, y) => x.SelectMany(t => selector(y).Select(u => t.Concat(u)))));
+        }
+
+        public static void ForEach<T>(
+            this IEnumerable<T> enumerable,
+            Func<T,
+                Continuation<Unit, Unit>,
+                Continuation<Unit, Unit>,
+                Continuation<Unit, Unit>> func)
+        {
+            if (enumerable == null)
+                throw new ArgumentNullException("enumerable");
+            if (func == null)
+                throw new ArgumentNullException("func");
+
+            Continuations.CallCC<Unit, Unit, Unit>(
+                @break => enumerable.For<Unit, T, Unit>(
+                    i => Continuations.CallCC<Unit, Unit, Unit>(
+                        @continue =>
+                            func(i, @break(Unit.Instance), @continue(Unit.Instance)))));
         }
 
     }

@@ -20,7 +20,15 @@ namespace Parseq
                 action(i, index++);
         }
 
-        public static TResult Match<T, TResult>(this IEnumerable<T> enumerable,
+        public static T With<T>(this T value, Action<T> action) {
+            if (action == null)
+                throw new ArgumentNullException("action");
+            action(value);
+            return value;
+        }
+
+        public static TResult Match<T, TResult>(
+            this IEnumerable<T> enumerable,
             Func<TResult> nil,
             Func<T, IEnumerable<T>, TResult> cons)
         {
@@ -44,6 +52,17 @@ namespace Parseq
 
             foreach (var t in second)
                 yield return t;
+        }
+
+        public static IEnumerable<T> Replicate<T>(this T value)
+        {
+            return Extensions.Replicate(() => value);
+        }
+
+        public static IEnumerable<T> Replicate<T>(this Func<T> selector)
+        {
+            while (true)
+                yield return selector();
         }
 
         public static IEnumerable<T> ToEnumerable<T>(this T value)
