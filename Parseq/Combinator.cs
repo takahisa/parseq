@@ -7,60 +7,64 @@ using Parseq.Combinators;
 
 namespace Parseq
 {
-    public static class Combinator
+    public static partial class Combinator
     {
         public static Parser<TToken, IEnumerable<TResult>> Sequence<TToken, TResult>(
             params Parser<TToken, TResult>[] parsers)
         {
+            return Combinator.Sequence(parsers.AsEnumerable());
+        }
+
+        public static Parser<TToken, IEnumerable<TResult>> Sequence<TToken, TResult>(
+            this IEnumerable<Parser<TToken, TResult>> parsers)
+        {
             if (parsers == null)
                 throw new ArgumentNullException("parsers");
 
-            return stream =>
-            {
-                Reply<TToken, TResult> reply;
-                TResult result; ErrorMessage message;
-                var results = new List<TResult>();
-                var current = stream;
-                foreach (var parser in parsers)
-                {
-                    switch ((reply = parser(current)).TryGetValue(out result, out message))
-                    {
-                        case ReplyStatus.Success:
-                            results.Add(result);
-                            current = reply.Stream;
-                            break;
-                        case ReplyStatus.Failure:
-                            return Reply.Failure<TToken, IEnumerable<TResult>>(stream);
-                        case ReplyStatus.Error:
-                            return Reply.Error<TToken, IEnumerable<TResult>>(stream, message);
-                    }
-                }
-                return Reply.Success<TToken, IEnumerable<TResult>>(current, results);
-            };
+            return stream => parsers.Match(
+                () => Reply.Success<TToken, IEnumerable<TResult>>(stream, Enumerable.Empty<TResult>()),
+                (head, tail) => head.SelectMany(x => Combinator.Sequence(tail).Select(y => x.Concat(y)))(stream));
         }
 
         public static Parser<TToken, TResult> Choice<TToken, TResult>(
             params Parser<TToken, TResult>[] parsers)
         {
+            return Combinator.Choice(parsers.AsEnumerable());
+        }
+
+        public static Parser<TToken, TResult> Choice<TToken, TResult>(
+            this IEnumerable<Parser<TToken, TResult>> parsers)
+        {
             if (parsers == null)
                 throw new ArgumentNullException("parsers");
+
+            return stream => parsers.Match(
+                () => Reply.Failure<TToken, TResult>(stream),
+                (head, tail) => head.Or(() => Choice(tail))(stream));
+        }
+
+        public static Parser<TToken, TResult> Or<TToken, TResult>(
+            this Parser<TToken, TResult> parser0,
+            Func<Parser<TToken, TResult>> parser1)
+        {
+            if (parser0 == null)
+                throw new ArgumentNullException("parser0");
+            if (parser1 == null)
+                throw new ArgumentNullException("parser1");
 
             return stream =>
             {
                 Reply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
-                foreach (var parser in parsers)
+                switch ((reply = parser0(stream)).TryGetValue(out result, out message))
                 {
-                    switch ((reply = parser(stream)).TryGetValue(out result, out message))
-                    {
-                        case ReplyStatus.Success:
-                            return Reply.Success<TToken, TResult>(reply.Stream, result);
-                        case ReplyStatus.Error:
-                            return Reply.Error<TToken, TResult>(stream, message);
-                    }
+                    case ReplyStatus.Success:
+                        return Reply.Success<TToken, TResult>(reply.Stream, result);
+                    case ReplyStatus.Error:
+                        return Reply.Error<TToken, TResult>(stream, message);
+                    default:
+                        return parser1()(stream);
                 }
-
-                return Reply.Failure<TToken, TResult>(stream);
             };
         }
 
@@ -167,28 +171,10 @@ namespace Parseq
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
-            return stream =>
-            {
-                Reply<TToken, TResult> reply;
-                TResult result; ErrorMessage message;
-                var results = new List<TResult>();
-                var current = stream;
 
-                while (true)
-                {
-                    switch ((reply = parser(current)).TryGetValue(out result, out message))
-                    {
-                        case ReplyStatus.Success:
-                            results.Add(result);
-                            current = reply.Stream;
-                            break;
-                        case ReplyStatus.Failure:
-                            return Reply.Success<TToken, IEnumerable<TResult>>(current, results);
-                        case ReplyStatus.Error:
-                            return Reply.Error<TToken, IEnumerable<TResult>>(stream, message);
-                    }
-                }
-            };
+            return parser.Maybe().SelectMany(t => t.Select(x => Many(parser)
+                    .Select(y => x.Concat(y)))
+                    .Otherwise(() => s => Reply.Success(s, Enumerable.Empty<TResult>())));
         }
 
         public static Parser<TToken, IEnumerable<TResult>> Many<TToken, TResult>(
@@ -199,9 +185,7 @@ namespace Parseq
             if (min < 0)
                 throw new ArgumentOutOfRangeException("min");
 
-            return from x in parser.Repeat(min)
-                   from y in parser.Many()
-                   select x.Concat(y);
+            return Min(parser, min);
         }
 
         public static Parser<TToken, IEnumerable<TResult>> Many<TToken, TResult>(
@@ -214,32 +198,33 @@ namespace Parseq
             if (max < min)
                 throw new ArgumentOutOfRangeException("max");
 
-            Parser<TToken, IEnumerable<TResult>> cont = stream =>
-            {
-                var results = new List<TResult>();
-                var current = stream;
-                foreach (var i in Enumerable.Range(0, max - min))
-                {
-                    Reply<TToken, TResult> reply;
-                    TResult result; ErrorMessage message;
-                    switch ((reply = parser(stream)).TryGetValue(out result, out message))
-                    {
-                        case ReplyStatus.Success:
-                            results.Add(result);
-                            current = reply.Stream;
-                            break;
-                        case ReplyStatus.Failure:
-                            return Reply.Success<TToken, IEnumerable<TResult>>(current, results);
-                        default:
-                            return Reply.Error<TToken, IEnumerable<TResult>>(stream, message);
-                    }
-                }
-                return Reply.Success<TToken, IEnumerable<TResult>>(current, results);
-            };
+            return Combinator.Repeat(parser, min).SelectMany(x => Max(parser, (max - min)).Select(y => x.Concat(y)));
+        }
 
-            return from x in parser.Many(min)
-                   from y in cont
-                   select x.Concat(y);
+        private static Parser<TToken,IEnumerable<TResult>> Min<TToken,TResult>(
+            this Parser<TToken, TResult> parser, Int32 min)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (min < 0)
+                throw new ArgumentOutOfRangeException("min");
+
+            return (min == 0)
+                ? parser.Many()
+                : parser.SelectMany(x => Min(parser, min - 1).Select(y => x.Concat(y)));
+        }
+
+        private static Parser<TToken, IEnumerable<TResult>> Max<TToken, TResult>(
+            this Parser<TToken, TResult> parser, Int32 max)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (max < 0)
+                throw new ArgumentOutOfRangeException("max");
+
+            return (max == 0)
+                ? Enumerable.Empty<TResult>().Return<TToken, IEnumerable<TResult>>()
+                : parser.SelectMany(x => Max(parser, max - 1).Select(y => x.Concat(y)));
         }
 
         public static Parser<TToken, Option<TResult>> Maybe<TToken, TResult>(

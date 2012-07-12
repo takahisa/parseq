@@ -7,6 +7,18 @@ namespace Parseq.Combinators
 {
     public static class Prims{
 
+        public static Parser<TToken, TResult> Return<TToken, TResult>(this TResult value)
+        {
+            return stream => Reply.Success<TToken, TResult>(stream, value);
+        }
+
+        public static Parser<TToken, TResult> Return<TToken, TResult>(this TResult value, Stream<TToken> stream)
+        {
+            if (stream == null)
+                throw new ArgumentNullException("stream");
+            return _ => Reply.Success<TToken, TResult>(stream, value);
+        }
+
         public static Parser<TToken, TToken> Satisfy<TToken>(
             Func<TToken, Boolean> predicate)
         {
