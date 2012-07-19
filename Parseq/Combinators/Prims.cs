@@ -16,7 +16,21 @@ namespace Parseq.Combinators
         {
             if (stream == null)
                 throw new ArgumentNullException("stream");
+
             return _ => Reply.Success<TToken, TResult>(stream, value);
+        }
+
+        public static Parser<TToken, TResult> Fail<TToken,TResult>()
+        {
+            return stream => Reply.Failure<TToken, TResult>(stream);
+        }
+
+        public static Parser<TToken, TResult> Fail<TToken, TResult>(Stream<TToken> stream)
+        {
+            if (stream == null)
+                throw new ArgumentNullException("stream");
+
+            return _ => Reply.Failure<TToken, TResult>(stream);
         }
 
         public static Parser<TToken, TToken> Satisfy<TToken>(
@@ -40,15 +54,15 @@ namespace Parseq.Combinators
         }
 
         public static Parser<TToken, TToken> OneOf<TToken>(
-            Func<TToken, TToken, Boolean> predicate, params TToken[] candidates)
+            Func<TToken, TToken, Boolean> predicate,
+            params TToken[] candidates)
         {
             if (predicate == null)
                 throw new ArgumentNullException("predicate");
             if (candidates == null)
                 throw new ArgumentNullException("candidates");
 
-            return Combinator.Choice(candidates.Select(x =>
-                Prims.Satisfy<TToken>(y => predicate(x, y))).ToArray());
+            return Combinator.Choice(candidates.Select(x => Prims.Satisfy<TToken>(y => predicate(x, y))));
         }
 
         public static Parser<TToken, TToken> OneOf<TToken>(
@@ -241,9 +255,7 @@ namespace Parseq.Combinators
             if (separator == null)
                 throw new ArgumentNullException("separator");
 
-            return from x in parser.Many(count)
-                   from y in separator.Right(parser).Many()
-                   select x.Concat(y);
+            return parser.SelectMany(x => separator.Right(parser).Many(count).Select(y => x.Concat(y)));
         }
 
         public static Parser<TToken, IEnumerable<TResult>> SepBy<TToken, TResult, TSeparator>(
@@ -265,10 +277,7 @@ namespace Parseq.Combinators
             if (separator == null)
                 throw new ArgumentNullException("separator");
 
-            return from x in parser.Many(count)
-                   from y in separator.Right(parser).Many()
-                   from z in separator.Maybe()
-                   select x.Concat(y);
+            return parser.SelectMany(x => parser.Between(separator, separator).Many(count).Select(y => x.Concat(y)));
         }
 
         public static Parser<TToken, IEnumerable<TResult>> SepEndBy<TToken, TResult, TSeparator>(

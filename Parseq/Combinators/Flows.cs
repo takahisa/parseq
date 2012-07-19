@@ -7,7 +7,7 @@ namespace Parseq.Combinators
 {
     public static class Flows
     {
-        public static Boolean Success<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
+        public static Boolean IsSuccess<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
@@ -18,7 +18,7 @@ namespace Parseq.Combinators
             return ReplyStatus.Success == parser(stream).TryGetValue(out result, out message);
         }
 
-        public static Boolean Failure<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
+        public static Boolean IsFailure<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
@@ -27,12 +27,13 @@ namespace Parseq.Combinators
             return ReplyStatus.Failure == parser(stream).TryGetValue(out result, out message);
         }
 
-        public static Boolean Error<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
+        public static Boolean IsError<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
             if (stream == null)
                 throw new ArgumentNullException("stream");
+
             TResult result; ErrorMessage message;
             return ReplyStatus.Error == parser(stream).TryGetValue(out result, out message);
         }
@@ -45,34 +46,13 @@ namespace Parseq.Combinators
             if (condition == null)
                 throw new ArgumentNullException("condition");
 
-            return stream =>
-            {
-                Reply<TToken, TResult> reply;
-                TResult result; ErrorMessage message;
-                var results = new List<TResult>();
-                var current = stream;
-                while (condition.Success(current))
-                {
-                    switch ((reply = parser(current)).TryGetValue(out result, out message))
-                    {
-                        case ReplyStatus.Success:
-                            results.Add(result);
-                            current = reply.Stream;
-                            break;
-                        case ReplyStatus.Failure:
-                            return Reply.Failure<TToken, IEnumerable<TResult>>(stream);
-                        default:
-                            return Reply.Error<TToken, IEnumerable<TResult>>(stream, message);
-                    }
-                }
-                return Reply.Success<TToken, IEnumerable<TResult>>(current, results);
-            };
+            return Combinator.Sequence(condition.And().Right(parser).Replicate());
         }
 
         public static Parser<TToken, IEnumerable<TResult>> Until<TToken, TResult, TCond>(
             this Parser<TToken, TResult> parser, Parser<TToken, TCond> condition)
         {
-            return parser.While(condition.Not());
+            return Combinator.Sequence(condition.Not().Right(parser).Replicate());
         }
 
         public static Parser<TToken, TResult> DoWhenSuccess<TToken, TResult>(
@@ -162,9 +142,7 @@ namespace Parseq.Combinators
             if (elseParser == null)
                 throw new ArgumentNullException("elseParser");
 
-            return stream => condition.Success(stream)
-                ? thenParser(stream)
-                : elseParser(stream);
+            return (condition.And().Right(thenParser)).Or(elseParser);
         }
 
         public static Parser<TToken, Either<TResult0, TResult1>> If<TToken, TCond, TResult0, TResult1>(
@@ -179,9 +157,9 @@ namespace Parseq.Combinators
             if (elseParser == null)
                 throw new ArgumentNullException("elseParser");
 
-            return stream => condition.Success(stream)
-                ? thenParser(stream).Select(_ => Either.Left<TResult0, TResult1>(_))
-                : elseParser(stream).Select(_ => Either.Right<TResult0, TResult1>(_));
+            return Flows.If<TToken, TCond, Either<TResult0, TResult1>>(condition,
+                thenParser.Select(_ => Either.Left<TResult0, TResult1>(_)),
+                elseParser.Select(_ => Either.Right<TResult0, TResult1>(_)));
         }
 
         public static Parser<TToken, TResult> Unless<TToken, TCond, TResult>(
@@ -196,9 +174,7 @@ namespace Parseq.Combinators
             if (elseParser == null)
                 throw new ArgumentNullException("elseParser");
 
-            return stream => !condition.Success(stream)
-                ? thenParser(stream)
-                : elseParser(stream);
+            return (condition.Not().Right(thenParser)).Or(elseParser);
         }
 
         public static Parser<TToken, Either<TResult0, TResult1>> Unless<TToken, TCond, TResult0, TResult1>(
@@ -213,9 +189,9 @@ namespace Parseq.Combinators
             if (elseParser == null)
                 throw new ArgumentNullException("elseParser");
 
-            return stream => !condition.Success(stream)
-                ? thenParser(stream).Select(_ => Either.Left<TResult0, TResult1>(_))
-                : elseParser(stream).Select(_ => Either.Right<TResult0, TResult1>(_));
+            return Flows.Unless<TToken, TCond, Either<TResult0, TResult1>>(condition,
+                thenParser.Select(_ => Either.Left<TResult0, TResult1>(_)),
+                elseParser.Select(_ => Either.Right<TResult0, TResult1>(_)));
         }
     }
 }

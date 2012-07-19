@@ -7,7 +7,27 @@ namespace Parseq.Combinators
 {
     public static class Errors
     {
-        public static Parser<TToken, TResult> Fail<TToken, TResult>(String message)
+        public static Parser<TToken, Option<TResult>> Rescue<TToken, TResult>(
+            this Parser<TToken, TResult> parser)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+
+            return stream =>
+            {
+                Reply<TToken, TResult> reply;
+                TResult result; ErrorMessage message;
+                switch ((reply = parser(stream)).TryGetValue(out result, out message))
+                {
+                    case ReplyStatus.Success: return Reply.Success<TToken, Option<TResult>>(reply.Stream, Option.Just(result));
+                    case ReplyStatus.Failure: return Reply.Failure<TToken, Option<TResult>>(stream);
+                    default:
+                        return Reply.Success<TToken, Option<TResult>>(stream, Option.None<TResult>());
+                }
+            };
+        }
+
+        public static Parser<TToken, TResult> Error<TToken, TResult>(String message)
         {
             if (message == null)
                 throw new ArgumentNullException("message");
@@ -34,7 +54,7 @@ namespace Parseq.Combinators
                 stream, new ErrorMessage(ErrorMessageType.Message, message, stream.Position, stream.Position));
         }
 
-        public static Parser<TToken, TResult> FailWhenSuccess<TToken, TResult>(
+        public static Parser<TToken, TResult> ErrorWhenSuccess<TToken, TResult>(
             this Parser<TToken, TResult> parser, String message)
         {
             if (parser == null)
@@ -42,10 +62,10 @@ namespace Parseq.Combinators
             if (message == null)
                 throw new ArgumentNullException("message");
 
-            return parser.WhenSuccess(Errors.Fail<TToken, TResult>(message));
+            return parser.WhenSuccess(Errors.Error<TToken, TResult>(message));
         }
 
-        public static Parser<TToken, TResult> FailWhenFailure<TToken, TResult>(
+        public static Parser<TToken, TResult> ErrorWhenFailure<TToken, TResult>(
             this Parser<TToken, TResult> parser, String message)
         {
             if (parser == null)
@@ -53,10 +73,10 @@ namespace Parseq.Combinators
             if (message == null)
                 throw new ArgumentNullException("message");
 
-            return parser.WhenFailure(Errors.Fail<TToken, TResult>(message));
+            return parser.WhenFailure(Errors.Error<TToken, TResult>(message));
         }
 
-        public static Parser<TToken, TResult> FailWhenError<TToken, TResult>(
+        public static Parser<TToken, TResult> ErrorWhenError<TToken, TResult>(
             this Parser<TToken, TResult> parser, String message)
         {
             if (parser == null)
@@ -64,7 +84,7 @@ namespace Parseq.Combinators
             if (message == null)
                 throw new ArgumentNullException("message");
 
-            return parser.WhenError(Errors.Fail<TToken, TResult>(message));
+            return parser.WhenError(Errors.Error<TToken, TResult>(message));
         }
 
         public static Parser<TToken, TResult> WarnWhenSuccess<TToken, TResult>(
