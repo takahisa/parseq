@@ -153,7 +153,10 @@ namespace Parseq
             public StreamAdapter(IEnumerator<T> enumerator)
                 : this(
                     enumerator,
-                    Option.None<T>(),
+                    Option.Try(() =>
+                        enumerator.MoveNext()
+                        ? Option.Just<T>(enumerator.Current)
+                        : Option.None<T>()),
                     new Position(1, 1, 0),
                     Option.None<Stream<T>>(),
                     Option.None<Stream<T>>())
