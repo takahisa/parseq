@@ -43,27 +43,6 @@ namespace Parseq
                 (head, tail) => head.Or(() => Combinator.Choice(tail))(stream));
         }
 
-        public static Parser<TToken, IEnumerable<TResult>> Search<TToken, TResult>(
-            IEnumerable<Parser<TToken, TResult>> parsers)
-        {
-            if (parsers == null)
-                throw new ArgumentNullException("parsers");
-
-            return parsers.Match(
-                () => Enumerable.Empty<TResult>().Return<TToken, IEnumerable<TResult>>(),
-                (head, tail) => head.SelectMany(x => Combinator.Search(tail).Select(y => x.Concat(y)))
-                    .Or(Combinator.Search(tail)));
-        }
-
-        public static Parser<TToken, IEnumerable<TResult>> Search<TToken, TResult>(
-            params Parser<TToken, TResult>[] parsers)
-        {
-            if (parsers == null)
-                throw new ArgumentNullException("parsers");
-
-            return Combinator.Search(parsers.AsEnumerable());
-        }
-
         public static Parser<TToken, TResult> Or<TToken, TResult>(
             this Parser<TToken, TResult> parser0,
             Func<Parser<TToken, TResult>> parser1)
