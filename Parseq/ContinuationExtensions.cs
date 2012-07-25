@@ -59,7 +59,7 @@ namespace Parseq
             return enumerable.Match(
                 () => Enumerable.Empty<U>().ToContinuation<TResult, IEnumerable<U>>(),
                 (head, tail) => tail.Aggregate(
-                    selector(head).Select(t => t.ToEnumerable()),
+                    selector(head).Select(t => t.Enumerate()),
                     (x, y) => x.SelectMany(t => selector(y).Select(u => t.Concat(u)))));
         }
 

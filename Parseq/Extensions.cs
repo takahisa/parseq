@@ -33,9 +33,7 @@ namespace Parseq
             Func<T, IEnumerable<T>, TResult> cons)
         {
             var enumerator = enumerable.GetEnumerator();
-            return !(enumerator.MoveNext())
-                ? nil()
-                : cons(enumerator.Current, enumerator.ToEnumerable());
+            return !(enumerator.MoveNext()) ? nil() : cons(enumerator.Current, enumerator.Enumerate());
         }
 
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> first, T second)
@@ -65,12 +63,12 @@ namespace Parseq
                 yield return selector();
         }
 
-        public static IEnumerable<T> ToEnumerable<T>(this T value)
+        public static IEnumerable<T> Enumerate<T>(this T value)
         {
             yield return value;
         }
 
-        public static IEnumerable<T> ToEnumerable<T>(this IEnumerator<T> enumerator)
+        public static IEnumerable<T> Enumerate<T>(this IEnumerator<T> enumerator)
         {
             while (enumerator.MoveNext())
                 yield return enumerator.Current;

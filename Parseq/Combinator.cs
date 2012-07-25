@@ -40,7 +40,7 @@ namespace Parseq
 
             return parsers.Match(
                 () => Prims.Fail<TToken, TResult>(),
-                (head, tail) => head.Or(Combinator.Lazy(() => Combinator.Choice(tail))));
+                (head, tail) => tail.Aggregate(head, (x, y) => x.Or(y)));
         }
 
         public static Parser<TToken, TResult> Or<TToken, TResult>(
@@ -178,7 +178,7 @@ namespace Parseq
             return (max == 0)
                 ? Enumerable.Empty<TResult>().Return<TToken, IEnumerable<TResult>>()
                 : parser.SelectMany(x => Combinator.Max(parser, max - 1).Select(y => x.Concat(y)))
-                    .Or(parser.Select(t => t.ToEnumerable()));
+                    .Or(parser.Select(t => t.Enumerate()));
         }
 
         public static Parser<TToken, Option<TResult>> Maybe<TToken, TResult>(
