@@ -38,14 +38,14 @@ namespace Parseq
             if (parsers == null)
                 throw new ArgumentNullException("parsers");
 
-            return stream => parsers.Match(
-                () => Reply.Failure<TToken, TResult>(stream),
-                (head, tail) => head.Or(() => Combinator.Choice(tail))(stream));
+            return parsers.Match(
+                () => Prims.Fail<TToken, TResult>(),
+                (head, tail) => head.Or(Combinator.Lazy(() => Combinator.Choice(tail))));
         }
 
         public static Parser<TToken, TResult> Or<TToken, TResult>(
             this Parser<TToken, TResult> parser0,
-            Func<Parser<TToken, TResult>> parser1)
+            Parser<TToken, TResult> parser1)
         {
             if (parser0 == null)
                 throw new ArgumentNullException("parser0");
@@ -63,21 +63,9 @@ namespace Parseq
                     case ReplyStatus.Error:
                         return Reply.Error<TToken, TResult>(stream, message);
                     default:
-                        return parser1()(stream);
+                        return parser1(stream);
                 }
             };
-        }
-
-        public static Parser<TToken, TResult> Or<TToken, TResult>(
-            this Parser<TToken, TResult> parser0,
-            Parser<TToken, TResult> parser1)
-        {
-            if (parser0 == null)
-                throw new ArgumentNullException("parser0");
-            if (parser1 == null)
-                throw new ArgumentNullException("parser1");
-
-            return Combinator.Or(parser0, () => parser1);
         }
 
         public static Parser<TToken, Unit> And<TToken, TResult>(
@@ -92,7 +80,7 @@ namespace Parseq
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
-                    case ReplyStatus.Success: return Reply.Success<TToken, Unit>(stream,Unit.Instance);
+                    case ReplyStatus.Success: return Reply.Success<TToken, Unit>(stream, Unit.Instance);
                     case ReplyStatus.Failure: return Reply.Failure<TToken, Unit>(stream);
                     default:
                         return Reply.Error<TToken, Unit>(stream, message);
@@ -176,7 +164,7 @@ namespace Parseq
 
             return (min == 0)
                 ? parser.Many()
-                : parser.SelectMany(x => Min(parser, min - 1).Select(y => x.Concat(y)));
+                : parser.SelectMany(x => Combinator.Min(parser, min - 1).Select(y => x.Concat(y)));
         }
 
         private static Parser<TToken, IEnumerable<TResult>> Max<TToken, TResult>(
@@ -189,7 +177,8 @@ namespace Parseq
 
             return (max == 0)
                 ? Enumerable.Empty<TResult>().Return<TToken, IEnumerable<TResult>>()
-                : parser.SelectMany(x => Max(parser, max - 1).Select(y => x.Concat(y)));
+                : parser.SelectMany(x => Combinator.Max(parser, max - 1).Select(y => x.Concat(y)))
+                    .Or(parser.Select(t => t.ToEnumerable()));
         }
 
         public static Parser<TToken, Option<TResult>> Maybe<TToken, TResult>(
@@ -219,12 +208,6 @@ namespace Parseq
                 throw new ArgumentNullException("parser");
 
             return stream => parser()(stream);
-        }
-
-        public static Parser<TToken, TResult> Lazy<TToken, TResult>(
-            this Parser<TToken, TResult> parser)
-        {
-            return Combinator.Lazy(() => parser);
         }
 
         public static Parser<TToken, Unit> Ignore<TToken, TResult>(

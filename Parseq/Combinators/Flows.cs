@@ -46,13 +46,13 @@ namespace Parseq.Combinators
             if (condition == null)
                 throw new ArgumentNullException("condition");
 
-            return Combinator.Sequence(condition.And().Right(parser).Replicate());
+            return (condition.And().Right(parser)).Many();
         }
 
         public static Parser<TToken, IEnumerable<TResult>> Until<TToken, TResult, TCond>(
             this Parser<TToken, TResult> parser, Parser<TToken, TCond> condition)
         {
-            return Combinator.Sequence(condition.Not().Right(parser).Replicate());
+            return (condition.Not().Right(parser)).Many();
         }
 
         public static Parser<TToken, TResult> DoWhenSuccess<TToken, TResult>(
