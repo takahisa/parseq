@@ -7,7 +7,6 @@ namespace Parseq.Combinators
 {
     public static class Chars
     {
-
         public static Parser<Char, Unit> Eof()
         {
             return stream => stream.CanNext()
@@ -67,11 +66,21 @@ namespace Parseq.Combinators
             return Chars.Satisfy(Char.IsControl);
         }
 
+        public static Parser<Char, Char> Separator()
+        {
+            return Chars.Satisfy(Char.IsSeparator);
+        }
+
+        public static Parser<Char, Char> Punctuation()
+        {
+            return Chars.Satisfy(Char.IsPunctuation);
+        }
+
         public static Parser<Char, Char> Satisfy(this Char c)
         {
             return Chars.Satisfy(_ => _ == c);
         }
-
+        
         public static Parser<Char, Char> Satisfy(Func<Char, Boolean> predicate)
         {
             return Prims.Satisfy<Char>(predicate);

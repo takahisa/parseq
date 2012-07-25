@@ -208,49 +208,5 @@ namespace Parseq.Combinators
         {
             return NotFollowedBy(parser, "Syntax Error");
         }
-
-        public static Parser<TToken, Unit> Consume<TToken>(Func<TToken, Boolean> predicate, String message)
-        {
-            if (predicate == null)
-                throw new ArgumentNullException("preducate");
-            if (message == null)
-                throw new ArgumentNullException("message");
-
-            return stream =>
-            {
-                TToken result;
-                return stream.TryGetValue(out result) && predicate(result)
-                    ? Reply.Success<TToken, Unit>(stream.Next(), Unit.Instance)
-                    : Reply.Error<TToken, Unit>(stream,
-                        new ErrorMessage(ErrorMessageType.Error, message, stream.Position, stream.Position));
-            };
-        }
-
-        public static Parser<TToken, Unit> Consume<TToken>(Func<TToken, Boolean> predicate)
-        {
-            return Consume(predicate, "Syntax Error");
-        }
-
-        public static Parser<TToken, Unit> Expect<TToken>(Func<TToken, Boolean> predicate, String message)
-        {
-            if (predicate == null)
-                throw new ArgumentNullException("preducate");
-            if (message == null)
-                throw new ArgumentNullException("message");
-
-            return stream =>
-            {
-                TToken result;
-                return stream.TryGetValue(out result) && predicate(result)
-                    ? Reply.Success<TToken, Unit>(stream, Unit.Instance)
-                    : Reply.Error<TToken, Unit>(stream,
-                        new ErrorMessage(ErrorMessageType.Error, message, stream.Position, stream.Position));
-            };
-        }
-
-        public static Parser<TToken, Unit> Expect<TToken>(Func<TToken, Boolean> predicate)
-        {
-            return Expect(predicate, "Syntax Error");
-        }
     }
 }
