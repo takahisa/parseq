@@ -167,7 +167,7 @@ namespace Parseq.Test.Combinators
             Enumerable.Range(Char.MinValue, Char.MaxValue)
                 .Select(t => (Char)t)
                 .Where(predicate)
-                .ForEach(t => parser.SuccessTest(t.ToEnumerable().AsStream(), t));
+                .ForEach(t => parser.SuccessTest(t.Enumerate().AsStream(), t));
         }
 
     }
