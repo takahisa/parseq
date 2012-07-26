@@ -125,9 +125,8 @@ namespace Parseq
             if (parser == null)
                 throw new ArgumentNullException("parser");
 
-            return parser.Maybe().SelectMany(t => t.Select(x => Many(parser)
-                    .Select(y => x.Concat(y)))
-                    .Otherwise(() => s => Reply.Success(s, Enumerable.Empty<TResult>())));
+            return parser.SelectMany(x => Combinator.Many(parser).Select(y => x.Concat(y)))
+                .Or(Prims.Return<TToken, IEnumerable<TResult>>(Enumerable.Empty<TResult>()));
         }
 
         public static Parser<TToken, IEnumerable<TResult>> Many<TToken, TResult>(
@@ -162,9 +161,7 @@ namespace Parseq
             if (min < 0)
                 throw new ArgumentOutOfRangeException("min");
 
-            return (min == 0)
-                ? parser.Many()
-                : parser.SelectMany(x => Combinator.Min(parser, min - 1).Select(y => x.Concat(y)));
+            return Combinator.Repeat(parser,min).SelectMany(x => Combinator.Many(parser).Select(y => x.Concat(y)));
         }
 
         private static Parser<TToken, IEnumerable<TResult>> Max<TToken, TResult>(
