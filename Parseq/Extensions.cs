@@ -74,5 +74,34 @@ namespace Parseq
                 yield return enumerator.Current;
         }
 
+        public static TResult Foldl<T, TResult>(this IEnumerable<T> enumerable, TResult seed, Func<TResult, T, TResult> folder)
+        {
+            if (enumerable == null)
+                throw new ArgumentNullException("enumerable");
+            if (folder == null)
+                throw new ArgumentNullException("folder");
+
+            using (var enumerator = enumerable.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                    seed = folder(seed, enumerator.Current);
+                return seed;
+            }            
+        }
+
+        public static TResult Foldr<T, TResult>(this IEnumerable<T> enumerable, TResult seed, Func<TResult, T, TResult> folder)
+        {
+            if (enumerable == null)
+                throw new ArgumentNullException("enumerable");
+            if (folder == null)
+                throw new ArgumentNullException("folder");
+
+            using (var enumerator = enumerable.Reverse().GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                    seed = folder(seed, enumerator.Current);
+                return seed;
+            }
+        }
     }
 }
