@@ -79,11 +79,11 @@
     <Compile Include="..\Parseq\Combinators\Prims.cs">
       <Link>Combinators\Prims.cs</Link>
     </Compile>
-    <Compile Include="..\Parseq\Continuation.cs">
-      <Link>Continuation.cs</Link>
+    <Compile Include="..\Parseq\Cps.cs">
+      <Link>Cps.cs</Link>
     </Compile>
-    <Compile Include="..\Parseq\ContinuationExtensions.cs">
-      <Link>ContinuationExtensions.cs</Link>
+    <Compile Include="..\Parseq\CpsExtensions.cs">
+      <Link>CpsExtensions.cs</Link>
     </Compile>
     <Compile Include="..\Parseq\Either.cs">
       <Link>Either.cs</Link>

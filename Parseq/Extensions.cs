@@ -27,8 +27,7 @@ namespace Parseq
             return value;
         }
 
-        public static TResult Match<T, TResult>(
-            this IEnumerable<T> enumerable,
+        public static TResult Case<T, TResult>(this IEnumerable<T> enumerable,
             Func<TResult> nil,
             Func<T, IEnumerable<T>, TResult> cons)
         {

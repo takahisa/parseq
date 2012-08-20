@@ -21,7 +21,7 @@ namespace Parseq
             if (parsers == null)
                 throw new ArgumentNullException("parsers");
 
-            return stream => parsers.Match(
+            return stream => parsers.Case(
                 () => Reply.Success<TToken, IEnumerable<TResult>>(stream, Enumerable.Empty<TResult>()),
                 (head, tail) => head.SelectMany(x => Combinator.Sequence(tail).Select(y => x.Concat(y)))(stream));
         }
@@ -38,7 +38,7 @@ namespace Parseq
             if (parsers == null)
                 throw new ArgumentNullException("parsers");
 
-            return parsers.Match(
+            return parsers.Case(
                 () => Prims.Fail<TToken, TResult>(),
                 (head, tail) => tail.Aggregate(head, (x, y) => x.Or(y)));
         }
