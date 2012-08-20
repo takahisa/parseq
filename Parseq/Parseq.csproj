@@ -49,8 +49,8 @@
     <Compile Include="Combinators\Errors.cs" />
     <Compile Include="Combinators\Flows.cs" />
     <Compile Include="Combinators\Prims.cs" />
-    <Compile Include="Continuation.cs" />
-    <Compile Include="ContinuationExtensions.cs" />
+    <Compile Include="Cps.cs" />
+    <Compile Include="CpsExtensions.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="EitherExtensions.cs" />
     <Compile Include="Extensions.cs" />
