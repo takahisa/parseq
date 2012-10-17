@@ -13,6 +13,13 @@ namespace Parseq.Test.Combinators
     public class PrimsTest
     {
         [TestMethod]
+        public void Prims_EofTest()
+        {
+            Prims.Eof<Char>().SuccessTest("".AsStream(), Unit.Instance);
+            Prims.Eof<Char>().FailureTest("foobar".AsStream());
+        }
+
+        [TestMethod]
         public void Prims_ReturnTest()
         {
             Prims.Return<Char, Char>('a').SuccessTest("".AsStream(), 'a');
