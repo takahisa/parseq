@@ -45,6 +45,12 @@ namespace Parseq.Test.Combinators
         }
 
         [TestMethod]
+        public void Chars_LetterTest()
+        {
+            Chars_TestHelper(Chars.Letter(), Char.IsLetter);
+        }
+
+        [TestMethod]
         public void Chars_DigitTest()
         {
             Chars_TestHelper(Chars.Digit(), Char.IsDigit);
