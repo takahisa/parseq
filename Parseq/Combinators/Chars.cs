@@ -9,9 +9,7 @@ namespace Parseq.Combinators
     {
         public static Parser<Char, Unit> Eof()
         {
-            return stream => stream.CanNext()
-                ? Reply.Failure<Char, Unit>(stream)
-                : Reply.Success<Char, Unit>(stream, Unit.Instance);
+            return Prims.Eof<Char>();
         }
 
         public static Parser<Char, Char> Any()

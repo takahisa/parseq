@@ -5,7 +5,14 @@ using System.Text;
 
 namespace Parseq.Combinators
 {
-    public static class Prims{
+    public static class Prims
+    {
+        public static Parser<TToken, Unit> Eof<TToken>()
+        {
+            return stream => stream.CanNext()
+                ? Reply.Failure<TToken, Unit>(stream)
+                : Reply.Success<TToken, Unit>(stream, Unit.Instance);
+        }
 
         public static Parser<TToken, TResult> Return<TToken, TResult>(this TResult value)
         {
