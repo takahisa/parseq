@@ -27,13 +27,50 @@ namespace Parseq
             return value;
         }
 
-        public static TResult Case<T, TResult>(this IEnumerable<T> enumerable,
+        public static TResult Case<T, TResult>(
+            this IEnumerable<T> enumerable,
             Func<TResult> nil,
             Func<T, IEnumerable<T>, TResult> cons)
         {
             var enumerator = enumerable.GetEnumerator();
             return !(enumerator.MoveNext()) ? nil() : cons(enumerator.Current, enumerator.Enumerate());
         }
+
+        public static TResult Case<T, TResult>(
+            this Tuple<T, IEnumerable<T>> pattern,
+            Func<T, IEnumerable<T>, TResult> selector)
+        {
+            if (pattern == null)
+                throw new ArgumentNullException("pattern");
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+
+            return selector(pattern.Item1, pattern.Item2);
+        }
+
+        public static Tuple<T, IEnumerable<T>> HeadAndTail<T>(this IEnumerable<T> enumerable)
+        {
+            var enumerator = enumerable.GetEnumerator();
+            if (!enumerator.MoveNext())
+                throw new InvalidOperationException();
+
+            var head = enumerator.Current;
+            var tail = enumerator.Enumerate();
+
+            return Tuple.Create(head, tail);
+        }
+
+        public static Tuple<T, IEnumerable<T>> LastAndInit<T>(this IEnumerable<T> enumerable)
+        {
+            var enumerator = enumerable.Reverse().GetEnumerator();
+            if (!enumerator.MoveNext())
+                throw new InvalidOperationException();
+
+            var init = enumerator.EnumerateWithoutLast();
+            var last = enumerator.Current;
+
+            return Tuple.Create(last, init);
+        }        
 
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> first, T second)
         {
@@ -69,8 +106,22 @@ namespace Parseq
 
         public static IEnumerable<T> Enumerate<T>(this IEnumerator<T> enumerator)
         {
+            if (enumerator == null)
+                throw new ArgumentNullException("enumerator");
+
             while (enumerator.MoveNext())
                 yield return enumerator.Current;
+        }
+
+        private static IEnumerable<T> EnumerateWithoutLast<T>(this IEnumerator<T> enumerator)
+        {
+            if (enumerator == null)
+                throw new ArgumentNullException("enumerator");
+
+            if (enumerator.MoveNext())
+            {
+                do yield return enumerator.Current; while (enumerator.MoveNext());
+            }
         }
 
         public static TResult Foldl<T, TResult>(this IEnumerable<T> enumerable, TResult seed, Func<TResult, T, TResult> folder)
@@ -88,7 +139,7 @@ namespace Parseq
             }            
         }
 
-        public static TResult Foldr<T, TResult>(this IEnumerable<T> enumerable, TResult seed, Func<TResult, T, TResult> folder)
+        public static TResult Foldr<T, TResult>(this IEnumerable<T> enumerable, TResult seed, Func<T, TResult, TResult> folder)
         {
             if (enumerable == null)
                 throw new ArgumentNullException("enumerable");
@@ -98,7 +149,7 @@ namespace Parseq
             using (var enumerator = enumerable.Reverse().GetEnumerator())
             {
                 while (enumerator.MoveNext())
-                    seed = folder(seed, enumerator.Current);
+                    seed = folder(enumerator.Current, seed);
                 return seed;
             }
         }
