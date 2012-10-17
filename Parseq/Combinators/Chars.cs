@@ -34,6 +34,11 @@ namespace Parseq.Combinators
             return Chars.Satisfy(Char.IsUpper);
         }
 
+        public static Parser<Char, Char> Letter()
+        {
+            return Chars.Satisfy(Char.IsLetter);
+        }
+
         public static Parser<Char, Char> Digit()
         {
             return Chars.Satisfy(Char.IsDigit);
