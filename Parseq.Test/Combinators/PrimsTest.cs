@@ -232,6 +232,34 @@ namespace Parseq.Test.Combinators
         }
 
         [TestMethod]
+        public void Prims_ChainlTest()
+        {
+            var term = Chars.Digit().Many(1)
+                .Select(_ => Int32.Parse(new String(_.ToArray())));
+
+            var parser = term.Chainl('-'.Satisfy().Ignore(), (x, y) => x - y);
+
+            parser.SuccessTest("1-2-3".AsStream(), ((1 - 2) - 3));
+            parser.FailureTest("".AsStream());
+            parser.FailureTest("1".AsStream());
+            parser.FailureTest("1-".AsStream());
+        }
+
+        [TestMethod]
+        public void Prims_ChainrTest()
+        {
+            var term = Chars.Digit().Many(1)
+                .Select(_ => Int32.Parse(new String(_.ToArray())));
+
+            var parser = term.Chainr('-'.Satisfy().Ignore(), (x, y) => x - y);
+
+            parser.SuccessTest("1-2-3".AsStream(), (1 - (2 - (3))));
+            parser.FailureTest("".AsStream());
+            parser.FailureTest("1".AsStream());
+            parser.FailureTest("1-".AsStream());
+        }
+
+        [TestMethod]
         public void Prims_WhenSuccessTest()
         {
             Prims.WhenSuccess(Prims.Fail<Char, Char>(), Chars.Any())
