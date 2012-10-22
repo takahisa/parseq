@@ -6,7 +6,8 @@ using System.Text;
 namespace Parseq
 {
     public struct Position
-        : IEquatable<Position>
+        : IComparable<Position>
+        , IEquatable<Position>
     {
         private readonly Int32 _column;
         private readonly Int32 _line;
@@ -41,6 +42,11 @@ namespace Parseq
             get { return _index; }
         }
 
+        public Int32 CompareTo(Position other)
+        {
+            return this.Index.CompareTo(other.Index);
+        }
+
         public Boolean Equals(Position other)
         {
             return other.Column == this.Column
@@ -62,7 +68,7 @@ namespace Parseq
 
         public override String ToString()
         {
-            return String.Format("{0}:{1}", this.Column, this.Line);
+            return String.Format("{0}:{1}", this.Line, this.Column);
         }
 
         public static Boolean operator >(Position x, Position y)
@@ -92,7 +98,7 @@ namespace Parseq
 
         public static Boolean operator !=(Position x, Position y)
         {
-            return !(x.Equals(y));
+             return !(x.Equals(y));
         }
     }
 }
