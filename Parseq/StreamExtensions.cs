@@ -214,8 +214,8 @@ namespace Parseq
                     return false;
 
                 var position = new Position(
-                        _position.Column + 1,
                         _position.Line,
+                        _position.Column + 1,
                         _position.Index + 1);
 
                 var upper = Option.Just<Stream<T>>(this);
