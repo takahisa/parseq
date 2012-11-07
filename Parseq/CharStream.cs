@@ -83,8 +83,8 @@ namespace Parseq
                 return false;
 
             var position = (_buffer.Peek(0) == '\n' || _buffer.Peek(0) == '\r' && _buffer.Peek(1) != '\n')
-                ? new Position(1, _position.Line + 1, _position.Index + 1)
-                : new Position(_position.Column + 1, _position.Line, _position.Index + 1);
+                ? new Position(_position.Line + 1, 1, _position.Index + 1)
+                : new Position(_position.Line, _position.Column + 1, _position.Index + 1);
 
             var upper = Option.Just<Stream<Char>>(this);
             var lower = Option.None<Stream<Char>>();

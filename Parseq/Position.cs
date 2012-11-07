@@ -36,28 +36,28 @@ namespace Parseq
         private readonly Int32 _line;
         private readonly Int32 _index;
 
-        public Position(Int32 column, Int32 line, Int32 index)
+        public Position(Int32 line, Int32 column, Int32 index)
         {
-            if (column <= 0)
-                throw new ArgumentOutOfRangeException("column must be 1 or more");
             if (line <= 0)
                 throw new ArgumentOutOfRangeException("line must be 1 or more");
+            if (column <= 0)
+                throw new ArgumentOutOfRangeException("column must be 1 or more");
             if (index < 0)
                 throw new ArgumentOutOfRangeException("position must be bigger than zero");
 
-            this._column = column;
-            this._line = line;
-            this._index = index;
-        }
-
-        public Int32 Column
-        {
-            get { return _column; }
+            _column = column;
+            _line = line;
+            _index = index;
         }
 
         public Int32 Line
         {
             get { return _line; }
+        }
+
+        public Int32 Column
+        {
+            get { return _column; }
         }
 
         public Int32 Index
