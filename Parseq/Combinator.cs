@@ -44,9 +44,10 @@ namespace Parseq
             if (parsers == null)
                 throw new ArgumentNullException("parsers");
 
-            return stream => parsers.Case(
-                () => Reply.Success<TToken, IEnumerable<TResult>>(stream, Enumerable.Empty<TResult>()),
-                (head, tail) => head.SelectMany(x => Combinator.Sequence(tail).Select(y => x.Concat(y)))(stream));
+            return parsers.IfEmpty(
+                () => Prims.Empty<TToken, TResult>(),
+                xs => xs.HeadAndTail()
+                        .Case((head, tail) => head.SelectMany(x => Combinator.Sequence(tail).Select(y => x.Concat(y)))));
         }
 
         public static Parser<TToken, TResult> Choice<TToken, TResult>(
@@ -61,9 +62,23 @@ namespace Parseq
             if (parsers == null)
                 throw new ArgumentNullException("parsers");
 
-            return parsers.Case(
+            return parsers.IfEmpty(
                 () => Prims.Fail<TToken, TResult>(),
-                (head, tail) => tail.Aggregate(head, (x, y) => x.Or(y)));
+                xs => xs.HeadAndTail()
+                        .Case((head, tail) => head.Or(Combinator.Lazy(() => Combinator.Choice(tail)))));
+        }
+
+        public static Parser<TToken, Either<TResult0, TResult1>> Fork<TToken, TResult0, TResult1>(
+            this Parser<TToken, TResult0> parser0,
+            Parser<TToken, TResult1> parser1)
+        {
+            if (parser0 == null)
+                throw new ArgumentNullException("parser0");
+            if (parser1 == null)
+                throw new ArgumentNullException("parser1");
+
+            return parser0.Select(_ => Either.Left<TResult0, TResult1>(_))
+                .Or(parser1.Select(_ => Either.Right<TResult0, TResult1>(_)));
         }
 
         public static Parser<TToken, TResult> Or<TToken, TResult>(
@@ -91,7 +106,7 @@ namespace Parseq
             };
         }
 
-        public static Parser<TToken, Unit> And<TToken, TResult>(
+        public static Parser<TToken, TResult> And<TToken, TResult>(
             this Parser<TToken, TResult> parser)
         {
             if (parser == null)
@@ -103,10 +118,10 @@ namespace Parseq
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
-                    case ReplyStatus.Success: return Reply.Success<TToken, Unit>(stream, Unit.Instance);
-                    case ReplyStatus.Failure: return Reply.Failure<TToken, Unit>(stream);
+                    case ReplyStatus.Success: return Reply.Success<TToken, TResult>(stream, result);
+                    case ReplyStatus.Failure: return Reply.Failure<TToken, TResult>(stream);
                     default:
-                        return Reply.Error<TToken, Unit>(stream, message);
+                        return Reply.Error<TToken, TResult>(stream, message);
                 }
             };
         }
@@ -131,6 +146,19 @@ namespace Parseq
             };
         }
 
+        public static Parser<TToken, IEnumerable<TResult>> Greed<TToken, TResult>(
+            this IEnumerable<Parser<TToken, TResult>> parsers)
+        {
+            if (parsers == null)
+                throw new ArgumentNullException("parsers");
+
+            return parsers.IfEmpty(
+                () => Prims.Empty<TToken, TResult>(),
+                xs => xs.HeadAndTail()
+                        .Case((head, tail) => head.SelectMany(x => Combinator.Greed(tail).Select(y => x.Concat(y)))
+                            .Or(Prims.Empty<TToken, TResult>())));
+        }
+
         public static Parser<TToken, IEnumerable<TResult>> Repeat<TToken, TResult>(
             this Parser<TToken, TResult> parser, Int32 count)
         {
@@ -149,7 +177,7 @@ namespace Parseq
                 throw new ArgumentNullException("parser");
 
             return parser.SelectMany(x => Combinator.Many(parser).Select(y => x.Concat(y)))
-                .Or(Prims.Return<TToken, IEnumerable<TResult>>(Enumerable.Empty<TResult>()));
+                .Or(Prims.Empty<TToken, TResult>());
         }
 
         public static Parser<TToken, IEnumerable<TResult>> Many<TToken, TResult>(
@@ -184,7 +212,7 @@ namespace Parseq
             if (min < 0)
                 throw new ArgumentOutOfRangeException("min");
 
-            return Combinator.Repeat(parser,min).SelectMany(x => Combinator.Many(parser).Select(y => x.Concat(y)));
+            return Combinator.Repeat(parser, min).SelectMany(x => Combinator.Many(parser).Select(y => x.Concat(y)));
         }
 
         private static Parser<TToken, IEnumerable<TResult>> Max<TToken, TResult>(
@@ -195,10 +223,7 @@ namespace Parseq
             if (max < 0)
                 throw new ArgumentOutOfRangeException("max");
 
-            return (max == 0)
-                ? Enumerable.Empty<TResult>().Return<TToken, IEnumerable<TResult>>()
-                : parser.SelectMany(x => Combinator.Max(parser, max - 1).Select(y => x.Concat(y)))
-                    .Or(parser.Select(t => t.Enumerate()));
+            return Combinator.Greed(parser.Replicate().Take(max));
         }
 
         public static Parser<TToken, Option<TResult>> Maybe<TToken, TResult>(

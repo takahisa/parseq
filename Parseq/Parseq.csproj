@@ -56,6 +56,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="ErrorMessage.cs" />
     <Compile Include="ErrorMessageType.cs" />
+    <Compile Include="Foldable.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Option.cs" />
     <Compile Include="OptionExtensions.cs" />

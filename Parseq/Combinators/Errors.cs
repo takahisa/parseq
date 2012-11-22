@@ -30,7 +30,7 @@ namespace Parseq.Combinators
 {
     public static class Errors
     {
-        public static Parser<TToken, Option<TResult>> Rescue<TToken, TResult>(
+        public static Parser<TToken, TResult> Rescue<TToken, TResult>(
             this Parser<TToken, TResult> parser)
         {
             if (parser == null)
@@ -42,10 +42,30 @@ namespace Parseq.Combinators
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
-                    case ReplyStatus.Success: return Reply.Success<TToken, Option<TResult>>(reply.Stream, Option.Just(result));
-                    case ReplyStatus.Failure: return Reply.Failure<TToken, Option<TResult>>(stream);
+                    case ReplyStatus.Success: 
+                        return Reply.Success<TToken, TResult>(reply.Stream, result);
                     default:
-                        return Reply.Success<TToken, Option<TResult>>(stream, Option.None<TResult>());
+                        return Reply.Failure<TToken, TResult>(stream);
+                }
+            };
+        }
+
+        public static Parser<TToken, TResult> Filter<TToken, TResult>(
+            this Parser<TToken, TResult> parser,
+            ErrorMessageType messageTypeFilter)
+        {
+            return stream =>
+            {
+                Reply<TToken, TResult> reply;
+                TResult result; ErrorMessage message;
+                switch ((reply = parser(stream)).TryGetValue(out result, out message))
+                {
+                    case ReplyStatus.Success: return Reply.Success<TToken, TResult>(reply.Stream, result);
+                    case ReplyStatus.Failure: return Reply.Failure<TToken, TResult>(stream);
+                    default:
+                        return ((message.MessageType & messageTypeFilter) != 0)
+                            ? Reply.Failure<TToken, TResult>(stream)
+                            : Reply.Error<TToken, TResult>(stream, message);
                 }
             };
         }
@@ -176,7 +196,7 @@ namespace Parseq.Combinators
             return parser.WhenError(Errors.Message<TToken, TResult>(message));
         }
 
-        public static Parser<TToken, Unit> FollowedBy<TToken, TResult>(Parser<TToken, TResult> parser, String message)
+        public static Parser<TToken, TResult> FollowedBy<TToken, TResult>(Parser<TToken, TResult> parser, String message)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
@@ -189,19 +209,20 @@ namespace Parseq.Combinators
                 switch (parser(stream).TryGetValue(out result, out error))
                 {
                     case ReplyStatus.Success:
-                        return Reply.Success<TToken, Unit>(stream, Unit.Instance);
+                        return Reply.Success<TToken, TResult>(stream, result);
                     case ReplyStatus.Failure:
-                        return Reply.Error<TToken, Unit>(stream,
+                        return Reply.Error<TToken, TResult>(stream,
                             new ErrorMessage(ErrorMessageType.Error, message, stream.Position, stream.Position));
                     default:
-                        return Reply.Error<TToken, Unit>(stream, error);
+                        return Reply.Error<TToken, TResult>(stream, error);
                 }
             };
+           
         }
 
-        public static Parser<TToken, Unit> FollowedBy<TToken, TResult>(Parser<TToken, TResult> parser)
+        public static Parser<TToken, TResult> FollowedBy<TToken, TResult>(Parser<TToken, TResult> parser)
         {
-            return FollowedBy(parser, "Syntax Error");
+            return FollowedBy(parser, "Error: FollowedBy");
         }
 
         public static Parser<TToken, Unit> NotFollowedBy<TToken, TResult>(Parser<TToken, TResult> parser, String message)
@@ -229,7 +250,7 @@ namespace Parseq.Combinators
 
         public static Parser<TToken, Unit> NotFollowedBy<TToken, TResult>(Parser<TToken, TResult> parser)
         {
-            return NotFollowedBy(parser, "Syntax Error");
+            return NotFollowedBy(parser, "Error: NotFollowedBy");
         }
     }
 }

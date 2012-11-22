@@ -42,6 +42,19 @@ namespace Parseq.Combinators
             return stream => Reply.Success<TToken, TResult>(stream, value);
         }
 
+        public static Parser<TToken, TResult> Return<TToken, TResult>(this Func<TResult> func)
+        {
+            if (func == null)
+                throw new ArgumentNullException("func");
+
+            return stream => Reply.Success<TToken, TResult>(stream, func());
+        }
+
+        public static Parser<TToken, IEnumerable<TResult>> Empty<TToken, TResult>()
+        {
+            return Prims.Return<TToken, IEnumerable<TResult>>(Enumerable.Empty<TResult>());
+        }
+
         public static Parser<TToken, TResult> Fail<TToken,TResult>()
         {
             return stream => Reply.Failure<TToken, TResult>(stream);
@@ -54,11 +67,10 @@ namespace Parseq.Combinators
 
         public static Parser<TToken, TResult> Error<TToken, TResult>()
         {
-            return Prims.Error<TToken, TResult>("Error");
+            return Prims.Error<TToken, TResult>("Unspecified Error");
         }
 
-        public static Parser<TToken, TToken> Satisfy<TToken>(
-            Func<TToken, Boolean> predicate)
+        public static Parser<TToken, TToken> Satisfy<TToken>(this Func<TToken, Boolean> predicate)
         {
             if (predicate == null)
                 throw new ArgumentNullException("selector");
@@ -69,9 +81,27 @@ namespace Parseq.Combinators
                     : Reply.Failure<TToken, TToken>(stream);
         }
 
+        public static Parser<TToken, TToken> Satisfy<TToken>(this TToken token)
+            where TToken : IEquatable<TToken>
+        {
+            return Prims.Satisfy<TToken>(t => t.Equals(token));
+        }
+
         public static Parser<TToken, TToken> Any<TToken>()
         {
             return Prims.Satisfy<TToken>(_ => true);
+        }
+
+        public static Parser<TToken, TToken> OneOf<TToken>(
+            Func<TToken, TToken, Boolean> predicate,
+            IEnumerable<TToken> candidates)
+        {
+            if (predicate == null)
+                throw new ArgumentNullException("predicate");
+            if (candidates == null)
+                throw new ArgumentNullException("candidates");
+
+            return Combinator.Choice(candidates.Select(x => Prims.Satisfy<TToken>(y => predicate(x, y))));
         }
 
         public static Parser<TToken, TToken> OneOf<TToken>(
@@ -83,32 +113,53 @@ namespace Parseq.Combinators
             if (candidates == null)
                 throw new ArgumentNullException("candidates");
 
-            return Combinator.Choice(candidates.Select(x => Prims.Satisfy<TToken>(y => predicate(x, y))));
+            return Prims.OneOf<TToken>(predicate, candidates.AsEnumerable());
         }
 
-        public static Parser<TToken, TToken> OneOf<TToken>(
-            params TToken[] candidates)
+        public static Parser<TToken, TToken> OneOf<TToken>(IEnumerable<TToken> candidates)
+            where TToken : IEquatable<TToken>
         {
-            return Prims.OneOf<TToken>(
-                EqualityComparer<TToken>.Default.Equals, candidates);
+            return Prims.OneOf<TToken>((x, y) => x.Equals(y), candidates);
+        }
+
+        public static Parser<TToken, TToken> OneOf<TToken>(params TToken[] candidates)
+            where TToken : IEquatable<TToken>
+        {
+            return Prims.OneOf<TToken>(candidates.AsEnumerable());
         }
 
         public static Parser<TToken, TToken> NoneOf<TToken>(
-            Func<TToken, TToken, Boolean> predicate, params TToken[] candidates)
+            Func<TToken, TToken, Boolean> predicate, IEnumerable<TToken> candidates)
         {
             if (predicate == null)
                 throw new ArgumentNullException("predicate");
             if (candidates == null)
                 throw new ArgumentNullException("candidates");
 
-            return Combinator.Choice(candidates.Select(x => Prims.Satisfy<TToken>(y => predicate(x, y)))).Not().Right(Prims.Any<TToken>());
+            return Combinator.Choice(candidates.Select(x => Prims.Satisfy<TToken>(y => predicate(x, y))))
+                .Not()
+                .Right(Prims.Any<TToken>());
         }
 
         public static Parser<TToken, TToken> NoneOf<TToken>(
-            params TToken[] candidates)
+            Func<TToken, TToken, Boolean> predicate, params TToken[] candidates)
         {
-            return Prims.NoneOf<TToken>(
-                EqualityComparer<TToken>.Default.Equals, candidates);
+            if (candidates == null)
+                throw new ArgumentNullException("candidates");
+
+            return Prims.NoneOf<TToken>(predicate, candidates.AsEnumerable());
+        }
+
+        public static Parser<TToken, TToken> NoneOf<TToken>(IEnumerable<TToken> candidates)
+            where TToken : IEquatable<TToken>
+        {
+            return Prims.NoneOf<TToken>((x, y) => x.Equals(y), candidates);
+        }
+
+        public static Parser<TToken, TToken> NoneOf<TToken>(params TToken[] candidates)
+            where TToken : IEquatable<TToken>
+        {
+            return Prims.NoneOf<TToken>(candidates.AsEnumerable());
         }
 
         public static Parser<TToken, TResult2> Pipe<TToken, TResult0, TResult1, TResult2>(
@@ -275,7 +326,10 @@ namespace Parseq.Combinators
             if (separator == null)
                 throw new ArgumentNullException("separator");
 
-            return parser.SelectMany(x => separator.Right(parser).Many(count).Select(y => x.Concat(y)));
+
+            return parser.Replicate().Select((p, i) => (i == 0) ? p : separator.Right(p))
+                .Partition(count)
+                .Case((par0, par1) => Combinator.Sequence(par0).SelectMany(x => Combinator.Greed(par1).Select(y => x.Concat(y))));
         }
 
         public static Parser<TToken, IEnumerable<TResult>> SepBy<TToken, TResult, TSeparator>(
@@ -283,6 +337,21 @@ namespace Parseq.Combinators
             Parser<TToken, TSeparator> separator)
         {
             return parser.SepBy(0, separator);
+        }
+
+        public static Parser<TToken, IEnumerable<TResult>> EndBy<TToken, TResult, TSeparator>(
+            this Parser<TToken, TResult> parser,
+            Int32 count,
+            Parser<TToken, TSeparator> separator)
+        {
+            return Prims.SepBy(parser, count, separator).Left(separator);
+        }
+
+        public static Parser<TToken, IEnumerable<TResult>> EndBy<TToken, TResult, TSeparator>(
+            this Parser<TToken, TResult> parser,
+            Parser<TToken, TSeparator> separator)
+        {
+            return Prims.EndBy(parser, 0, separator);
         }
 
         public static Parser<TToken, IEnumerable<TResult>> SepEndBy<TToken, TResult, TSeparator>(
@@ -358,7 +427,7 @@ namespace Parseq.Combinators
 
             return parser.Pipe(separator.Right(parser).Many(1),
                 (head, tail) => tail.LastAndInit()
-                    .Case((last, init) => selector(head, init.Foldr(seed(last), (x,y) => selector(x, y)))));
+                    .Case((last, init) => selector(head, init.Foldr(seed(last), (x, y) => selector(x, y)))));
         }
 
         public static Parser<TToken, TResult> Chainr<TToken, TResult>(

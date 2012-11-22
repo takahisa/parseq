@@ -101,7 +101,9 @@ namespace Parseq
             return new StreamAdapter<T>(enumerable);
         }
 
-        private class StreamMapper<T, U> : Stream<U> {
+        private class StreamMapper<T, U> 
+            : Stream<U> 
+        {
             private readonly Stream<T> _stream;
             private readonly Func<T, U> _selector;
 
@@ -159,7 +161,8 @@ namespace Parseq
             }
         }
 
-        private class StreamAdapter<T> : Stream<T>
+        private class StreamAdapter<T>
+            : Stream<T>
         {
             private readonly IEnumerator<T> _enumerator;
             private readonly Option<T> _current;
@@ -266,7 +269,8 @@ namespace Parseq
             }
         }
 
-        private class TextReaderAdapter : TextReader
+        private class TextReaderAdapter
+            : TextReader
         {
             private IEnumerator<Char> _enumerator;
             private Option<Char> _current;
