@@ -30,37 +30,58 @@ namespace Parseq
 {
     public static class Extensions
     {
-        public static void ForEach<T>(this IEnumerable<T> enumerable,Action<T> action)
+        internal static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
         {
             foreach (var i in enumerable)
                 action(i);
         }
 
-        public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T, Int32> action)
+        internal static void ForEach<T>(this IEnumerable<T> enumerable, Action<T, Int32> action)
         {
             var index = 0;
             foreach (var i in enumerable)
                 action(i, index++);
         }
 
-        public static T With<T>(this T value, Action<T> action) {
-            if (action == null)
-                throw new ArgumentNullException("action");
+        internal static T With<T>(this T value, Action<T> action)
+        {
             action(value);
             return value;
         }
 
-        public static TResult Case<T, TResult>(
-            this IEnumerable<T> enumerable,
-            Func<TResult> nil,
-            Func<T, IEnumerable<T>, TResult> cons)
+        internal static IEnumerable<T> Return<T>(this T value)
         {
-            var enumerator = enumerable.GetEnumerator();
-            return !(enumerator.MoveNext()) ? nil() : cons(enumerator.Current, enumerator.Enumerate());
+            yield return value;
         }
 
-        public static TResult Case<T, TResult>(
-            this Tuple<T, IEnumerable<T>> pattern,
+        internal static IEnumerable<T> Concat<T>(this IEnumerable<T> first, T second)
+        {
+            foreach (var t in first)
+                yield return t;
+
+            yield return second;
+        }
+
+        internal static IEnumerable<T> Concat<T>(this T first, IEnumerable<T> second)
+        {
+            yield return first;
+
+            foreach (var t in second)
+                yield return t;
+        }
+
+        internal static IEnumerable<T> Replicate<T>(this T value)
+        {
+            return Extensions.Replicate(() => value);
+        }
+
+        internal static IEnumerable<T> Replicate<T>(this Func<T> selector)
+        {
+            while (true)
+                yield return selector();
+        }
+
+        internal static TResult Case<T, TResult>(this Tuple<T, IEnumerable<T>> pattern,
             Func<T, IEnumerable<T>, TResult> selector)
         {
             if (pattern == null)
@@ -71,72 +92,74 @@ namespace Parseq
             return selector(pattern.Item1, pattern.Item2);
         }
 
-        public static Tuple<T, IEnumerable<T>> HeadAndTail<T>(this IEnumerable<T> enumerable)
+        internal static TResult Case<T, TResult>(this Tuple<IEnumerable<T>, IEnumerable<T>> pattern,
+            Func<IEnumerable<T>, IEnumerable<T>, TResult> selector)
+        {
+            if (pattern == null)
+                throw new ArgumentNullException("pattern");
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+
+            return selector(pattern.Item1, pattern.Item2);
+        }
+
+        internal static TResult IfEmpty<T, TResult>(this IEnumerable<T> enumerable,
+            Func<TResult> thenSelector,
+            Func<IEnumerable<T>, TResult> elseSelector)
+        {
+            var enumerator = enumerable.GetEnumerator();
+            return (!enumerator.MoveNext())
+                ? thenSelector().With(_ => enumerator.Dispose())
+                : elseSelector(enumerator.Current.Concat(enumerator.EnumerateTail(e => e.Dispose())));
+        }
+
+        internal static Tuple<T, IEnumerable<T>> HeadAndTail<T>(this IEnumerable<T> enumerable)
         {
             var enumerator = enumerable.GetEnumerator();
             if (!enumerator.MoveNext())
                 throw new InvalidOperationException();
 
             var head = enumerator.Current;
-            var tail = enumerator.Enumerate();
+            var tail = enumerator.EnumerateTail(e => e.Dispose());
 
             return Tuple.Create(head, tail);
         }
 
-        public static Tuple<T, IEnumerable<T>> LastAndInit<T>(this IEnumerable<T> enumerable)
+        internal static Tuple<T, IEnumerable<T>> LastAndInit<T>(this IEnumerable<T> enumerable)
         {
             var enumerator = enumerable.Reverse().GetEnumerator();
             if (!enumerator.MoveNext())
                 throw new InvalidOperationException();
 
-            var init = enumerator.EnumerateWithoutLast();
             var last = enumerator.Current;
+            var init = enumerator.EnumerateInit(e => e.Dispose());
 
             return Tuple.Create(last, init);
-        }        
-
-        public static IEnumerable<T> Concat<T>(this IEnumerable<T> first, T second)
-        {
-            foreach (var t in first)
-                yield return t;
-
-            yield return second;
         }
 
-        public static IEnumerable<T> Concat<T>(this T first,IEnumerable<T> second)
+        internal static Tuple<IEnumerable<T>, IEnumerable<T>> Partition<T>(this IEnumerable<T> enumerable, Int32 count)
         {
-            yield return first;
+            if (count < 0)
+                throw new ArgumentOutOfRangeException("count");
 
-            foreach (var t in second)
-                yield return t;
+            var enumerator = enumerable.GetEnumerator();
+            var par0 = enumerator.EnumerateCount(count, e => { });
+            var par1 = enumerator.EnumerateTail(e => e.Dispose());
+            return Tuple.Create(par0, par1);
         }
 
-        public static IEnumerable<T> Replicate<T>(this T value)
-        {
-            return Extensions.Replicate(() => value);
-        }
-
-        public static IEnumerable<T> Replicate<T>(this Func<T> selector)
-        {
-            while (true)
-                yield return selector();
-        }
-
-        public static IEnumerable<T> Enumerate<T>(this T value)
-        {
-            yield return value;
-        }
-
-        public static IEnumerable<T> Enumerate<T>(this IEnumerator<T> enumerator)
+        private static IEnumerable<T> EnumerateTail<T>(this IEnumerator<T> enumerator, Action<IEnumerator<T>> callback)
         {
             if (enumerator == null)
                 throw new ArgumentNullException("enumerator");
 
             while (enumerator.MoveNext())
                 yield return enumerator.Current;
+
+            callback(enumerator);
         }
 
-        private static IEnumerable<T> EnumerateWithoutLast<T>(this IEnumerator<T> enumerator)
+        private static IEnumerable<T> EnumerateInit<T>(this IEnumerator<T> enumerator, Action<IEnumerator<T>> callback)
         {
             if (enumerator == null)
                 throw new ArgumentNullException("enumerator");
@@ -145,36 +168,18 @@ namespace Parseq
             {
                 do yield return enumerator.Current; while (enumerator.MoveNext());
             }
+
+            callback(enumerator);
         }
 
-        public static TResult Foldl<T, TResult>(this IEnumerable<T> enumerable, TResult seed, Func<TResult, T, TResult> folder)
+        private static IEnumerable<T> EnumerateCount<T>(this IEnumerator<T> enumerator, Int32 count, Action<IEnumerator<T>> callback)
         {
-            if (enumerable == null)
-                throw new ArgumentNullException("enumerable");
-            if (folder == null)
-                throw new ArgumentNullException("folder");
-
-            using (var enumerator = enumerable.GetEnumerator())
-            {
-                while (enumerator.MoveNext())
-                    seed = folder(seed, enumerator.Current);
-                return seed;
-            }            
-        }
-
-        public static TResult Foldr<T, TResult>(this IEnumerable<T> enumerable, TResult seed, Func<T, TResult, TResult> folder)
-        {
-            if (enumerable == null)
-                throw new ArgumentNullException("enumerable");
-            if (folder == null)
-                throw new ArgumentNullException("folder");
-
-            using (var enumerator = enumerable.Reverse().GetEnumerator())
-            {
-                while (enumerator.MoveNext())
-                    seed = folder(enumerator.Current, seed);
-                return seed;
+            foreach(var i in Enumerable.Range(0, count)) {
+                if (!enumerator.MoveNext())
+                    break;
+                yield return enumerator.Current;
             }
+            callback(enumerator);
         }
     }
 }
