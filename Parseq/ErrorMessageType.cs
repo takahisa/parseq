@@ -28,10 +28,11 @@ using System.Text;
 
 namespace Parseq
 {
+    [Flags]
     public enum ErrorMessageType
     {
-        Error,
+        Message = 1,
         Warn,
-        Message,
+        Error,
     }
 }

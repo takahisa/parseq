@@ -45,13 +45,11 @@ namespace Parseq
 
         public static Cps<TResult, U> For<TResult, T, U>(this IEnumerable<T> enumerable, Func<T, Cps<TResult, U>> selector)
         {
-            return enumerable.Case(
-                () => { throw new InvalidOperationException(); },
-                (head, tail) => enumerable.Foldl(selector(head), (x, y) => x.SelectMany(_ => selector(y))));
+            return enumerable.HeadAndTail()
+                .Case((head, tail) => enumerable.Foldl(selector(head), (x, y) => x.SelectMany(_ => selector(y))));
         }
 
-        public static Unit ForEach<T>(this IEnumerable<T> enumerable,
-            Func<T, Cps<Unit, T>, Cps<Unit, T>, Cps<Unit, Unit>> f)
+        public static Unit ForEach<T>(this IEnumerable<T> enumerable, Func<T, Cps<Unit, T>, Cps<Unit, T>, Cps<Unit, Unit>> f)
         {
             if (enumerable == null)
                 throw new ArgumentNullException("enumerable");
