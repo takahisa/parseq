@@ -70,13 +70,13 @@ namespace Parseq
                              .Case((x, xs) => Foldable.Foldr(xs, x, func));
         }
 
-        public static IEnumerable<U> Unfoldl<T, U>(T seed, Func<T, Option<Tuple<T, U>>> func)
+        public static IEnumerable<T> Unfoldl<T, U>(U seed, Func<U, Option<Tuple<T, U>>> func)
         {
-            return Foldable.Unfoldr((b => func(b).Select(_ => new Tuple<U, T>(_.Item2, _.Item1))), seed)
+            return Foldable.Unfoldr(seed, (b => func(b).Select(_ => new Tuple<U, T>(_.Item2, _.Item1))))
                 .Reverse();
         }
 
-        public static IEnumerable<U> Unfoldr<T, U>(T seed, Func<T, Option<Tuple<U, T>>> func)
+        public static IEnumerable<T> Unfoldr<T, U>(U seed, Func<U, Option<Tuple<U, T>>> func)
         {
             if (func == null)
                 throw new ArgumentNullException("func");
@@ -84,8 +84,8 @@ namespace Parseq
             Tuple<U, T> result;
             while (func(seed).TryGetValue(out result))
             {
-                seed = result.Item2;
-                yield return result.Item1;
+                seed = result.Item1;
+                yield return result.Item2;
             }
         }
     }
