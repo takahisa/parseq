@@ -96,6 +96,21 @@ namespace Parseq
             return new CharStream(new TextReaderAdapter(enumerable));
         }
 
+        public static Stream<Byte> AsStream(this Stream stream)
+        {
+            if (stream == null)
+                throw new ArgumentNullException("stream");
+
+            return Foldable.Unfoldr<Byte, Unit>(Unit.Instance, _ => {
+                Int32 value;
+                return (value = stream.ReadByte()) != -1
+                    ? Option.Just<Tuple<Unit, Byte>>(Tuple.Create(Unit.Instance, (Byte)value))
+                    : Option.None<Tuple<Unit, Byte>>();
+                })
+                .ToArray()
+                .AsStream();
+        }
+
         public static Stream<T> AsStream<T>(this IEnumerable<T> enumerable)
         {
             return new StreamAdapter<T>(enumerable);
