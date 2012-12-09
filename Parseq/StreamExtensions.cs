@@ -96,19 +96,39 @@ namespace Parseq
             return new CharStream(new TextReaderAdapter(enumerable));
         }
 
-        public static Stream<Byte> AsStream(this Stream stream)
+        public static Stream<Byte> AsStream(this Stream ioStream)
         {
-            if (stream == null)
+            if (ioStream == null)
                 throw new ArgumentNullException("stream");
 
-            return Foldable.Unfoldr<Byte, Unit>(Unit.Instance, _ => {
-                Int32 value;
-                return (value = stream.ReadByte()) != -1
-                    ? Option.Just<Tuple<Unit, Byte>>(Tuple.Create(Unit.Instance, (Byte)value))
-                    : Option.None<Tuple<Unit, Byte>>();
+            var stream = Foldable.Unfoldr<Byte, Unit>(Unit.Instance, _ =>
+                {
+                    Int32 value;
+                    return (value = ioStream.ReadByte()) != -1
+                        ? Option.Just<Tuple<Unit, Byte>>(Tuple.Create(Unit.Instance, (Byte)value))
+                        : Option.None<Tuple<Unit, Byte>>();
                 })
                 .ToArray()
                 .AsStream();
+            return new StreamDisposer<Byte, Stream>(stream, ioStream);
+        }
+
+        public static Stream<Char> AsStream(this StreamReader ioReader)
+        {
+            if (ioReader == null)
+                throw new ArgumentNullException("stream");
+
+            var stream = Foldable.Unfoldr<Char, Unit>(Unit.Instance,
+                _ => {
+                    Int32 value;
+                    return (value = ioReader.Read()) != -1
+                        ? Option.Just<Tuple<Unit, Char>>(Tuple.Create(Unit.Instance, (Char)value))
+                        : Option.None<Tuple<Unit, Char>>();
+                })
+                .ToArray()
+                .AsStream();
+
+            return new StreamDisposer<Char, StreamReader>(stream, ioReader);
         }
 
         public static Stream<T> AsStream<T>(this IEnumerable<T> enumerable)
@@ -281,6 +301,70 @@ namespace Parseq
             public override void Dispose()
             {
 
+            }
+        }
+
+        private class StreamDisposer<T, TObj>
+            : Stream<T>
+            where TObj : IDisposable
+        {
+            private readonly Stream<T> _stream;
+            private readonly TObj _obj;
+
+            public StreamDisposer(Stream<T> stream, TObj obj)
+            {
+                if (stream == null)
+                    throw new ArgumentNullException("stream");
+
+                _stream = stream;
+                _obj = obj;
+            }
+
+            public override Position Position
+            {
+                get { return _stream.Position; }
+            }
+
+            public override Boolean CanNext()
+            {
+                return _stream.CanNext();
+            }
+
+            public override Boolean CanRewind()
+            {
+                return _stream.CanRewind();
+            }
+
+            public override Stream<T> Next()
+            {
+                if (!this.CanNext())
+                    throw new InvalidOperationException();
+
+                return new StreamDisposer<T, TObj>(_stream.Next(), _obj);
+            }
+
+            public override Stream<T> Rewind()
+            {
+                if (!this.CanRewind())
+                    throw new InvalidOperationException();
+
+                return new StreamDisposer<T, TObj>(_stream.Rewind(), _obj);
+            }
+
+            public override Boolean TryGetValue(out T value)
+            {
+                return _stream.TryGetValue(out value);
+            }
+
+            public override T Perform()
+            {
+                return _stream.Perform();
+            }
+
+            public override void Dispose()
+            {
+                _stream.Dispose();
+                _obj.Dispose();
             }
         }
 
