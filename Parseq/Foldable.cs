@@ -70,13 +70,13 @@ namespace Parseq
                              .Case((x, xs) => Foldable.Foldr(xs, x, func));
         }
 
-        public static IEnumerable<U> Unfoldl<T, U>(Func<T, Option<Tuple<T, U>>> func, T seed)
+        public static IEnumerable<U> Unfoldl<T, U>(T seed, Func<T, Option<Tuple<T, U>>> func)
         {
             return Foldable.Unfoldr((b => func(b).Select(_ => new Tuple<U, T>(_.Item2, _.Item1))), seed)
                 .Reverse();
         }
 
-        public static IEnumerable<U> Unfoldr<T, U>(Func<T, Option<Tuple<U, T>>> func, T seed)
+        public static IEnumerable<U> Unfoldr<T, U>(T seed, Func<T, Option<Tuple<U, T>>> func)
         {
             if (func == null)
                 throw new ArgumentNullException("func");
