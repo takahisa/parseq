@@ -160,37 +160,137 @@ namespace Parseq.Test.Combinators
         [TestMethod]
         public void SepByTest()
         {
+            var parser = Chars.Satisfy('a');
+            var separator = Chars.Satisfy(',');
+            
+            Prims.SepBy(parser, separator)
+                .ExpectSuccess(new[] { 'a', 'a', 'a' })
+                .Run("a,a,a".AsStream());
 
+            Prims.SepBy(parser, separator).Left(Chars.Satisfy(','))
+                .ExpectSuccess(new[] { 'a', 'a', 'a' })
+                .Run("a,a,a,".AsStream());
+
+            Prims.SepBy(parser, 0, separator)
+                .ExpectSuccess(new Char[] { })
+                .Run("".AsStream());
+
+            Prims.SepBy(parser, 2, separator)
+                .ExpectFailure()
+                .Run("a".AsStream());
         }
 
         [TestMethod]
         public void SepEndBy()
         {
+            var parser = Chars.Satisfy('a');
+            var separator = Chars.Satisfy(',');
 
+            Prims.SepEndBy(parser, separator)
+                .ExpectSuccess(new[] { 'a', 'a', 'a' })
+                .Run("a,a,a".AsStream());
+
+            Prims.SepEndBy(parser, separator)
+                .ExpectSuccess(new[] { 'a', 'a', 'a' })
+                .Run("a,a,a,".AsStream());
+
+            Prims.SepEndBy(parser, 0, separator)
+                .ExpectSuccess(new Char[] { })
+                .Run("".AsStream());
+
+            Prims.SepEndBy(parser, 1, separator)
+                .ExpectSuccess(new[] { 'a', 'a', 'a' })
+                .Run("a,a,a,".AsStream());
+
+            Prims.SepEndBy(parser, 1, separator)
+                .ExpectFailure()
+                .Run("".AsStream());
+
+            Prims.SepEndBy(parser, 2, separator)
+                .ExpectFailure()
+                .Run("a,".AsStream());            
         }
 
         [TestMethod]
         public void EndBy()
         {
+            var parser = Chars.Satisfy('a');
+            var separator = Chars.Satisfy(',');
 
+            Prims.SepBy(parser, separator)
+                .ExpectSuccess(new[] { 'a', 'a' })
+                .Run("a,a,a".AsStream());
+
+            Prims.SepBy(parser, separator)
+                .ExpectSuccess(new[] { 'a', 'a', 'a' })
+                .Run("a,a,a,".AsStream());
+
+            Prims.EndBy(parser, 1, separator)
+                .ExpectSuccess(new[] { 'a', 'a', 'a' })
+                .Run("a,a,a,".AsStream());
+
+            Prims.SepBy(parser, 0, separator)
+                .ExpectSuccess(new Char[] { })
+                .Run("".AsStream());
+
+            Prims.SepBy(parser, 2, separator)
+                .ExpectFailure()
+                .Run("a,".AsStream());
         }
 
         [TestMethod]
         public void BetweenTest()
         {
+            var lp = Chars.Satisfy('(');
+            var rp = Chars.Satisfy(')');
+            var parser = Chars.Any();
 
+            Prims.Between(parser, lp, rp)
+                .ExpectSuccess('a')
+                .Run("(a)".AsStream());
+
+            Prims.Between(parser, lp, rp)
+                .ExpectFailure()
+                .Run("(a".AsStream());
+            Prims.Between(parser, lp, rp)
+                .ExpectFailure()
+                .Run("a)".AsStream());
+
+            Prims.Between(parser, lp, rp)
+                .ExpectFailure()
+                .Run("a".AsStream());
+        }
+
+        [TestMethod]
+        public void ChainrlTest()
+        {
+            var parser = Combinator.Not(Chars.Satisfy('0')).Right(Chars.Digit().Many(1))
+                .Select(s => Int32.Parse(new String(s.ToArray())));
+            var sep = Chars.Satisfy('-').Ignore();
+
+            Prims.Chainl(parser, sep, (x, y) => x - y)
+                .ExpectSuccess((((1 - 2) - 3) - 4))
+                .Run("1-2-3-4".AsStream());
+
+            Prims.Chainl(parser, sep, 0, (x, y) => x - y)
+                .ExpectSuccess(((((0 - 1) - 2) - 3) - 4))
+                .Run("1-2-3-4".AsStream());
         }
 
         [TestMethod]
         public void ChainrTest()
         {
+            var parser = Combinator.Not(Chars.Satisfy('0')).Right(Chars.Digit().Many(1))
+                .Select(s => Int32.Parse(new String(s.ToArray())));
+            var sep = Chars.Satisfy('-').Ignore();
 
-        }
+            Prims.Chainr(parser, sep, (x, y) => x - y)
+                .ExpectSuccess(1 - ( 2 - ( 3 - 4 )))
+                .Run("1-2-3-4".AsStream());
 
-        [TestMethod]
-        public void ChainlTest()
-        {
-
+            Prims.Chainr(parser, sep, 0, (x, y) => x - y)
+                .ExpectSuccess(1 - (2 - (3 - (4 - 0 ))))
+                .Run("1-2-3-4".AsStream());
         }
     }
 }
