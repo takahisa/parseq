@@ -164,12 +164,7 @@ namespace Parseq
             if (enumerator == null)
                 throw new ArgumentNullException("enumerator");
 
-            if (enumerator.MoveNext())
-            {
-                do yield return enumerator.Current; while (enumerator.MoveNext());
-            }
-
-            callback(enumerator);
+            return EnumerateTail(enumerator, callback).Reverse();
         }
 
         private static IEnumerable<T> EnumerateCount<T>(this IEnumerator<T> enumerator, Int32 count, Action<IEnumerator<T>> callback)

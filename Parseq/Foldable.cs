@@ -37,8 +37,10 @@ namespace Parseq
             if (func == null)
                 throw new ArgumentNullException("func");
 
-            return enumerable.HeadAndTail()
-                             .Case((x, xs) => Foldable.Foldl(xs, func(seed, x), func));
+            return enumerable.IfEmpty(
+                () => seed,
+                xs => xs.HeadAndTail()
+                        .Case((y, ys) => Foldable.Foldl(ys, func(seed, y), func)));
         }
 
         public static T Foldl<T>(this IEnumerable<T> enumerable, Func<T, T, T> func)
@@ -57,8 +59,10 @@ namespace Parseq
             if (func == null)
                 throw new ArgumentNullException("folder");
 
-            return enumerable.LastAndInit()
-                             .Case((x, xs) => Foldable.Foldr(xs, func(x, seed), func));
+            return enumerable.IfEmpty(
+                () => seed,
+                xs => xs.LastAndInit()
+                        .Case((y, ys) => Foldable.Foldr(ys, func(y, seed), func)));
         }
 
         public static T Foldr<T>(this IEnumerable<T> enumerable, Func<T, T, T> func)

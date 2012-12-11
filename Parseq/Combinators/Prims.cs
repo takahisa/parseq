@@ -379,20 +379,37 @@ namespace Parseq.Combinators
         public static Parser<TToken, TResult1> Chainl<TToken, TResult0, TResult1>(
             this Parser<TToken, TResult0> parser,
             Parser<TToken, Unit> separator,
-            Func<TResult0, TResult1> seed,
+            TResult1 seed,
             Func<TResult1, TResult0, TResult1> selector)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
             if (separator == null)
                 throw new ArgumentNullException("separator");
-            if (seed == null)
-                throw new ArgumentNullException("seed");
             if (selector == null)
                 throw new ArgumentNullException("selector");
 
             return parser.Pipe(separator.Right(parser).Many(1),
-                (head, tail) => tail.Foldl(seed(head), selector));
+                (head, tail) => tail.Foldl(selector(seed, head), selector));
+        }
+
+        public static Parser<TToken, TResult1> Chainl<TToken, TResult0, TResult1>(
+            this Parser<TToken, TResult0> parser,
+            Parser<TToken, Unit> separator,
+            Func<TResult0, TResult1> seedSelector,
+            Func<TResult1, TResult0, TResult1> restSelector)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (separator == null)
+                throw new ArgumentNullException("separator");
+            if (seedSelector == null)
+                throw new ArgumentNullException("seed");
+            if (restSelector == null)
+                throw new ArgumentNullException("selector");
+
+            return parser.Pipe(separator.Right(parser).Many(1),
+                (head, tail) => tail.Foldl(seedSelector(head), restSelector));
         }
 
         public static Parser<TToken, TResult> Chainl<TToken, TResult>(
@@ -400,20 +417,13 @@ namespace Parseq.Combinators
             Parser<TToken, Unit> separator,
             Func<TResult, TResult, TResult> selector)
         {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-            if (separator == null)
-                throw new ArgumentNullException("separator");
-            if (selector == null)
-                throw new ArgumentNullException("selector");
-
-            return parser.Chainl<TToken, TResult, TResult>(separator, _ => _, selector);
+            return Prims.Chainl<TToken, TResult, TResult>(parser, separator, _ => _, selector);
         }
 
         public static Parser<TToken, TResult1> Chainr<TToken, TResult0, TResult1>(
             this Parser<TToken, TResult0> parser,
             Parser<TToken, Unit> separator,
-            Func<TResult0, TResult1> seed,
+            TResult1 seed,
             Func<TResult0, TResult1, TResult1> selector)
         {
             if (parser == null)
@@ -426,8 +436,30 @@ namespace Parseq.Combinators
                 throw new ArgumentNullException("selector");
 
             return parser.Pipe(separator.Right(parser).Many(1),
-                (head, tail) => tail.LastAndInit()
-                    .Case((last, init) => selector(head, init.Foldr(seed(last), (x, y) => selector(x, y)))));
+                (head, tail) => head.Concat(tail)
+                    .LastAndInit()
+                    .Case((last, init) => init.Foldr(selector(last, seed), (x, y) => selector(x, y))));
+        }
+
+        public static Parser<TToken, TResult1> Chainr<TToken, TResult0, TResult1>(
+            this Parser<TToken, TResult0> parser,
+            Parser<TToken, Unit> separator,
+            Func<TResult0, TResult1> seedSelector,
+            Func<TResult0, TResult1, TResult1> restSelector)
+        {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (separator == null)
+                throw new ArgumentNullException("separator");
+            if (seedSelector == null)
+                throw new ArgumentNullException("seed");
+            if (restSelector == null)
+                throw new ArgumentNullException("selector");
+
+            return parser.Pipe(separator.Right(parser).Many(1),
+                (head, tail) => head.Concat(tail)
+                    .LastAndInit()
+                    .Case((last, init) => init.Foldr(seedSelector(last), (x, y) => restSelector(x, y))));
         }
 
         public static Parser<TToken, TResult> Chainr<TToken, TResult>(
@@ -435,14 +467,7 @@ namespace Parseq.Combinators
             Parser<TToken, Unit> separator,
             Func<TResult, TResult, TResult> selector)
         {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-            if (separator == null)
-                throw new ArgumentNullException("separator");
-            if (selector == null)
-                throw new ArgumentNullException("selector");
-
-            return parser.Chainr<TToken, TResult, TResult>(separator, _ => _, selector);
+            return Prims.Chainr<TToken, TResult, TResult>(parser, separator, _ => _, selector);
         }
 
         public static Parser<TToken, TResult> WhenSuccess<TToken, TResult>(
