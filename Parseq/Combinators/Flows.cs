@@ -30,37 +30,6 @@ namespace Parseq.Combinators
 {
     public static class Flows
     {
-        public static Boolean IsSuccess<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-            if (stream == null)
-                throw new ArgumentNullException("stream");
-
-            TResult result; ErrorMessage message;
-            return ReplyStatus.Success == parser(stream).TryGetValue(out result, out message);
-        }
-
-        public static Boolean IsFailure<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-
-            TResult result; ErrorMessage message;
-            return ReplyStatus.Failure == parser(stream).TryGetValue(out result, out message);
-        }
-
-        public static Boolean IsError<TToken, TResult>(this Parser<TToken, TResult> parser, Stream<TToken> stream)
-        {
-            if (parser == null)
-                throw new ArgumentNullException("parser");
-            if (stream == null)
-                throw new ArgumentNullException("stream");
-
-            TResult result; ErrorMessage message;
-            return ReplyStatus.Error == parser(stream).TryGetValue(out result, out message);
-        }
-
         public static Parser<TToken, IEnumerable<TResult>> While<TToken, TResult, TCond>(
             this Parser<TToken, TResult> parser, Parser<TToken, TCond> condition)
         {
