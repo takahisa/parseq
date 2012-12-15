@@ -52,7 +52,7 @@ namespace Parseq.Combinators
 
         public static Parser<TToken, TResult> Rescue<TToken, TResult>(
             this Parser<TToken, TResult> parser,
-            ErrorMessageType messageTypeFilter)
+            ErrorMessageType flags)
         {
             return stream =>
             {
@@ -63,7 +63,7 @@ namespace Parseq.Combinators
                     case ReplyStatus.Success: return Reply.Success<TToken, TResult>(reply.Stream, result);
                     case ReplyStatus.Failure: return Reply.Failure<TToken, TResult>(stream);
                     default:
-                        return ((message.MessageType & messageTypeFilter) != 0)
+                        return (flags.HasFlag(message.MessageType))
                             ? Reply.Failure<TToken, TResult>(stream)
                             : Reply.Error<TToken, TResult>(stream, message);
                 }

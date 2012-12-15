@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Combinators\CharsTest.cs" />
+    <Compile Include="Combinators\ErrorsTest.cs" />
     <Compile Include="Combinators\PrimsTest.cs" />
     <Compile Include="CombinatorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

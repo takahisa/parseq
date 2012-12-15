@@ -31,8 +31,8 @@ namespace Parseq
     [Flags]
     public enum ErrorMessageType
     {
-        Message = 1,
-        Warn,
-        Error,
+        Message = 0x1,
+        Warn    = 0x2,
+        Error   = 0x4,
     }
 }
