@@ -30,6 +30,33 @@ namespace Parseq
 {
     public static class ReplyExtensions
     {
+        public static Boolean IsSuccess<TToken, TResult>(this Reply<TToken, TResult> reply)
+        {
+            if(reply == null)
+                throw new ArgumentNullException("reply");
+            
+            TResult result; ErrorMessage message;
+            return ReplyStatus.Success == reply.TryGetValue(out result, out message);
+        }
+
+        public static Boolean IsFailure<TToken, TResult>(this Reply<TToken, TResult> reply)
+        {
+            if (reply == null)
+                throw new ArgumentNullException("reply");
+
+            TResult result; ErrorMessage message;
+            return ReplyStatus.Failure == reply.TryGetValue(out result, out message);
+        }
+
+        public static Boolean IsError<TToken, TResult>(this Reply<TToken, TResult> reply)
+        {
+            if (reply == null)
+                throw new ArgumentNullException("reply");
+
+            TResult result; ErrorMessage message;
+            return ReplyStatus.Error == reply.TryGetValue(out result, out message);
+        }
+
         public static Reply<TToken, T> Where<TToken, T>(this Reply<TToken, T> reply,
             Func<T, Boolean> predicate)
         {
