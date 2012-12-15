@@ -44,6 +44,11 @@ namespace Parseq.Combinators
         public static Parser<TToken, IEnumerable<TResult>> Until<TToken, TResult, TCond>(
             this Parser<TToken, TResult> parser, Parser<TToken, TCond> condition)
         {
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (condition == null)
+                throw new ArgumentNullException("condition");
+
             return (condition.Not().Right(parser)).Many();
         }
 
