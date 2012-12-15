@@ -50,7 +50,7 @@ namespace Parseq.Combinators
             };
         }
 
-        public static Parser<TToken, TResult> Filter<TToken, TResult>(
+        public static Parser<TToken, TResult> Rescue<TToken, TResult>(
             this Parser<TToken, TResult> parser,
             ErrorMessageType messageTypeFilter)
         {
