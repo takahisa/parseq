@@ -247,12 +247,19 @@ namespace Parseq
         }
 
         public static Parser<TToken, TResult> Lazy<TToken, TResult>(
-            this Func<Parser<TToken, TResult>> parser)
+            this Func<Parser<TToken, TResult>> func)
         {
-            if (parser == null)
+            if (func == null)
                 throw new ArgumentNullException("parser");
 
-            return stream => parser()(stream);
+            var cache = Option.None<Parser<TToken, TResult>>();
+            return stream =>
+            {
+                Parser<TToken, TResult> result;
+                if (!cache.TryGetValue(out result))
+                    cache = (result = func());
+                return result.Run(stream);
+            };
         }
 
         public static Parser<TToken, Unit> Ignore<TToken, TResult>(
