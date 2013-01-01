@@ -57,6 +57,10 @@
     <Compile Include="ErrorMessage.cs" />
     <Compile Include="ErrorMessageType.cs" />
     <Compile Include="Foldable.cs" />
+    <Compile Include="Future.cs" />
+    <Compile Include="FutureExtensions.cs" />
+    <Compile Include="Lazy.cs" />
+    <Compile Include="LazyExtensions.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Option.cs" />
     <Compile Include="OptionExtensions.cs" />
