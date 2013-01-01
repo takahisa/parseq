@@ -103,6 +103,12 @@
     <Compile Include="..\Parseq\Foldable.cs">
       <Link>Foldable.cs</Link>
     </Compile>
+    <Compile Include="..\Parseq\Lazy.cs">
+      <Link>Lazy.cs</Link>
+    </Compile>
+    <Compile Include="..\Parseq\LazyExtensions.cs">
+      <Link>LazyExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\Parseq\Option.cs">
       <Link>Option.cs</Link>
     </Compile>
