@@ -46,6 +46,12 @@ namespace Parseq.Test
 
             Combinator.Sequence(failure, error).ExpectFailure().Run("foobar".AsStream());
             Combinator.Sequence(error, failure).ExpectError().Run("foobar".AsStream());
+
+            // Issue #7
+            // Combinator.Sequence does not work since second time parsing in Parseq 
+            var issue_7 = Combinator.Sequence(new[] { 'a', 'b', 'c' }.Select(Chars.Satisfy));
+            issue_7.ExpectSuccess("abc").Run("abc".AsStream());
+            issue_7.ExpectSuccess("abc").Run("abc".AsStream());     
         }
 
         [TestMethod]
@@ -79,9 +85,9 @@ namespace Parseq.Test
 
             // Issue #4 
             // Combinator.Choice does not work since second time parsing in Parseq 
-            var parser = Combinator.Choice(new[] { 'a', 'b', 'c' }.Select(_ => _.Satisfy()));
-            parser.ExpectSuccess('c').Run("c".AsStream());
-            parser.ExpectSuccess('c').Run("c".AsStream());        
+            var issue_4 = Combinator.Choice(new[] { 'a', 'b', 'c' }.Select(_ => _.Satisfy()));
+            issue_4.ExpectSuccess('c').Run("c".AsStream());
+            issue_4.ExpectSuccess('c').Run("c".AsStream());        
         }
 
         [TestMethod]
