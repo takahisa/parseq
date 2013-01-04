@@ -107,74 +107,147 @@ namespace Parseq
             Func<TResult> thenSelector,
             Func<IEnumerable<T>, TResult> elseSelector)
         {
-            var enumerator = enumerable.GetEnumerator();
-            return (!enumerator.MoveNext())
-                ? thenSelector().With(_ => enumerator.Dispose())
-                : elseSelector(enumerator.Current.Concat(enumerator.EnumerateTail(e => e.Dispose())));
+            if (enumerable == null)
+                throw new ArgumentNullException("enumerable");
+
+            var m = enumerable.Memoize();
+            return (!m.Any()) ? thenSelector() : elseSelector(m);
         }
 
         internal static Tuple<T, IEnumerable<T>> HeadAndTail<T>(this IEnumerable<T> enumerable)
         {
-            var enumerator = enumerable.GetEnumerator();
-            if (!enumerator.MoveNext())
-                throw new InvalidOperationException();
+            if (enumerable == null)
+                throw new ArgumentNullException("enumerable");
 
-            var head = enumerator.Current;
-            var tail = enumerator.EnumerateTail(e => e.Dispose());
-
+            var m = enumerable.Memoize();
+            var head = m.First();
+            var tail = m.Skip(1);
             return Tuple.Create(head, tail);
         }
 
         internal static Tuple<T, IEnumerable<T>> LastAndInit<T>(this IEnumerable<T> enumerable)
         {
-            var enumerator = enumerable.Reverse().GetEnumerator();
-            if (!enumerator.MoveNext())
-                throw new InvalidOperationException();
+            if (enumerable == null)
+                throw new ArgumentNullException("enumerable");
 
-            var last = enumerator.Current;
-            var init = enumerator.EnumerateInit(e => e.Dispose());
-
+            var m = enumerable.Reverse().Memoize();
+            var last = m.First();
+            var init = m.Skip(1).Reverse();
             return Tuple.Create(last, init);
         }
 
         internal static Tuple<IEnumerable<T>, IEnumerable<T>> Partition<T>(this IEnumerable<T> enumerable, Int32 count)
         {
+            if (enumerable == null)
+                throw new ArgumentNullException("enumerable");
             if (count < 0)
                 throw new ArgumentOutOfRangeException("count");
 
-            var enumerator = enumerable.GetEnumerator();
-            var par0 = enumerator.EnumerateCount(count, e => { });
-            var par1 = enumerator.EnumerateTail(e => e.Dispose());
+            var m = enumerable.Memoize();
+            var par0 = m.Take(count);
+            var par1 = m.Skip(count);
             return Tuple.Create(par0, par1);
         }
 
-        private static IEnumerable<T> EnumerateTail<T>(this IEnumerator<T> enumerator, Action<IEnumerator<T>> callback)
+        internal static IEnumerable<T> Memoize<T>(this IEnumerable<T> enumerable)
         {
-            if (enumerator == null)
-                throw new ArgumentNullException("enumerator");
+            if (enumerable == null)
+                throw new ArgumentNullException("enumerable");
 
-            while (enumerator.MoveNext())
-                yield return enumerator.Current;
-
-            callback(enumerator);
+            return new MemoizeEnumerable<T>(enumerable);
         }
 
-        private static IEnumerable<T> EnumerateInit<T>(this IEnumerator<T> enumerator, Action<IEnumerator<T>> callback)
+        private class MemoizeEnumerable<T>
+            : IEnumerable<T>
         {
-            if (enumerator == null)
-                throw new ArgumentNullException("enumerator");
+            private IEnumerable<T> _enumerable;
+            private List<T> _buffer;
 
-            return EnumerateTail(enumerator, callback).Reverse();
-        }
+            public MemoizeEnumerable(IEnumerable<T> enumerable)
+            {
+                if (enumerable == null)
+                    throw new ArgumentNullException("enumerable");
 
-        private static IEnumerable<T> EnumerateCount<T>(this IEnumerator<T> enumerator, Int32 count, Action<IEnumerator<T>> callback)
-        {
-            foreach(var i in Enumerable.Range(0, count)) {
-                if (!enumerator.MoveNext())
-                    break;
-                yield return enumerator.Current;
+                _enumerable = enumerable;
+                _buffer = new List<T>();
             }
-            callback(enumerator);
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                return new MemoizeEnumerator<T>(_enumerable.GetEnumerator(), _buffer);
+            }
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                return this.GetEnumerator();
+            }
+        }
+
+        private class MemoizeEnumerator<T>
+            : IEnumerator<T>
+        {
+            private IEnumerator<T> _enumerator;
+            private Option<T> _current;
+            private Queue<T> _queue;
+
+            public MemoizeEnumerator(IEnumerator<T> enumerator, List<T> buffer)
+            {
+                _enumerator = enumerator;
+                _current = Option.None<T>();
+
+                _queue = new Queue<T>(buffer);
+            }
+
+            public MemoizeEnumerator(IEnumerator<T> enumerator)
+                : this(enumerator, new List<T>())
+            {
+
+            }
+
+            public Boolean MoveNext()
+            {
+                if (_queue.Any())
+                {
+                    _current = Option.Just<T>(_queue.Dequeue());
+                    return true;
+                }
+
+                if (_enumerator.MoveNext())
+                {
+                    _current = Option.Just<T>(_enumerator.Current);
+                    return true;
+                }
+
+                return false;
+            }
+
+            public T Current
+            {
+                get
+                {
+                    T value;
+                    if (_current.TryGetValue(out value))
+                        return value;
+                    else
+                        throw new InvalidOperationException();
+                }
+            }
+
+            public void Reset()
+            {
+                _enumerator.Reset();
+            }
+
+            public void Dispose()
+            {
+                _enumerator.Dispose();
+                _queue.Clear();
+            }
+
+            Object System.Collections.IEnumerator.Current
+            {
+                get { return this.Current; }
+            }
         }
     }
 }
