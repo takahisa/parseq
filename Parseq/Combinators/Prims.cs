@@ -344,7 +344,14 @@ namespace Parseq.Combinators
             Int32 count,
             Parser<TToken, TSeparator> separator)
         {
-            return Prims.SepBy(parser, count, separator).Left(separator);
+            if (parser == null)
+                throw new ArgumentNullException("parser");
+            if (count < 0)
+                throw new ArgumentOutOfRangeException("count");
+            if (separator == null)
+                throw new ArgumentNullException("separator");
+
+            return parser.Left(separator).Many(count);
         }
 
         public static Parser<TToken, IEnumerable<TResult>> EndBy<TToken, TResult, TSeparator>(
