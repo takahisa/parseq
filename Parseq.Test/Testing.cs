@@ -29,7 +29,7 @@ namespace Parseq.Test
             if (parser == null)
                 throw new ArgumentNullException("parser");
 
-            return parser.DoWhenSuccess(actual => actual.Zip(expected, Tuple.Create).ForEach(t => Assert.AreEqual(t.Item1, t.Item2)))
+            return parser.DoWhenSuccess(actual => Assert.IsTrue(expected.SequenceEqual(actual)))
                 .DoWhenFailure(() => Assert.Fail())
                 .DoWhenError(error => Assert.Fail(error.MessageDetails));
         }
