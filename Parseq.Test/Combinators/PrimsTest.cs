@@ -217,11 +217,11 @@ namespace Parseq.Test.Combinators
             var parser = Chars.Satisfy('a');
             var separator = Chars.Satisfy(',');
 
-            Prims.SepBy(parser, separator)
+            Prims.EndBy(parser, separator)
                 .ExpectSuccess(new[] { 'a', 'a' })
                 .Run("a,a,a".AsStream());
 
-            Prims.SepBy(parser, separator)
+            Prims.EndBy(parser, separator)
                 .ExpectSuccess(new[] { 'a', 'a', 'a' })
                 .Run("a,a,a,".AsStream());
 
@@ -229,11 +229,11 @@ namespace Parseq.Test.Combinators
                 .ExpectSuccess(new[] { 'a', 'a', 'a' })
                 .Run("a,a,a,".AsStream());
 
-            Prims.SepBy(parser, 0, separator)
+            Prims.EndBy(parser, 0, separator)
                 .ExpectSuccess(new Char[] { })
                 .Run("".AsStream());
 
-            Prims.SepBy(parser, 2, separator)
+            Prims.EndBy(parser, 2, separator)
                 .ExpectFailure()
                 .Run("a,".AsStream());
         }
