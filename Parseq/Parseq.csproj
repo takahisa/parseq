@@ -53,9 +53,9 @@
     <Compile Include="CpsExtensions.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="EitherExtensions.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="ErrorMessage.cs" />
     <Compile Include="ErrorMessageType.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Foldable.cs" />
     <Compile Include="Future.cs" />
     <Compile Include="FutureExtensions.cs" />
