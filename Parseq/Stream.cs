@@ -43,37 +43,43 @@ namespace Parseq
 
     partial class Stream<TToken>
     {
-        public virtual Int32 CompareTo(Stream<TToken> other){
+        public virtual Int32 CompareTo(Stream<TToken> other)
+        {
             return (this.Position.Index - other.Position.Index);
         }
 
-        public static Boolean operator >(Stream<TToken> x, Stream<TToken> y){
+        public static Boolean operator >(Stream<TToken> x, Stream<TToken> y)
+        {
             return x.Position > y.Position;
         }
 
-        public static Boolean operator >=(Stream<TToken> x, Stream<TToken> y){
+        public static Boolean operator >=(Stream<TToken> x, Stream<TToken> y)
+        {
             return x.Position >= y.Position;
         }
 
-        public static Boolean operator <(Stream<TToken> x, Stream<TToken> y){
+        public static Boolean operator <(Stream<TToken> x, Stream<TToken> y)
+        {
             return x.Position < y.Position;
         }
 
-        public static Boolean operator <=(Stream<TToken> x, Stream<TToken> y){
+        public static Boolean operator <=(Stream<TToken> x, Stream<TToken> y)
+        {
             return x.Position <= y.Position;
         }
 
-        public static Stream<TToken> operator >>(Stream<TToken> stream, Int32 count){
+        public static Stream<TToken> operator >>(Stream<TToken> stream, Int32 count)
+        {
             return Enumerable
                 .Range(1, count)
                 .Aggregate(stream, (s, i) => s.Next());
         }
 
-        public static Stream<TToken> operator <<(Stream<TToken> stream, Int32 count){
+        public static Stream<TToken> operator <<(Stream<TToken> stream, Int32 count)
+        {
             return Enumerable
                 .Range(1, count)
                 .Aggregate(stream, (s, i) => s.Rewind());
         }
     }
-
 }
