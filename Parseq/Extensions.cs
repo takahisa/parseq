@@ -43,12 +43,6 @@ namespace Parseq
                 action(i, index++);
         }
 
-        internal static T With<T>(this T value, Action<T> action)
-        {
-            action(value);
-            return value;
-        }
-
         internal static IEnumerable<T> Return<T>(this T value)
         {
             yield return value;
