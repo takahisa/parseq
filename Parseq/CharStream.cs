@@ -22,9 +22,8 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 
 namespace Parseq
 {
@@ -131,7 +130,7 @@ namespace Parseq
 
         public virtual void Dispose()
         {
-            if(_buffer != null)
+            if (_buffer != null)
             {
                 _buffer.Dispose();
                 _buffer = null;

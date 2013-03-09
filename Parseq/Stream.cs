@@ -22,18 +22,17 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 
 namespace Parseq
 {
-    public abstract partial class Stream<TToken> 
+    public abstract partial class Stream<TToken>
         : Option<TToken>
         , IComparable<Stream<TToken>>
     {
         public abstract Position Position { get; }
-        
+
         public abstract Boolean CanNext();
         public abstract Boolean CanRewind();
 

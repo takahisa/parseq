@@ -22,9 +22,9 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Parseq
 {
@@ -133,7 +133,7 @@ namespace Parseq
                 builder.Append((Char)this.Read());
                 if (ch == '\n' || (ch == '\r' && this.Peek() != '\n'))
                     return builder.ToString();
-                
+
             }
             return builder.ToString();
         }
@@ -188,7 +188,8 @@ namespace Parseq
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && _baseReader != null){
+            if (disposing && _baseReader != null)
+            {
                 _baseReader.Dispose();
                 _baseReader = null;
                 _buffer = null;
@@ -196,6 +197,6 @@ namespace Parseq
 
             base.Dispose(disposing);
         }
-
     }
 }
+
