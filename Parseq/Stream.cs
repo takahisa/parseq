@@ -31,14 +31,14 @@ namespace Parseq
     public abstract partial class Stream<TToken> 
         : Option<TToken>
         , IComparable<Stream<TToken>>
-        , IDisposable
     {
         public abstract Position Position { get; }
+        
         public abstract Boolean CanNext();
         public abstract Boolean CanRewind();
+
         public abstract Stream<TToken> Next();
         public abstract Stream<TToken> Rewind();
-        public abstract void Dispose();
     }
 
     partial class Stream<TToken>
