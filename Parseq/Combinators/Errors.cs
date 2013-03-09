@@ -22,9 +22,8 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 
 namespace Parseq.Combinators
 {
@@ -42,7 +41,7 @@ namespace Parseq.Combinators
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
-                    case ReplyStatus.Success: 
+                    case ReplyStatus.Success:
                         return Reply.Success<TToken, TResult>(reply.Stream, result);
                     default:
                         return Reply.Failure<TToken, TResult>(stream);
@@ -217,7 +216,7 @@ namespace Parseq.Combinators
                         return Reply.Error<TToken, TResult>(stream, error);
                 }
             };
-           
+
         }
 
         public static Parser<TToken, TResult> FollowedBy<TToken, TResult>(Parser<TToken, TResult> parser)

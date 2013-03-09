@@ -29,9 +29,11 @@ using System.IO;
 
 namespace Parseq
 {
-    public static class StreamExtensions {
+    public static class StreamExtensions
+    {
 
-        public static Stream<T> Where<T>(this Stream<T> stream, Func<T, Boolean> predicate){
+        public static Stream<T> Where<T>(this Stream<T> stream, Func<T, Boolean> predicate)
+        {
             if (stream == null)
                 throw new ArgumentNullException("stream");
             if (predicate == null)
@@ -44,11 +46,13 @@ namespace Parseq
             return current;
         }
 
-        public static Stream<T> Where<T>(this Stream<T> stream, Func<Stream<T>, T, Boolean> predicate){
+        public static Stream<T> Where<T>(this Stream<T> stream, Func<Stream<T>, T, Boolean> predicate)
+        {
             return stream.Where(_ => predicate(stream, _));
         }
 
-        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<T, U> selector){
+        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<T, U> selector)
+        {
             if (stream == null)
                 throw new ArgumentNullException("stream");
             if (selector == null)
@@ -57,15 +61,18 @@ namespace Parseq
             return new StreamMapper<T, U>(stream, selector);
         }
 
-        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<Stream<T>, U> selector){
+        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<Stream<T>, U> selector)
+        {
             return stream.Select((T _) => selector(stream));
         }
 
-        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<Stream<T>, T, U> selector){
+        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<Stream<T>, T, U> selector)
+        {
             return stream.Select((T _) => selector(stream, _));
         }
 
-        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<T, Stream<U>> selector){
+        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<T, Stream<U>> selector)
+        {
             if (stream == null)
                 throw new ArgumentNullException("stream");
             if (selector == null)
@@ -78,11 +85,13 @@ namespace Parseq
                 throw new InvalidOperationException();
         }
 
-        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<Stream<T>, Stream<U>> selector){
+        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<Stream<T>, Stream<U>> selector)
+        {
             return stream.SelectMany((T _) => selector(stream));
         }
 
-        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<Stream<T>, T, Stream<U>> selector){
+        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<Stream<T>, T, Stream<U>> selector)
+        {
             return stream.SelectMany((T _) => selector(stream, _));
         }
 
@@ -101,21 +110,14 @@ namespace Parseq
             return new CharStream(new CharBuffer(reader));
         }
 
-        public static CharStream AsStream(this StreamReader reader)
-        {
-            if (reader == null)
-                throw new ArgumentNullException("ioReader");
-
-            return new CharStream(reader);
-        }
-
-        private class StreamMapper<T, U> 
-            : Stream<U> 
+        private class StreamMapper<T, U>
+            : Stream<U>
         {
             private readonly Stream<T> _stream;
             private readonly Func<T, U> _selector;
 
-            public StreamMapper(Stream<T> stream, Func<T, U> selector){
+            public StreamMapper(Stream<T> stream, Func<T, U> selector)
+            {
                 if (stream == null)
                     throw new ArgumentNullException("stream");
                 if (selector == null)
@@ -124,39 +126,48 @@ namespace Parseq
                 _selector = selector;
             }
 
-            public override Position Position {
+            public override Position Position
+            {
                 get { return _stream.Position; }
             }
 
-            public override Boolean CanNext() {
+            public override Boolean CanNext()
+            {
                 return _stream.CanNext();
             }
 
-            public override Boolean CanRewind() {
+            public override Boolean CanRewind()
+            {
                 return _stream.CanRewind();
             }
 
-            public override Stream<U> Next() {
+            public override Stream<U> Next()
+            {
                 return new StreamMapper<T, U>(_stream.Next(), _selector);
             }
 
-            public override Stream<U> Rewind(){
+            public override Stream<U> Rewind()
+            {
                 return new StreamMapper<T, U>(_stream.Rewind(), _selector);
             }
 
-            public override Boolean TryGetValue(out U value) {
+            public override Boolean TryGetValue(out U value)
+            {
                 T result;
-                if (_stream.TryGetValue(out result)) {
+                if (_stream.TryGetValue(out result))
+                {
                     value = _selector(result);
                     return true;
                 }
-                else {
+                else
+                {
                     value = default(U);
                     return false;
                 }
             }
 
-            public override U Perform() {
+            public override U Perform()
+            {
                 T result;
                 if (_stream.TryGetValue(out result))
                     return _selector(result);

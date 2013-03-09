@@ -22,9 +22,8 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 
 namespace Parseq
 {
@@ -120,7 +119,7 @@ namespace Parseq
             get
             {
                 TLeft left; TRight right;
-                return this.TryGetValue(out left, out right) == Hand.Left 
+                return this.TryGetValue(out left, out right) == Hand.Left
                     ? Option.Just<TLeft>(left)
                     : Option.None<TLeft>();
             }
@@ -131,7 +130,7 @@ namespace Parseq
             get
             {
                 TLeft left; TRight right;
-                return this.TryGetValue(out left, out right) == Hand.Left 
+                return this.TryGetValue(out left, out right) == Hand.Left
                     ? Option.None<TRight>()
                     : Option.Just<TRight>(right);
             }

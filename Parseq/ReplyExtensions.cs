@@ -22,9 +22,8 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 
 namespace Parseq
 {
@@ -32,9 +31,9 @@ namespace Parseq
     {
         public static Boolean IsSuccess<TToken, TResult>(this Reply<TToken, TResult> reply)
         {
-            if(reply == null)
+            if (reply == null)
                 throw new ArgumentNullException("reply");
-            
+
             TResult result; ErrorMessage message;
             return ReplyStatus.Success == reply.TryGetValue(out result, out message);
         }
