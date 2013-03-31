@@ -22,9 +22,8 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 
 namespace Parseq
 {
@@ -41,12 +40,6 @@ namespace Parseq
             var index = 0;
             foreach (var i in enumerable)
                 action(i, index++);
-        }
-
-        internal static T With<T>(this T value, Action<T> action)
-        {
-            action(value);
-            return value;
         }
 
         internal static IEnumerable<T> Return<T>(this T value)

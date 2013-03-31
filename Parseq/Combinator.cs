@@ -22,9 +22,8 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 
 using Parseq.Combinators;
 
@@ -204,7 +203,7 @@ namespace Parseq
             return Combinator.Repeat(parser, min).SelectMany(x => Max(parser, (max - min)).Select(y => x.Concat(y)));
         }
 
-        private static Parser<TToken,IEnumerable<TResult>> Min<TToken,TResult>(
+        private static Parser<TToken, IEnumerable<TResult>> Min<TToken, TResult>(
             this Parser<TToken, TResult> parser, Int32 min)
         {
             if (parser == null)

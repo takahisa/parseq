@@ -22,9 +22,8 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 
 namespace Parseq
 {
@@ -84,7 +83,7 @@ namespace Parseq
         {
             if (func == null)
                 throw new ArgumentNullException("func");
-            
+
             Tuple<U, T> result;
             while (func(seed).TryGetValue(out result))
             {

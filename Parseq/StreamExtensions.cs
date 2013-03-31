@@ -29,9 +29,11 @@ using System.IO;
 
 namespace Parseq
 {
-    public static class StreamExtensions {
+    public static class StreamExtensions
+    {
 
-        public static Stream<T> Where<T>(this Stream<T> stream, Func<T, Boolean> predicate){
+        public static Stream<T> Where<T>(this Stream<T> stream, Func<T, Boolean> predicate)
+        {
             if (stream == null)
                 throw new ArgumentNullException("stream");
             if (predicate == null)
@@ -44,11 +46,13 @@ namespace Parseq
             return current;
         }
 
-        public static Stream<T> Where<T>(this Stream<T> stream, Func<Stream<T>, T, Boolean> predicate){
+        public static Stream<T> Where<T>(this Stream<T> stream, Func<Stream<T>, T, Boolean> predicate)
+        {
             return stream.Where(_ => predicate(stream, _));
         }
 
-        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<T, U> selector){
+        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<T, U> selector)
+        {
             if (stream == null)
                 throw new ArgumentNullException("stream");
             if (selector == null)
@@ -57,15 +61,18 @@ namespace Parseq
             return new StreamMapper<T, U>(stream, selector);
         }
 
-        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<Stream<T>, U> selector){
+        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<Stream<T>, U> selector)
+        {
             return stream.Select((T _) => selector(stream));
         }
 
-        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<Stream<T>, T, U> selector){
+        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<Stream<T>, T, U> selector)
+        {
             return stream.Select((T _) => selector(stream, _));
         }
 
-        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<T, Stream<U>> selector){
+        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<T, Stream<U>> selector)
+        {
             if (stream == null)
                 throw new ArgumentNullException("stream");
             if (selector == null)
@@ -78,57 +85,14 @@ namespace Parseq
                 throw new InvalidOperationException();
         }
 
-        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<Stream<T>, Stream<U>> selector){
+        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<Stream<T>, Stream<U>> selector)
+        {
             return stream.SelectMany((T _) => selector(stream));
         }
 
-        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<Stream<T>, T, Stream<U>> selector){
+        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<Stream<T>, T, Stream<U>> selector)
+        {
             return stream.SelectMany((T _) => selector(stream, _));
-        }
-
-        public static Stream<Char> AsStream(this TextReader reader)
-        {
-            return new CharStream(new CharBuffer(reader));
-        }
-
-        public static Stream<Char> AsStream(this IEnumerable<Char> enumerable)
-        {
-            return new CharStream(new TextReaderAdapter(enumerable));
-        }
-
-        public static Stream<Byte> AsStream(this Stream ioStream)
-        {
-            if (ioStream == null)
-                throw new ArgumentNullException("stream");
-
-            var stream = Foldable.Unfoldr<Byte, Unit>(Unit.Instance, _ =>
-                {
-                    Int32 value;
-                    return (value = ioStream.ReadByte()) != -1
-                        ? Option.Just<Tuple<Unit, Byte>>(Tuple.Create(Unit.Instance, (Byte)value))
-                        : Option.None<Tuple<Unit, Byte>>();
-                })
-                .ToArray()
-                .AsStream();
-            return new StreamDisposer<Byte, Stream>(stream, ioStream);
-        }
-
-        public static Stream<Char> AsStream(this StreamReader ioReader)
-        {
-            if (ioReader == null)
-                throw new ArgumentNullException("stream");
-
-            var stream = Foldable.Unfoldr<Char, Unit>(Unit.Instance,
-                _ => {
-                    Int32 value;
-                    return (value = ioReader.Read()) != -1
-                        ? Option.Just<Tuple<Unit, Char>>(Tuple.Create(Unit.Instance, (Char)value))
-                        : Option.None<Tuple<Unit, Char>>();
-                })
-                .ToArray()
-                .AsStream();
-
-            return new StreamDisposer<Char, StreamReader>(stream, ioReader);
         }
 
         public static Stream<T> AsStream<T>(this IEnumerable<T> enumerable)
@@ -136,13 +100,24 @@ namespace Parseq
             return new StreamAdapter<T>(enumerable);
         }
 
-        private class StreamMapper<T, U> 
-            : Stream<U> 
+        public static CharStream AsStream(this IEnumerable<Char> enumerable)
+        {
+            return new CharStream(new TextReaderAdapter(enumerable));
+        }
+
+        public static CharStream AsStream(this TextReader reader)
+        {
+            return new CharStream(new CharBuffer(reader));
+        }
+
+        private class StreamMapper<T, U>
+            : Stream<U>
         {
             private readonly Stream<T> _stream;
             private readonly Func<T, U> _selector;
 
-            public StreamMapper(Stream<T> stream, Func<T, U> selector){
+            public StreamMapper(Stream<T> stream, Func<T, U> selector)
+            {
                 if (stream == null)
                     throw new ArgumentNullException("stream");
                 if (selector == null)
@@ -151,48 +126,53 @@ namespace Parseq
                 _selector = selector;
             }
 
-            public override Position Position {
+            public override Position Position
+            {
                 get { return _stream.Position; }
             }
 
-            public override Boolean CanNext() {
+            public override Boolean CanNext()
+            {
                 return _stream.CanNext();
             }
 
-            public override Boolean CanRewind() {
+            public override Boolean CanRewind()
+            {
                 return _stream.CanRewind();
             }
 
-            public override Stream<U> Next() {
+            public override Stream<U> Next()
+            {
                 return new StreamMapper<T, U>(_stream.Next(), _selector);
             }
 
-            public override Stream<U> Rewind(){
+            public override Stream<U> Rewind()
+            {
                 return new StreamMapper<T, U>(_stream.Rewind(), _selector);
             }
 
-            public override Boolean TryGetValue(out U value) {
+            public override Boolean TryGetValue(out U value)
+            {
                 T result;
-                if (_stream.TryGetValue(out result)) {
+                if (_stream.TryGetValue(out result))
+                {
                     value = _selector(result);
                     return true;
                 }
-                else {
+                else
+                {
                     value = default(U);
                     return false;
                 }
             }
 
-            public override U Perform() {
+            public override U Perform()
+            {
                 T result;
                 if (_stream.TryGetValue(out result))
                     return _selector(result);
                 else
                     throw new InvalidOperationException();
-            }
-
-            public override void Dispose() {
-                _stream.Dispose();
             }
         }
 
@@ -296,75 +276,6 @@ namespace Parseq
             public override T Perform()
             {
                 return _current.Perform();
-            }
-
-            public override void Dispose()
-            {
-
-            }
-        }
-
-        private class StreamDisposer<T, TObj>
-            : Stream<T>
-            where TObj : IDisposable
-        {
-            private readonly Stream<T> _stream;
-            private readonly TObj _obj;
-
-            public StreamDisposer(Stream<T> stream, TObj obj)
-            {
-                if (stream == null)
-                    throw new ArgumentNullException("stream");
-
-                _stream = stream;
-                _obj = obj;
-            }
-
-            public override Position Position
-            {
-                get { return _stream.Position; }
-            }
-
-            public override Boolean CanNext()
-            {
-                return _stream.CanNext();
-            }
-
-            public override Boolean CanRewind()
-            {
-                return _stream.CanRewind();
-            }
-
-            public override Stream<T> Next()
-            {
-                if (!this.CanNext())
-                    throw new InvalidOperationException();
-
-                return new StreamDisposer<T, TObj>(_stream.Next(), _obj);
-            }
-
-            public override Stream<T> Rewind()
-            {
-                if (!this.CanRewind())
-                    throw new InvalidOperationException();
-
-                return new StreamDisposer<T, TObj>(_stream.Rewind(), _obj);
-            }
-
-            public override Boolean TryGetValue(out T value)
-            {
-                return _stream.TryGetValue(out value);
-            }
-
-            public override T Perform()
-            {
-                return _stream.Perform();
-            }
-
-            public override void Dispose()
-            {
-                _stream.Dispose();
-                _obj.Dispose();
             }
         }
 

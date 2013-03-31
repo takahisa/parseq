@@ -22,9 +22,8 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 
 namespace Parseq.Combinators
 {
@@ -106,7 +105,7 @@ namespace Parseq.Combinators
         {
             return Chars.Satisfy(_ => _ == c);
         }
-        
+
         public static Parser<Char, Char> Satisfy(Func<Char, Boolean> predicate)
         {
             return Prims.Satisfy<Char>(predicate);

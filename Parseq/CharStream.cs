@@ -22,14 +22,14 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 
 namespace Parseq
 {
-    class CharStream
+    public class CharStream
         : Stream<Char>
+        , IDisposable
     {
         private CharBuffer _buffer;
         private Option<Char> _current;
@@ -37,7 +37,13 @@ namespace Parseq
         private Option<Stream<Char>> _upper;
         private Option<Stream<Char>> _lower;
 
-        public CharStream(CharBuffer buffer)
+        public CharStream(System.IO.TextReader reader)
+            : this(new CharBuffer(reader))
+        {
+
+        }
+
+        private CharStream(CharBuffer buffer)
             : this(buffer,
                 Option.Try(() =>
                     !(buffer.EndOfBuffer)
@@ -46,12 +52,6 @@ namespace Parseq
                 new Position(1, 1, 0),
                 Option.None<Stream<Char>>(),
                 Option.None<Stream<Char>>())
-        {
-
-        }
-
-        public CharStream(System.IO.TextReader reader)
-            : this(new CharBuffer(reader))
         {
 
         }
@@ -128,9 +128,9 @@ namespace Parseq
             return _current.Perform();
         }
 
-        public override void Dispose()
+        public virtual void Dispose()
         {
-            if(_buffer != null)
+            if (_buffer != null)
             {
                 _buffer.Dispose();
                 _buffer = null;
