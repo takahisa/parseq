@@ -22,9 +22,8 @@
  * 
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 
 namespace Parseq.Combinators
 {
@@ -55,14 +54,14 @@ namespace Parseq.Combinators
             return Prims.Return<TToken, IEnumerable<TResult>>(Enumerable.Empty<TResult>());
         }
 
-        public static Parser<TToken, TResult> Fail<TToken,TResult>()
+        public static Parser<TToken, TResult> Fail<TToken, TResult>()
         {
             return stream => Reply.Failure<TToken, TResult>(stream);
         }
 
         public static Parser<TToken, TResult> Error<TToken, TResult>(String message)
         {
-            return Errors.Error<TToken, TResult>(message);                
+            return Errors.Error<TToken, TResult>(message);
         }
 
         public static Parser<TToken, TResult> Error<TToken, TResult>()
