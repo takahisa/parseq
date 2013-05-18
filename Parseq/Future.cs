@@ -41,12 +41,6 @@ namespace Parseq
         {
             return Future<T>.Create(value);
         }
-
-        public static Boolean TryGetValue<T>(this IFuture<T> self, out T result)
-        {
-            // TODO: Assumed that self is Future<T> implicitly
-            return ((Future<T>)self).TryGetValue(out result);
-        }
     }
 
     public interface IFuture<out T>

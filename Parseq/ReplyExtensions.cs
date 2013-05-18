@@ -29,6 +29,24 @@ namespace Parseq
 {
     public static class ReplyExtensions
     {
+        public static ReplyStatus TryGetValue<TToken, TResult>(this IReply<TToken, TResult> self, out TResult result, out ErrorMessage error)
+        {
+            // TODO: Assumed that self is Reply<TToken, TResult> implicitly
+            return ((Reply<TToken, TResult>)self).TryGetValue(out result, out error);
+        }
+
+        public static Boolean TryGetValue<TToken, TResult>(this IReply<TToken, TResult> self, out TResult result)
+        {
+            ErrorMessage message;
+            switch (self.TryGetValue(out result, out message))
+            {
+                case ReplyStatus.Success: return true;
+                case ReplyStatus.Failure: return false;
+                default:
+                    throw message;
+            }
+        }
+
         public static Boolean IsSuccess<TToken, TResult>(this IReply<TToken, TResult> reply)
         {
             if (reply == null)

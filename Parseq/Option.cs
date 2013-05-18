@@ -188,11 +188,5 @@ namespace Parseq
         {
             return Option.Try<T, Exception>(selector);
         }
-
-        public static Boolean TryGetValue<T>(this IOption<T> self, out T value)
-        {
-            // TODO: Assumed that self is Option<T> implicitly
-            return ((Option<T>) self).TryGetValue(out value);
-        }
     }
 }
