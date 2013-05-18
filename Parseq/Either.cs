@@ -33,8 +33,16 @@ namespace Parseq
         Right = -1,
     }
 
+    public interface IEither<out TLeft, out TRight>
+    {
+        IOption<TLeft> Left { get; }
+        
+        IOption<TRight> Right { get; }
+    }
+
     public abstract partial class Either<TLeft, TRight>
-        : IEquatable<Either<TLeft, TRight>>
+        : IEither<TLeft, TRight>
+        , IEquatable<IEither<TLeft, TRight>>
     {
         public abstract Hand TryGetValue(out TLeft left, out TRight right);
     }
@@ -136,7 +144,7 @@ namespace Parseq
             }
         }
 
-        public Boolean Equals(Either<TLeft, TRight> other)
+        public Boolean Equals(IEither<TLeft, TRight> other)
         {
             return other != null
                 && this.Left.Equals(other.Left)
@@ -166,17 +174,17 @@ namespace Parseq
 
     public static class Either
     {
-        public static Either<TLeft, TRight> Left<TLeft, TRight>(TLeft value)
+        public static IEither<TLeft, TRight> Left<TLeft, TRight>(TLeft value)
         {
             return new Either<TLeft, TRight>.LeftProduction(value);
         }
 
-        public static Either<TLeft, TRight> Right<TLeft, TRight>(TRight value)
+        public static IEither<TLeft, TRight> Right<TLeft, TRight>(TRight value)
         {
             return new Either<TLeft, TRight>.RightProduction(value);
         }
 
-        public static Either<T, TException> Try<T, TException>(Func<T> selector)
+        public static IEither<T, TException> Try<T, TException>(Func<T> selector)
             where TException : Exception
         {
             if (selector == null)
@@ -189,6 +197,24 @@ namespace Parseq
             {
                 return Either.Right<T, TException>(e);
             }
+        }
+
+        public static Hand TryGetValue<TLeft, TRight>(this IEither<TLeft, TRight> self, out TLeft left, out TRight right)
+        {
+            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
+            return ((Either<TLeft, TRight>)self).TryGetValue(out left, out right);
+        }
+
+        public static Boolean TryGetLeft<TLeft, TRight>(this IEither<TLeft, TRight> self, out TLeft value)
+        {
+            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
+            return ((Either<TLeft, TRight>)self).TryGetLeft(out value);
+        }
+
+        public static Boolean TryGetRight<TLeft, TRight>(this IEither<TLeft, TRight> self, out TRight value)
+        {
+            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
+            return ((Either<TLeft, TRight>)self).TryGetRight(out value);
         }
     }
 }
