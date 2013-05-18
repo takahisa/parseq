@@ -32,6 +32,12 @@ namespace Parseq
 {
     public static class FutureExtensions
     {
+        public static Boolean TryGetValue<T>(this IFuture<T> self, out T result)
+        {
+            // TODO: Assumed that self is Future<T> implicitly
+            return ((Future<T>)self).TryGetValue(out result);
+        }
+
         public static IFuture<U> Select<T, U>(this IFuture<T> future, Func<T, U> selector)
         {
             if (future == null)

@@ -198,23 +198,5 @@ namespace Parseq
                 return Either.Right<T, TException>(e);
             }
         }
-
-        public static Hand TryGetValue<TLeft, TRight>(this IEither<TLeft, TRight> self, out TLeft left, out TRight right)
-        {
-            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
-            return ((Either<TLeft, TRight>)self).TryGetValue(out left, out right);
-        }
-
-        public static Boolean TryGetLeft<TLeft, TRight>(this IEither<TLeft, TRight> self, out TLeft value)
-        {
-            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
-            return ((Either<TLeft, TRight>)self).TryGetLeft(out value);
-        }
-
-        public static Boolean TryGetRight<TLeft, TRight>(this IEither<TLeft, TRight> self, out TRight value)
-        {
-            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
-            return ((Either<TLeft, TRight>)self).TryGetRight(out value);
-        }
     }
 }
