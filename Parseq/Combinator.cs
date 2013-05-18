@@ -67,7 +67,7 @@ namespace Parseq
                         .Case((head, tail) => head.Or(Combinator.Lazy(() => Combinator.Choice(tail)))));
         }
 
-        public static Parser<TToken, Either<TResult0, TResult1>> Fork<TToken, TResult0, TResult1>(
+        public static Parser<TToken, IEither<TResult0, TResult1>> Fork<TToken, TResult0, TResult1>(
             this Parser<TToken, TResult0> parser0,
             Parser<TToken, TResult1> parser1)
         {

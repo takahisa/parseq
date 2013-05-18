@@ -30,7 +30,7 @@ namespace Parseq
     public static class EitherExtensions
     {
         public static T Merge<TLeft, TRight, T>(
-            this Either<TLeft, TRight> either,
+            this IEither<TLeft, TRight> either,
             Func<TLeft, T> lselector,
             Func<TRight, T> rselector)
         {
@@ -48,7 +48,7 @@ namespace Parseq
         }
 
         public static TLeft MergeLeft<TLeft, TRight>(
-            this Either<TLeft, TRight> either,
+            this IEither<TLeft, TRight> either,
             Func<TRight, TLeft> selector)
         {
             if (either == null)
@@ -63,7 +63,7 @@ namespace Parseq
         }
 
         public static TRight MergeRight<TLeft, TRight>(
-            this Either<TLeft, TRight> either,
+            this IEither<TLeft, TRight> either,
             Func<TLeft, TRight> selector)
         {
             if (either == null)

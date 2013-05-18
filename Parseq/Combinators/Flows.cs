@@ -141,7 +141,7 @@ namespace Parseq.Combinators
             return (condition.And().Right(thenParser)).Or(elseParser);
         }
 
-        public static Parser<TToken, Either<TResult0, TResult1>> If<TToken, TCond, TResult0, TResult1>(
+        public static Parser<TToken, IEither<TResult0, TResult1>> If<TToken, TCond, TResult0, TResult1>(
             Parser<TToken, TCond> condition,
             Parser<TToken, TResult0> thenParser,
             Parser<TToken, TResult1> elseParser)
@@ -153,7 +153,7 @@ namespace Parseq.Combinators
             if (elseParser == null)
                 throw new ArgumentNullException("elseParser");
 
-            return Flows.If<TToken, TCond, Either<TResult0, TResult1>>(condition,
+            return Flows.If<TToken, TCond, IEither<TResult0, TResult1>>(condition,
                 thenParser.Select(_ => Either.Left<TResult0, TResult1>(_)),
                 elseParser.Select(_ => Either.Right<TResult0, TResult1>(_)));
         }
@@ -173,7 +173,7 @@ namespace Parseq.Combinators
             return (condition.Not().Right(thenParser)).Or(elseParser);
         }
 
-        public static Parser<TToken, Either<TResult0, TResult1>> Unless<TToken, TCond, TResult0, TResult1>(
+        public static Parser<TToken, IEither<TResult0, TResult1>> Unless<TToken, TCond, TResult0, TResult1>(
             Parser<TToken, TCond> condition,
             Parser<TToken, TResult0> thenParser,
             Parser<TToken, TResult1> elseParser)
@@ -185,7 +185,7 @@ namespace Parseq.Combinators
             if (elseParser == null)
                 throw new ArgumentNullException("elseParser");
 
-            return Flows.Unless<TToken, TCond, Either<TResult0, TResult1>>(condition,
+            return Flows.Unless<TToken, TCond, IEither<TResult0, TResult1>>(condition,
                 thenParser.Select(_ => Either.Left<TResult0, TResult1>(_)),
                 elseParser.Select(_ => Either.Right<TResult0, TResult1>(_)));
         }
