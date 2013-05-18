@@ -225,7 +225,7 @@ namespace Parseq
             return Combinator.Greed(parser.Replicate().Take(max));
         }
 
-        public static Parser<TToken, Option<TResult>> Maybe<TToken, TResult>(
+        public static Parser<TToken, IOption<TResult>> Maybe<TToken, TResult>(
             this Parser<TToken, TResult> parser)
         {
             if (parser == null)
@@ -237,10 +237,10 @@ namespace Parseq
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
-                    case ReplyStatus.Success: return Reply.Success<TToken, Option<TResult>>(reply.Stream, Option.Just(result));
-                    case ReplyStatus.Failure: return Reply.Success<TToken, Option<TResult>>(stream, Option.None<TResult>());
+                    case ReplyStatus.Success: return Reply.Success<TToken, IOption<TResult>>(reply.Stream, Option.Just(result));
+                    case ReplyStatus.Failure: return Reply.Success<TToken, IOption<TResult>>(stream, Option.None<TResult>());
                     default:
-                        return Reply.Error<TToken, Option<TResult>>(stream, message);
+                        return Reply.Error<TToken, IOption<TResult>>(stream, message);
                 }
             };
         }
@@ -256,7 +256,7 @@ namespace Parseq
             {
                 Parser<TToken, TResult> result;
                 if (!cache.TryGetValue(out result))
-                    cache = (result = func());
+                    cache = Option.Just(result = func());
                 return result.Run(stream);
             };
         }

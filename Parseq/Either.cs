@@ -52,12 +52,12 @@ namespace Parseq
                 this._right = default(TRight);
             }
 
-            public override Option<TLeft> Left
+            public override IOption<TLeft> Left
             {
-                get { return _left; }
+                get { return Option.Just(_left); }
             }
 
-            public override Option<TRight> Right
+            public override IOption<TRight> Right
             {
                 get { return Option.None<TRight>(); }
             }
@@ -81,14 +81,14 @@ namespace Parseq
                 _right = value;
             }
 
-            public override Option<TLeft> Left
+            public override IOption<TLeft> Left
             {
                 get { return Option.None<TLeft>(); }
             }
 
-            public override Option<TRight> Right
+            public override IOption<TRight> Right
             {
-                get { return this._right; }
+                get { return Option.Just(this._right); }
             }
 
             public override Hand TryGetValue(out TLeft left, out TRight right)
@@ -114,7 +114,7 @@ namespace Parseq
             return this.TryGetValue(out left, out value) == Hand.Left;
         }
 
-        public virtual Option<TLeft> Left
+        public virtual IOption<TLeft> Left
         {
             get
             {
@@ -125,7 +125,7 @@ namespace Parseq
             }
         }
 
-        public virtual Option<TRight> Right
+        public virtual IOption<TRight> Right
         {
             get
             {
@@ -143,12 +143,12 @@ namespace Parseq
                 && this.Right.Equals(other.Right);
         }
 
-        public virtual Boolean Equals(Option<TLeft> other)
+        public virtual Boolean Equals(IOption<TLeft> other)
         {
             return this.Left.Equals(other);
         }
 
-        public virtual Boolean Equals(Option<TRight> other)
+        public virtual Boolean Equals(IOption<TRight> other)
         {
             return this.Right.Equals(other);
         }

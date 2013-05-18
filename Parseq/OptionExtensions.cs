@@ -29,13 +29,13 @@ namespace Parseq
 {
     public static class OptionExtensions
     {
-        public static Boolean Exists<T>(this Option<T> option)
+        public static Boolean Exists<T>(this IOption<T> option)
         {
             T value;
             return option.TryGetValue(out value);
         }
 
-        public static T Otherwise<T>(this Option<T> option, Func<T> selector)
+        public static T Otherwise<T>(this IOption<T> option, Func<T> selector)
         {
             if (option == null)
                 throw new ArgumentNullException("option");
@@ -48,7 +48,7 @@ namespace Parseq
                 selector();
         }
 
-        public static Option<T> Where<T>(this Option<T> option, Func<T, Boolean> predicate)
+        public static IOption<T> Where<T>(this IOption<T> option, Func<T, Boolean> predicate)
         {
             if (option == null)
                 throw new ArgumentNullException("option");
@@ -61,7 +61,7 @@ namespace Parseq
                 Option.None<T>();
         }
 
-        public static Option<U> Select<T, U>(this Option<T> option, Func<T, U> selector)
+        public static IOption<U> Select<T, U>(this IOption<T> option, Func<T, U> selector)
         {
             if (option == null)
                 throw new ArgumentNullException("option");
@@ -74,7 +74,7 @@ namespace Parseq
                 Option.None<U>();
         }
 
-        public static Option<U> SelectMany<T, U>(this Option<T> option, Func<T, Option<U>> selector)
+        public static IOption<U> SelectMany<T, U>(this IOption<T> option, Func<T, IOption<U>> selector)
         {
             if (option == null)
                 throw new ArgumentNullException("option");
@@ -87,7 +87,7 @@ namespace Parseq
                 Option.None<U>();
         }
 
-        public static Option<V> SelectMany<T, U, V>(this Option<T> option, Func<T, Option<U>> selector, Func<T, U, V> projector)
+        public static IOption<V> SelectMany<T, U, V>(this IOption<T> option, Func<T, IOption<U>> selector, Func<T, U, V> projector)
         {
             if (option == null)
                 throw new ArgumentNullException("option");

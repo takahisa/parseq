@@ -117,7 +117,7 @@ namespace Parseq
         {
             private List<IObserver<T>> _observers;
             private AutoResetEvent _mediator;
-            private Option<T> _value;
+            private IOption<T> _value;
 
             public FutureImpl(Func<T> func)
             {

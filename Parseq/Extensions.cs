@@ -180,7 +180,7 @@ namespace Parseq
             : IEnumerator<T>
         {
             private IEnumerator<T> _enumerator;
-            private Option<T> _current;
+            private IOption<T> _current;
             private Queue<T> _queue;
 
             public MemoizeEnumerator(IEnumerator<T> enumerator, List<T> buffer)

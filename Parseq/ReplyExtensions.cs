@@ -64,7 +64,7 @@ namespace Parseq
             if (predicate == null)
                 throw new ArgumentNullException("predicate");
 
-            Option<T> result; T value; ErrorMessage message;
+            IOption<T> result; T value; ErrorMessage message;
             switch (reply.TryGetValue(out result, out message))
             {
                 case Hand.Left:

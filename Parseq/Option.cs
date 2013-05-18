@@ -27,8 +27,14 @@ using System.Collections.Generic;
 
 namespace Parseq
 {
+    public interface IOption<out T>
+    {
+        T Perform();
+    }
+
     public abstract partial class Option<T>
-        : IEquatable<Option<T>>
+        : IOption<T>
+        , IEquatable<IOption<T>>
         , IEquatable<T>
     {
         public abstract T Perform();
@@ -82,7 +88,7 @@ namespace Parseq
 
     partial class Option<T>
     {
-        public virtual Boolean Equals(Option<T> other)
+        public virtual Boolean Equals(IOption<T> other)
         {
             if (other == null)
                 throw new ArgumentNullException("other");
@@ -105,7 +111,7 @@ namespace Parseq
 
         public override Boolean Equals(object obj)
         {
-            return ((obj is Option<T>) && this.Equals((Option<T>)obj))
+            return ((obj is IOption<T>) && this.Equals((IOption<T>)obj))
                 || ((obj is T) && this.Equals((T)obj));
         }
 
@@ -131,17 +137,17 @@ namespace Parseq
 
     public static class Option
     {
-        public static Option<T> Just<T>(T value)
+        public static IOption<T> Just<T>(T value)
         {
             return new Option<T>.Just(value);
         }
 
-        public static Option<T> None<T>()
+        public static IOption<T> None<T>()
         {
             return new Option<T>.None();
         }
 
-        public static Option<T> Try<T, TException>(Func<T> selector)
+        public static IOption<T> Try<T, TException>(Func<T> selector)
             where TException : Exception
         {
             if (selector == null)
@@ -157,7 +163,7 @@ namespace Parseq
             }
         }
 
-        public static Option<T> Try<T, TException>(Func<Option<T>> selector)
+        public static IOption<T> Try<T, TException>(Func<IOption<T>> selector)
             where TException : Exception
         {
             if (selector == null)
@@ -173,14 +179,20 @@ namespace Parseq
             }
         }
 
-        public static Option<T> Try<T>(Func<T> selector)
+        public static IOption<T> Try<T>(Func<T> selector)
         {
             return Option.Try<T, Exception>(selector);
         }
 
-        public static Option<T> Try<T>(Func<Option<T>> selector)
+        public static IOption<T> Try<T>(Func<IOption<T>> selector)
         {
             return Option.Try<T, Exception>(selector);
+        }
+
+        public static Boolean TryGetValue<T>(this IOption<T> self, out T value)
+        {
+            // TODO: Assumed that self is Option<T> implicitly
+            return ((Option<T>) self).TryGetValue(out value);
         }
     }
 }

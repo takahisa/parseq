@@ -35,7 +35,7 @@ namespace Parseq
     }
 
     public abstract partial class Reply<TToken, TResult>
-        : Either<Option<TResult>, ErrorMessage>
+        : Either<IOption<TResult>, ErrorMessage>
     {
         public abstract Stream<TToken> Stream { get; }
         public abstract ReplyStatus TryGetValue(out TResult result, out ErrorMessage error);
@@ -62,9 +62,9 @@ namespace Parseq
                 get { return _stream; }
             }
 
-            public override Hand TryGetValue(out Option<TResult> left, out ErrorMessage right)
+            public override Hand TryGetValue(out IOption<TResult> left, out ErrorMessage right)
             {
-                left = _value;
+                left = Option.Just(_value);
                 right = default(ErrorMessage);
                 return Hand.Left;
             }
@@ -94,9 +94,9 @@ namespace Parseq
                 get { return _stream; }
             }
 
-            public override Hand TryGetValue(out Option<TResult> left, out ErrorMessage right)
+            public override Hand TryGetValue(out IOption<TResult> left, out ErrorMessage right)
             {
-                left = default(TResult);
+                left = Option.Just(default(TResult));
                 right = default(ErrorMessage);
                 return Hand.Left;
             }
@@ -130,9 +130,9 @@ namespace Parseq
                 get { return _stream; }
             }
 
-            public override Hand TryGetValue(out Option<TResult> left, out ErrorMessage right)
+            public override Hand TryGetValue(out IOption<TResult> left, out ErrorMessage right)
             {
-                left = default(TResult);
+                left = Option.Just(default(TResult));
                 right = _message;
                 return Hand.Right;
             }
