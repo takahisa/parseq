@@ -34,10 +34,17 @@ namespace Parseq
         Error = -1,
     }
 
-    public abstract partial class Reply<TToken, TResult>
-        : Either<Option<TResult>, ErrorMessage>
+    public interface IReply<out TToken, out TResult>
+        : IEither<IOption<TResult>, ErrorMessage>
     {
-        public abstract Stream<TToken> Stream { get; }
+        IStream<TToken> Stream { get; }
+    }
+
+    public abstract partial class Reply<TToken, TResult>
+        : Either<IOption<TResult>, ErrorMessage>
+        , IReply<TToken, TResult>
+    {
+        public abstract IStream<TToken> Stream { get; }
         public abstract ReplyStatus TryGetValue(out TResult result, out ErrorMessage error);
     }
 
@@ -45,10 +52,10 @@ namespace Parseq
     {
         public sealed class Success : Reply<TToken, TResult>
         {
-            private readonly Stream<TToken> _stream;
+            private readonly IStream<TToken> _stream;
             private readonly TResult _value;
 
-            public Success(Stream<TToken> stream, TResult value)
+            public Success(IStream<TToken> stream, TResult value)
             {
                 if (stream == null)
                     throw new ArgumentNullException("stream");
@@ -57,14 +64,14 @@ namespace Parseq
                 _value = value;
             }
 
-            public override Stream<TToken> Stream
+            public override IStream<TToken> Stream
             {
                 get { return _stream; }
             }
 
-            public override Hand TryGetValue(out Option<TResult> left, out ErrorMessage right)
+            public override Hand TryGetValue(out IOption<TResult> left, out ErrorMessage right)
             {
-                left = _value;
+                left = Option.Just(_value);
                 right = default(ErrorMessage);
                 return Hand.Left;
             }
@@ -79,9 +86,9 @@ namespace Parseq
 
         public sealed class Failure : Reply<TToken, TResult>
         {
-            private readonly Stream<TToken> _stream;
+            private readonly IStream<TToken> _stream;
 
-            public Failure(Stream<TToken> stream)
+            public Failure(IStream<TToken> stream)
             {
                 if (stream == null)
                     throw new ArgumentNullException("stream");
@@ -89,14 +96,14 @@ namespace Parseq
                 _stream = stream;
             }
 
-            public override Stream<TToken> Stream
+            public override IStream<TToken> Stream
             {
                 get { return _stream; }
             }
 
-            public override Hand TryGetValue(out Option<TResult> left, out ErrorMessage right)
+            public override Hand TryGetValue(out IOption<TResult> left, out ErrorMessage right)
             {
-                left = default(TResult);
+                left = Option.Just(default(TResult));
                 right = default(ErrorMessage);
                 return Hand.Left;
             }
@@ -111,10 +118,10 @@ namespace Parseq
 
         public sealed class Error : Reply<TToken, TResult>
         {
-            private readonly Stream<TToken> _stream;
+            private readonly IStream<TToken> _stream;
             private readonly ErrorMessage _message;
 
-            public Error(Stream<TToken> stream, ErrorMessage message)
+            public Error(IStream<TToken> stream, ErrorMessage message)
             {
                 if (stream == null)
                     throw new ArgumentNullException("stream");
@@ -125,14 +132,14 @@ namespace Parseq
                 _message = message;
             }
 
-            public override Stream<TToken> Stream
+            public override IStream<TToken> Stream
             {
                 get { return _stream; }
             }
 
-            public override Hand TryGetValue(out Option<TResult> left, out ErrorMessage right)
+            public override Hand TryGetValue(out IOption<TResult> left, out ErrorMessage right)
             {
-                left = default(TResult);
+                left = Option.Just(default(TResult));
                 right = _message;
                 return Hand.Right;
             }
@@ -168,17 +175,17 @@ namespace Parseq
 
     public static class Reply
     {
-        public static Reply<TToken, TResult> Success<TToken, TResult>(Stream<TToken> stream, TResult value)
+        public static IReply<TToken, TResult> Success<TToken, TResult>(IStream<TToken> stream, TResult value)
         {
             return new Reply<TToken, TResult>.Success(stream, value);
         }
 
-        public static Reply<TToken, TResult> Failure<TToken, TResult>(Stream<TToken> stream)
+        public static IReply<TToken, TResult> Failure<TToken, TResult>(IStream<TToken> stream)
         {
             return new Reply<TToken, TResult>.Failure(stream);
         }
 
-        public static Reply<TToken, TResult> Error<TToken, TResult>(Stream<TToken> stream, ErrorMessage message)
+        public static IReply<TToken, TResult> Error<TToken, TResult>(IStream<TToken> stream, ErrorMessage message)
         {
             return new Reply<TToken, TResult>.Error(stream, message);
         }

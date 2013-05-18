@@ -32,7 +32,13 @@ namespace Parseq
 {
     public static class FutureExtensions
     {
-        public static Future<U> Select<T, U>(this Future<T> future, Func<T, U> selector)
+        public static Boolean TryGetValue<T>(this IFuture<T> self, out T result)
+        {
+            // TODO: Assumed that self is Future<T> implicitly
+            return ((Future<T>)self).TryGetValue(out result);
+        }
+
+        public static IFuture<U> Select<T, U>(this IFuture<T> future, Func<T, U> selector)
         {
             if (future == null)
                 throw new ArgumentNullException("future");
@@ -40,7 +46,7 @@ namespace Parseq
             return Future.Create(() => selector(future.Apply()));
         }
 
-        public static Future<U> SelectMany<T, U>(this Future<T> future, Func<T, Future<U>> selector)
+        public static IFuture<U> SelectMany<T, U>(this IFuture<T> future, Func<T, IFuture<U>> selector)
         {
             if (future == null)
                 throw new ArgumentNullException("future");
@@ -50,7 +56,7 @@ namespace Parseq
             return new FuturePipe<U>(() => selector(future.Apply()));
         }
 
-        public static Future<V> SelectMany<T, U, V>(this Future<T> future, Func<T, Future<U>> selector, Func<T, U, V> projector)
+        public static IFuture<V> SelectMany<T, U, V>(this IFuture<T> future, Func<T, IFuture<U>> selector, Func<T, U, V> projector)
         {
             if (future == null)
                 throw new ArgumentNullException("future");
@@ -66,15 +72,15 @@ namespace Parseq
             : Future<T>
         {
             private AutoResetEvent _mediator;
-            private Option<Future<T>> _value;
+            private IOption<IFuture<T>> _value;
 
-            public FuturePipe(Func<Future<T>> func)
+            public FuturePipe(Func<IFuture<T>> func)
             {
                 if (func == null)
                     throw new ArgumentNullException("func");
 
                 _mediator = new AutoResetEvent(false);
-                _value = Option.None<Future<T>>();
+                _value = Option.None<IFuture<T>>();
                 ThreadPool.QueueUserWorkItem(state => this.CalculateProc(func));
             }
 
@@ -83,7 +89,7 @@ namespace Parseq
                 if (!this.IsCompleted)
                     _mediator.WaitOne();
 
-                Future<T> future;
+                IFuture<T> future;
                 if (_value.TryGetValue(out future))
                     return future.Subscribe(observer);
                 else
@@ -100,7 +106,7 @@ namespace Parseq
                 if (!this.IsCompleted)
                     _mediator.WaitOne();
 
-                Future<T> future;
+                IFuture<T> future;
                 if (_value.TryGetValue(out future))
                     return future.Apply();
                 else
@@ -112,7 +118,7 @@ namespace Parseq
                 if (!this.IsCompleted)
                     _mediator.WaitOne(timeout);
 
-                Future<T> future;
+                IFuture<T> future;
                 if (_value.TryGetValue(out future))
                     return future.Apply();
                 else
@@ -129,7 +135,7 @@ namespace Parseq
 
             public override Boolean TryGetValue(out T result)
             {
-                Future<T> future;
+                IFuture<T> future;
                 if (_value.TryGetValue(out future))
                     return future.TryGetValue(out result);
                 else
@@ -139,12 +145,12 @@ namespace Parseq
                 }
             }
 
-            private void CalculateProc(Func<Future<T>> func)
+            private void CalculateProc(Func<IFuture<T>> func)
             {
                 var result = func();
                 lock (this)
                 {
-                    _value = result;
+                    _value = Option.Just(result);
                 }
                 _mediator.Set();
             }

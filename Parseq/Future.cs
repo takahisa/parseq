@@ -32,19 +32,30 @@ namespace Parseq
 {
     public static class Future
     {
-        public static Future<T> Create<T>(Func<T> value)
+        public static IFuture<T> Create<T>(Func<T> value)
         {
             return Future<T>.Create(value);
         }
 
-        public static Future<T> Create<T>(T value)
+        public static IFuture<T> Create<T>(T value)
         {
             return Future<T>.Create(value);
         }
     }
 
-    public abstract partial class Future<T>
+    public interface IFuture<out T>
         : IObservable<T>
+    {
+        Boolean IsCompleted { get; }
+
+        T Apply();
+        T Apply(Int32 timeout);
+
+        T Perform();
+    }
+
+    public abstract partial class Future<T>
+        : IFuture<T>
     {
         public abstract Boolean IsCompleted { get; }
 
@@ -59,12 +70,12 @@ namespace Parseq
 
     public abstract partial class Future<T>
     {
-        public static Future<T> Create(Func<T> func)
+        public static IFuture<T> Create(Func<T> func)
         {
             return new FutureImpl(func);
         }
 
-        public static Future<T> Create(T value)
+        public static IFuture<T> Create(T value)
         {
             return new ActualImpl(value);
         }
@@ -117,7 +128,7 @@ namespace Parseq
         {
             private List<IObserver<T>> _observers;
             private AutoResetEvent _mediator;
-            private Option<T> _value;
+            private IOption<T> _value;
 
             public FutureImpl(Func<T> func)
             {

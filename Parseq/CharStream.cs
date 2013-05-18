@@ -32,10 +32,10 @@ namespace Parseq
         , IDisposable
     {
         private CharBuffer _buffer;
-        private Option<Char> _current;
+        private IOption<Char> _current;
         private Position _position;
-        private Option<Stream<Char>> _upper;
-        private Option<Stream<Char>> _lower;
+        private IOption<IStream<Char>> _upper;
+        private IOption<IStream<Char>> _lower;
 
         public CharStream(System.IO.TextReader reader)
             : this(new CharBuffer(reader))
@@ -50,18 +50,18 @@ namespace Parseq
                     ? Option.Just<Char>((Char)buffer.Read())
                     : Option.None<Char>()),
                 new Position(1, 1, 0),
-                Option.None<Stream<Char>>(),
-                Option.None<Stream<Char>>())
+                Option.None<IStream<Char>>(),
+                Option.None<IStream<Char>>())
         {
 
         }
 
         private CharStream(
             CharBuffer buffer,
-            Option<Char> current,
+            IOption<Char> current,
             Position position,
-            Option<Stream<Char>> upper,
-            Option<Stream<Char>> lower)
+            IOption<IStream<Char>> upper,
+            IOption<IStream<Char>> lower)
         {
             _buffer = buffer;
             _current = current;
@@ -86,12 +86,12 @@ namespace Parseq
                 ? new Position(_position.Line + 1, 1, _position.Index + 1)
                 : new Position(_position.Line, _position.Column + 1, _position.Index + 1);
 
-            var upper = Option.Just<Stream<Char>>(this);
-            var lower = Option.None<Stream<Char>>();
+            var upper = Option.Just<IStream<Char>>(this);
+            var lower = Option.None<IStream<Char>>();
 
-            _lower = !(_buffer.EndOfBuffer)
-               ? new CharStream(_buffer, (Char)_buffer.Read(), position, upper, lower)
-               : new CharStream(_buffer, Option.None<Char>(), position, upper, lower);
+            _lower = Option.Just(new CharStream(
+                _buffer, !(_buffer.EndOfBuffer) ? Option.Just((Char)_buffer.Read()) : Option.None<Char>(), position, upper, lower
+            ));
             return true;
         }
 
@@ -100,18 +100,18 @@ namespace Parseq
             return _upper.Exists();
         }
 
-        public override Stream<Char> Next()
+        public override IStream<Char> Next()
         {
-            Stream<Char> stream;
+            IStream<Char> stream;
             if (this.CanNext() && _lower.TryGetValue(out stream))
                 return stream;
             else
                 throw new InvalidOperationException();
         }
 
-        public override Stream<Char> Rewind()
+        public override IStream<Char> Rewind()
         {
-            Stream<Char> stream;
+            IStream<Char> stream;
             if (this.CanRewind() && _upper.TryGetValue(out stream))
                 return stream;
             else
