@@ -29,7 +29,7 @@ namespace Parseq
 {
     public static class ReplyExtensions
     {
-        public static Boolean IsSuccess<TToken, TResult>(this Reply<TToken, TResult> reply)
+        public static Boolean IsSuccess<TToken, TResult>(this IReply<TToken, TResult> reply)
         {
             if (reply == null)
                 throw new ArgumentNullException("reply");
@@ -38,7 +38,7 @@ namespace Parseq
             return ReplyStatus.Success == reply.TryGetValue(out result, out message);
         }
 
-        public static Boolean IsFailure<TToken, TResult>(this Reply<TToken, TResult> reply)
+        public static Boolean IsFailure<TToken, TResult>(this IReply<TToken, TResult> reply)
         {
             if (reply == null)
                 throw new ArgumentNullException("reply");
@@ -47,7 +47,7 @@ namespace Parseq
             return ReplyStatus.Failure == reply.TryGetValue(out result, out message);
         }
 
-        public static Boolean IsError<TToken, TResult>(this Reply<TToken, TResult> reply)
+        public static Boolean IsError<TToken, TResult>(this IReply<TToken, TResult> reply)
         {
             if (reply == null)
                 throw new ArgumentNullException("reply");
@@ -56,7 +56,7 @@ namespace Parseq
             return ReplyStatus.Error == reply.TryGetValue(out result, out message);
         }
 
-        public static Reply<TToken, T> Where<TToken, T>(this Reply<TToken, T> reply,
+        public static IReply<TToken, T> Where<TToken, T>(this IReply<TToken, T> reply,
             Func<T, Boolean> predicate)
         {
             if (reply == null)
@@ -76,7 +76,7 @@ namespace Parseq
             }
         }
 
-        public static Reply<TToken, U> Select<TToken, T, U>(this Reply<TToken, T> reply,
+        public static IReply<TToken, U> Select<TToken, T, U>(this IReply<TToken, T> reply,
             Func<T, U> selector)
         {
             if (reply == null)
@@ -96,8 +96,8 @@ namespace Parseq
             }
         }
 
-        public static Reply<TToken, U> SelectMany<TToken, T, U>(this Reply<TToken, T> reply,
-            Func<T, Reply<TToken, U>> selector)
+        public static IReply<TToken, U> SelectMany<TToken, T, U>(this IReply<TToken, T> reply,
+            Func<T, IReply<TToken, U>> selector)
         {
             if (reply == null)
                 throw new ArgumentNullException("reply");
@@ -116,8 +116,8 @@ namespace Parseq
             }
         }
 
-        public static Reply<TToken, V> SelectMany<TToken, T, U, V>(this Reply<TToken, T> reply,
-            Func<T, Reply<TToken, U>> selector, Func<T, U, V> projector)
+        public static IReply<TToken, V> SelectMany<TToken, T, U, V>(this IReply<TToken, T> reply,
+            Func<T, IReply<TToken, U>> selector, Func<T, U, V> projector)
         {
             if (reply == null)
                 throw new ArgumentNullException("reply");

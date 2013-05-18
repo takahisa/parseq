@@ -34,8 +34,15 @@ namespace Parseq
         Error = -1,
     }
 
+    public interface IReply<out TToken, out TResult>
+        : IEither<IOption<TResult>, ErrorMessage>
+    {
+        IStream<TToken> Stream { get; }
+    }
+
     public abstract partial class Reply<TToken, TResult>
         : Either<IOption<TResult>, ErrorMessage>
+        , IReply<TToken, TResult>
     {
         public abstract IStream<TToken> Stream { get; }
         public abstract ReplyStatus TryGetValue(out TResult result, out ErrorMessage error);
@@ -168,19 +175,37 @@ namespace Parseq
 
     public static class Reply
     {
-        public static Reply<TToken, TResult> Success<TToken, TResult>(IStream<TToken> stream, TResult value)
+        public static IReply<TToken, TResult> Success<TToken, TResult>(IStream<TToken> stream, TResult value)
         {
             return new Reply<TToken, TResult>.Success(stream, value);
         }
 
-        public static Reply<TToken, TResult> Failure<TToken, TResult>(IStream<TToken> stream)
+        public static IReply<TToken, TResult> Failure<TToken, TResult>(IStream<TToken> stream)
         {
             return new Reply<TToken, TResult>.Failure(stream);
         }
 
-        public static Reply<TToken, TResult> Error<TToken, TResult>(IStream<TToken> stream, ErrorMessage message)
+        public static IReply<TToken, TResult> Error<TToken, TResult>(IStream<TToken> stream, ErrorMessage message)
         {
             return new Reply<TToken, TResult>.Error(stream, message);
+        }
+
+        public static ReplyStatus TryGetValue<TToken, TResult>(this IReply<TToken, TResult> self, out TResult result, out ErrorMessage error)
+        {
+            // TODO: Assumed that self is Reply<TToken, TResult> implicitly
+            return ((Reply<TToken, TResult>) self).TryGetValue(out result, out error);
+        }
+
+        public static Boolean TryGetValue<TToken, TResult>(this IReply<TToken, TResult> self, out TResult result)
+        {
+            ErrorMessage message;
+            switch (self.TryGetValue(out result, out message))
+            {
+                case ReplyStatus.Success: return true;
+                case ReplyStatus.Failure: return false;
+                default:
+                    throw message;
+            }
         }
     }
 }

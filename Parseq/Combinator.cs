@@ -91,7 +91,7 @@ namespace Parseq
 
             return stream =>
             {
-                Reply<TToken, TResult> reply;
+                IReply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser0(stream)).TryGetValue(out result, out message))
                 {
@@ -113,7 +113,7 @@ namespace Parseq
 
             return stream =>
             {
-                Reply<TToken, TResult> reply;
+                IReply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
@@ -133,7 +133,7 @@ namespace Parseq
 
             return stream =>
             {
-                Reply<TToken, TResult> reply;
+                IReply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
@@ -233,7 +233,7 @@ namespace Parseq
 
             return stream =>
             {
-                Reply<TToken, TResult> reply;
+                IReply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
