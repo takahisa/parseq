@@ -67,7 +67,7 @@ namespace Parseq
                         .Case((head, tail) => head.Or(Combinator.Lazy(() => Combinator.Choice(tail)))));
         }
 
-        public static Parser<TToken, Either<TResult0, TResult1>> Fork<TToken, TResult0, TResult1>(
+        public static Parser<TToken, IEither<TResult0, TResult1>> Fork<TToken, TResult0, TResult1>(
             this Parser<TToken, TResult0> parser0,
             Parser<TToken, TResult1> parser1)
         {
@@ -91,7 +91,7 @@ namespace Parseq
 
             return stream =>
             {
-                Reply<TToken, TResult> reply;
+                IReply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser0(stream)).TryGetValue(out result, out message))
                 {
@@ -113,7 +113,7 @@ namespace Parseq
 
             return stream =>
             {
-                Reply<TToken, TResult> reply;
+                IReply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
@@ -133,7 +133,7 @@ namespace Parseq
 
             return stream =>
             {
-                Reply<TToken, TResult> reply;
+                IReply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
@@ -225,7 +225,7 @@ namespace Parseq
             return Combinator.Greed(parser.Replicate().Take(max));
         }
 
-        public static Parser<TToken, Option<TResult>> Maybe<TToken, TResult>(
+        public static Parser<TToken, IOption<TResult>> Maybe<TToken, TResult>(
             this Parser<TToken, TResult> parser)
         {
             if (parser == null)
@@ -233,14 +233,14 @@ namespace Parseq
 
             return stream =>
             {
-                Reply<TToken, TResult> reply;
+                IReply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
-                    case ReplyStatus.Success: return Reply.Success<TToken, Option<TResult>>(reply.Stream, Option.Just(result));
-                    case ReplyStatus.Failure: return Reply.Success<TToken, Option<TResult>>(stream, Option.None<TResult>());
+                    case ReplyStatus.Success: return Reply.Success<TToken, IOption<TResult>>(reply.Stream, Option.Just(result));
+                    case ReplyStatus.Failure: return Reply.Success<TToken, IOption<TResult>>(stream, Option.None<TResult>());
                     default:
-                        return Reply.Error<TToken, Option<TResult>>(stream, message);
+                        return Reply.Error<TToken, IOption<TResult>>(stream, message);
                 }
             };
         }
@@ -256,7 +256,7 @@ namespace Parseq
             {
                 Parser<TToken, TResult> result;
                 if (!cache.TryGetValue(out result))
-                    cache = (result = func());
+                    cache = Option.Just(result = func());
                 return result.Run(stream);
             };
         }

@@ -25,5 +25,5 @@ using System;
 
 namespace Parseq
 {
-    public delegate Reply<TToken,TResult> Parser<TToken,TResult>(Stream<TToken> stream);
+    public delegate IReply<TToken, TResult> Parser<TToken, out TResult>(IStream<TToken> stream);
 }
