@@ -32,10 +32,10 @@ namespace Parseq
         , IDisposable
     {
         private CharBuffer _buffer;
-        private Option<Char> _current;
+        private IOption<Char> _current;
         private Position _position;
-        private Option<Stream<Char>> _upper;
-        private Option<Stream<Char>> _lower;
+        private IOption<Stream<Char>> _upper;
+        private IOption<Stream<Char>> _lower;
 
         public CharStream(System.IO.TextReader reader)
             : this(new CharBuffer(reader))
@@ -58,10 +58,10 @@ namespace Parseq
 
         private CharStream(
             CharBuffer buffer,
-            Option<Char> current,
+            IOption<Char> current,
             Position position,
-            Option<Stream<Char>> upper,
-            Option<Stream<Char>> lower)
+            IOption<Stream<Char>> upper,
+            IOption<Stream<Char>> lower)
         {
             _buffer = buffer;
             _current = current;
@@ -89,9 +89,9 @@ namespace Parseq
             var upper = Option.Just<Stream<Char>>(this);
             var lower = Option.None<Stream<Char>>();
 
-            _lower = !(_buffer.EndOfBuffer)
-               ? new CharStream(_buffer, (Char)_buffer.Read(), position, upper, lower)
-               : new CharStream(_buffer, Option.None<Char>(), position, upper, lower);
+            _lower = Option.Just(new CharStream(
+                _buffer, !(_buffer.EndOfBuffer) ? Option.Just((Char)_buffer.Read()) : Option.None<Char>(), position, upper, lower
+            ));
             return true;
         }
 

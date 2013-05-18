@@ -66,7 +66,7 @@ namespace Parseq
             : Future<T>
         {
             private AutoResetEvent _mediator;
-            private Option<Future<T>> _value;
+            private IOption<Future<T>> _value;
 
             public FuturePipe(Func<Future<T>> func)
             {
@@ -144,7 +144,7 @@ namespace Parseq
                 var result = func();
                 lock (this)
                 {
-                    _value = result;
+                    _value = Option.Just(result);
                 }
                 _mediator.Set();
             }

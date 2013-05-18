@@ -180,10 +180,10 @@ namespace Parseq
             : Stream<T>
         {
             private readonly IEnumerator<T> _enumerator;
-            private readonly Option<T> _current;
+            private readonly IOption<T> _current;
             private readonly Position _position;
-            private Option<Stream<T>> _upper;
-            private Option<Stream<T>> _lower;
+            private IOption<Stream<T>> _upper;
+            private IOption<Stream<T>> _lower;
 
             public StreamAdapter(IEnumerable<T> enumerable)
                 : this(enumerable.GetEnumerator())
@@ -207,10 +207,10 @@ namespace Parseq
 
             private StreamAdapter(
                 IEnumerator<T> enumerator,
-                Option<T> current,
+                IOption<T> current,
                 Position position,
-                Option<Stream<T>> upper,
-                Option<Stream<T>> lower)
+                IOption<Stream<T>> upper,
+                IOption<Stream<T>> lower)
             {
                 _enumerator = enumerator;
                 _current = current;
@@ -239,9 +239,9 @@ namespace Parseq
                 var upper = Option.Just<Stream<T>>(this);
                 var lower = Option.None<Stream<T>>();
 
-                _lower = _enumerator.MoveNext()
-                   ? new StreamAdapter<T>(_enumerator, _enumerator.Current, position, upper, lower)
-                   : new StreamAdapter<T>(_enumerator, Option.None<T>(), position, upper, lower);
+                _lower = Option.Just(new StreamAdapter<T>(
+                   _enumerator, _enumerator.MoveNext() ? Option.Just(_enumerator.Current) : Option.None<T>(), position, upper, lower)
+                );
                 return true;
             }
 
@@ -283,7 +283,7 @@ namespace Parseq
             : TextReader
         {
             private IEnumerator<Char> _enumerator;
-            private Option<Char> _current;
+            private IOption<Char> _current;
 
             public TextReaderAdapter(IEnumerable<Char> enumerable)
                 : this(enumerable.GetEnumerator())
