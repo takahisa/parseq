@@ -29,8 +29,26 @@ namespace Parseq
 {
     public static class EitherExtensions
     {
+        public static Hand TryGetValue<TLeft, TRight>(this IEither<TLeft, TRight> self, out TLeft left, out TRight right)
+        {
+            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
+            return ((Either<TLeft, TRight>)self).TryGetValue(out left, out right);
+        }
+
+        public static Boolean TryGetLeft<TLeft, TRight>(this IEither<TLeft, TRight> self, out TLeft value)
+        {
+            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
+            return ((Either<TLeft, TRight>)self).TryGetLeft(out value);
+        }
+
+        public static Boolean TryGetRight<TLeft, TRight>(this IEither<TLeft, TRight> self, out TRight value)
+        {
+            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
+            return ((Either<TLeft, TRight>)self).TryGetRight(out value);
+        }
+
         public static T Merge<TLeft, TRight, T>(
-            this Either<TLeft, TRight> either,
+            this IEither<TLeft, TRight> either,
             Func<TLeft, T> lselector,
             Func<TRight, T> rselector)
         {
@@ -48,7 +66,7 @@ namespace Parseq
         }
 
         public static TLeft MergeLeft<TLeft, TRight>(
-            this Either<TLeft, TRight> either,
+            this IEither<TLeft, TRight> either,
             Func<TRight, TLeft> selector)
         {
             if (either == null)
@@ -63,7 +81,7 @@ namespace Parseq
         }
 
         public static TRight MergeRight<TLeft, TRight>(
-            this Either<TLeft, TRight> either,
+            this IEither<TLeft, TRight> either,
             Func<TLeft, TRight> selector)
         {
             if (either == null)

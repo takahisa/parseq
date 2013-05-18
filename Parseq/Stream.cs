@@ -27,58 +27,71 @@ using System.Collections.Generic;
 
 namespace Parseq
 {
+    public interface IStream<out TToken>
+        : IOption<TToken>
+    {
+        Position Position { get; }
+
+        Boolean CanNext();
+        Boolean CanRewind();
+
+        IStream<TToken> Next();
+        IStream<TToken> Rewind();
+    }
+
     public abstract partial class Stream<TToken>
         : Option<TToken>
-        , IComparable<Stream<TToken>>
+        , IStream<TToken>
+        , IComparable<IStream<TToken>>
     {
         public abstract Position Position { get; }
 
         public abstract Boolean CanNext();
         public abstract Boolean CanRewind();
 
-        public abstract Stream<TToken> Next();
-        public abstract Stream<TToken> Rewind();
+        public abstract IStream<TToken> Next();
+        public abstract IStream<TToken> Rewind();
     }
 
     partial class Stream<TToken>
     {
-        public virtual Int32 CompareTo(Stream<TToken> other)
+        public virtual Int32 CompareTo(IStream<TToken> other)
         {
             return (this.Position.Index - other.Position.Index);
         }
 
-        public static Boolean operator >(Stream<TToken> x, Stream<TToken> y)
+        public static Boolean operator >(Stream<TToken> x, IStream<TToken> y)
         {
             return x.Position > y.Position;
         }
 
-        public static Boolean operator >=(Stream<TToken> x, Stream<TToken> y)
+        public static Boolean operator >=(Stream<TToken> x, IStream<TToken> y)
         {
             return x.Position >= y.Position;
         }
 
-        public static Boolean operator <(Stream<TToken> x, Stream<TToken> y)
+        public static Boolean operator <(Stream<TToken> x, IStream<TToken> y)
         {
             return x.Position < y.Position;
         }
 
-        public static Boolean operator <=(Stream<TToken> x, Stream<TToken> y)
+        public static Boolean operator <=(Stream<TToken> x, IStream<TToken> y)
         {
             return x.Position <= y.Position;
         }
 
-        public static Stream<TToken> operator >>(Stream<TToken> stream, Int32 count)
+        public static IStream<TToken> operator >>(Stream<TToken> stream, Int32 count)
         {
             return Enumerable
                 .Range(1, count)
-                .Aggregate(stream, (s, i) => s.Next());
+                .Aggregate((IStream<TToken>) stream, (s, i) => s.Next());
         }
 
-        public static Stream<TToken> operator <<(Stream<TToken> stream, Int32 count)
+        public static IStream<TToken> operator <<(Stream<TToken> stream, Int32 count)
         {
             return Enumerable
                 .Range(1, count)
-                .Aggregate(stream, (s, i) => s.Rewind());
+                .Aggregate((IStream<TToken>)stream, (s, i) => s.Rewind());
         }
     }
 }

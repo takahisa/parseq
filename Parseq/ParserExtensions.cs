@@ -29,9 +29,9 @@ namespace Parseq
 {
     public static class ParserExtensions
     {
-        public static Reply<TToken, TResult> Run<TToken, TResult>(
+        public static IReply<TToken, TResult> Run<TToken, TResult>(
             this Parser<TToken, TResult> parser,
-            Stream<TToken> stream)
+            IStream<TToken> stream)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
@@ -64,7 +64,7 @@ namespace Parseq
 
             return stream =>
             {
-                Reply<TToken, T> reply; T result; ErrorMessage message;
+                IReply<TToken, T> reply; T result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
                     case ReplyStatus.Success: return Reply.Success<TToken, U>(reply.Stream, selector(result));
@@ -85,7 +85,7 @@ namespace Parseq
 
             return stream =>
             {
-                Reply<TToken, T> reply; T result; ErrorMessage message;
+                IReply<TToken, T> reply; T result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
                     case ReplyStatus.Success: return selector(result)(reply.Stream);

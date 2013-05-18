@@ -33,8 +33,16 @@ namespace Parseq
         Right = -1,
     }
 
+    public interface IEither<out TLeft, out TRight>
+    {
+        IOption<TLeft> Left { get; }
+        
+        IOption<TRight> Right { get; }
+    }
+
     public abstract partial class Either<TLeft, TRight>
-        : IEquatable<Either<TLeft, TRight>>
+        : IEither<TLeft, TRight>
+        , IEquatable<IEither<TLeft, TRight>>
     {
         public abstract Hand TryGetValue(out TLeft left, out TRight right);
     }
@@ -52,12 +60,12 @@ namespace Parseq
                 this._right = default(TRight);
             }
 
-            public override Option<TLeft> Left
+            public override IOption<TLeft> Left
             {
-                get { return _left; }
+                get { return Option.Just(_left); }
             }
 
-            public override Option<TRight> Right
+            public override IOption<TRight> Right
             {
                 get { return Option.None<TRight>(); }
             }
@@ -81,14 +89,14 @@ namespace Parseq
                 _right = value;
             }
 
-            public override Option<TLeft> Left
+            public override IOption<TLeft> Left
             {
                 get { return Option.None<TLeft>(); }
             }
 
-            public override Option<TRight> Right
+            public override IOption<TRight> Right
             {
-                get { return this._right; }
+                get { return Option.Just(this._right); }
             }
 
             public override Hand TryGetValue(out TLeft left, out TRight right)
@@ -114,7 +122,7 @@ namespace Parseq
             return this.TryGetValue(out left, out value) == Hand.Left;
         }
 
-        public virtual Option<TLeft> Left
+        public virtual IOption<TLeft> Left
         {
             get
             {
@@ -125,7 +133,7 @@ namespace Parseq
             }
         }
 
-        public virtual Option<TRight> Right
+        public virtual IOption<TRight> Right
         {
             get
             {
@@ -136,19 +144,19 @@ namespace Parseq
             }
         }
 
-        public Boolean Equals(Either<TLeft, TRight> other)
+        public Boolean Equals(IEither<TLeft, TRight> other)
         {
             return other != null
                 && this.Left.Equals(other.Left)
                 && this.Right.Equals(other.Right);
         }
 
-        public virtual Boolean Equals(Option<TLeft> other)
+        public virtual Boolean Equals(IOption<TLeft> other)
         {
             return this.Left.Equals(other);
         }
 
-        public virtual Boolean Equals(Option<TRight> other)
+        public virtual Boolean Equals(IOption<TRight> other)
         {
             return this.Right.Equals(other);
         }
@@ -166,17 +174,17 @@ namespace Parseq
 
     public static class Either
     {
-        public static Either<TLeft, TRight> Left<TLeft, TRight>(TLeft value)
+        public static IEither<TLeft, TRight> Left<TLeft, TRight>(TLeft value)
         {
             return new Either<TLeft, TRight>.LeftProduction(value);
         }
 
-        public static Either<TLeft, TRight> Right<TLeft, TRight>(TRight value)
+        public static IEither<TLeft, TRight> Right<TLeft, TRight>(TRight value)
         {
             return new Either<TLeft, TRight>.RightProduction(value);
         }
 
-        public static Either<T, TException> Try<T, TException>(Func<T> selector)
+        public static IEither<T, TException> Try<T, TException>(Func<T> selector)
             where TException : Exception
         {
             if (selector == null)
