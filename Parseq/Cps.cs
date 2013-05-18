@@ -25,5 +25,9 @@ using System;
 
 namespace Parseq
 {
+#if SILVERLIGHT
+    public delegate TResult Cps<TResult, T>(Func<T, TResult> func);
+#else
     public delegate TResult Cps<TResult, out T>(Func<T, TResult> func);
+#endif
 }
