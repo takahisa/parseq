@@ -28,9 +28,10 @@ using System.Collections.Generic;
 namespace Parseq
 {
     public interface IStream<out TToken>
-        : IOption<TToken>
     {
         Position Position { get; }
+
+        IOption<TToken> Current { get; }
 
         Boolean CanNext();
         Boolean CanRewind();
@@ -40,12 +41,13 @@ namespace Parseq
     }
 
     public abstract partial class Stream<TToken>
-        : Option<TToken>
-        , IStream<TToken>
+        : IStream<TToken>
         , IComparable<IStream<TToken>>
     {
+
         public abstract Position Position { get; }
 
+        public abstract IOption<TToken> Current { get; }
         public abstract Boolean CanNext();
         public abstract Boolean CanRewind();
 

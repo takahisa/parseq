@@ -189,7 +189,7 @@ namespace Parseq
             {
                 if (this.IsCompleted)
                 {
-                    result = _value.Perform();
+                    result = _value.Value;
                     return true;
                 }
                 else

@@ -75,6 +75,11 @@ namespace Parseq
             get { return _position; }
         }
 
+        public override IOption<Char> Current
+        {
+            get { return _current; }
+        }
+
         public override Boolean CanNext()
         {
             if (_lower.Exists())
@@ -116,16 +121,6 @@ namespace Parseq
                 return stream;
             else
                 throw new InvalidOperationException();
-        }
-
-        public override Boolean TryGetValue(out Char value)
-        {
-            return _current.TryGetValue(out value);
-        }
-
-        public override Char Perform()
-        {
-            return _current.Perform();
         }
 
         public virtual void Dispose()

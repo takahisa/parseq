@@ -128,7 +128,7 @@ namespace Parseq
             public override T Perform()
             {
                 if (this.IsCompleted)
-                    return _value.Perform().Perform();
+                    return _value.Value.Perform();
                 else
                     throw new InvalidOperationException();
             }

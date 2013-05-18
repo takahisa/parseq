@@ -75,7 +75,7 @@ namespace Parseq.Combinators
                 throw new ArgumentNullException("selector");
 
             TToken value;
-            return stream => stream.TryGetValue(out value) && predicate(value)
+            return stream => stream.Current.TryGetValue(out value) && predicate(value)
                     ? Reply.Success<TToken, TToken>(stream.Next(), value)
                     : Reply.Failure<TToken, TToken>(stream);
         }

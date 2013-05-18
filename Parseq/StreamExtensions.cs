@@ -39,10 +39,9 @@ namespace Parseq
                 throw new ArgumentNullException("stream");
 
             T result;
-            var current = stream;
-            while (current.TryGetValue(out result) && predicate(result))
-                current = stream.Next();
-            return current;
+            while (stream.Current.TryGetValue(out result) && predicate(result))
+                stream = stream.Next();
+            return stream;
         }
 
         public static IStream<T> Where<T>(this IStream<T> stream, Func<IStream<T>, T, Boolean> predicate)
@@ -78,7 +77,7 @@ namespace Parseq
                 throw new ArgumentNullException("selector");
 
             T result;
-            if (stream.TryGetValue(out result))
+            if (stream.Current.TryGetValue(out result))
                 return selector(result);
             else
                 throw new InvalidOperationException();
@@ -130,6 +129,11 @@ namespace Parseq
                 get { return _stream.Position; }
             }
 
+            public override IOption<U> Current
+            {
+                get { return _stream.Current.Select(_selector); }
+            }
+
             public override Boolean CanNext()
             {
                 return _stream.CanNext();
@@ -148,30 +152,6 @@ namespace Parseq
             public override IStream<U> Rewind()
             {
                 return new StreamMapper<T, U>(_stream.Rewind(), _selector);
-            }
-
-            public override Boolean TryGetValue(out U value)
-            {
-                T result;
-                if (_stream.TryGetValue(out result))
-                {
-                    value = _selector(result);
-                    return true;
-                }
-                else
-                {
-                    value = default(U);
-                    return false;
-                }
-            }
-
-            public override U Perform()
-            {
-                T result;
-                if (_stream.TryGetValue(out result))
-                    return _selector(result);
-                else
-                    throw new InvalidOperationException();
             }
         }
 
@@ -223,6 +203,11 @@ namespace Parseq
                 get { return _position; }
             }
 
+            public override IOption<T> Current
+            {
+                get { return _current; }
+            }
+
             public override Boolean CanNext()
             {
                 if (_lower.Exists())
@@ -265,16 +250,6 @@ namespace Parseq
                     return stream;
                 else
                     throw new InvalidOperationException();
-            }
-
-            public override Boolean TryGetValue(out T value)
-            {
-                return _current.TryGetValue(out value);
-            }
-
-            public override T Perform()
-            {
-                return _current.Perform();
             }
         }
 
