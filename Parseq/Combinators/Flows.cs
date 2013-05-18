@@ -61,7 +61,7 @@ namespace Parseq.Combinators
 
             return stream =>
             {
-                Reply<TToken, TResult> reply;
+                IReply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
@@ -86,7 +86,7 @@ namespace Parseq.Combinators
 
             return stream =>
             {
-                Reply<TToken, TResult> reply;
+                IReply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
@@ -111,7 +111,7 @@ namespace Parseq.Combinators
 
             return stream =>
             {
-                Reply<TToken, TResult> reply;
+                IReply<TToken, TResult> reply;
                 TResult result; ErrorMessage message;
                 switch ((reply = parser(stream)).TryGetValue(out result, out message))
                 {
