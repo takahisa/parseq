@@ -25,5 +25,5 @@ using System;
 
 namespace Parseq
 {
-    public delegate TResult Cps<TResult, T>(Func<T, TResult> func);
+    public delegate TResult Cps<TResult, out T>(Func<T, TResult> func);
 }
