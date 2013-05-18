@@ -95,14 +95,14 @@ namespace Parseq.Test
         {
             var p1 = Chars.Satisfy('a');
             var p2 = Chars.Satisfy('b');
-            Combinator.Fork(p1, p2).ExpectTrue(Either.Left<Char, Char>('a').Equals).Run("a".AsStream());
-            Combinator.Fork(p1, p2).ExpectTrue(Either.Right<Char, Char>('b').Equals).Run("b".AsStream());
+            Combinator.Fork(p1, p2).ExpectTrue(target => Either.Left<Char, Char>('a').Equals<Char, Char>(target)).Run("a".AsStream());
+            Combinator.Fork(p1, p2).ExpectTrue(target => Either.Right<Char, Char>('b').Equals<Char, Char>(target)).Run("b".AsStream());
             Combinator.Fork(p1, p2).ExpectFailure().Run("c".AsStream());
 
             var p3 = Prims.Return<Char, Char>('c');
             var p4 = Prims.Return<Char, Char>('d');
-            Combinator.Fork(p3, p4).ExpectTrue(Either.Left<Char, Char>('c').Equals).Run("foobar".AsStream());
-            Combinator.Fork(p4, p3).ExpectTrue(Either.Left<Char, Char>('d').Equals).Run("foobar".AsStream());
+            Combinator.Fork(p3, p4).ExpectTrue(target => Either.Left<Char, Char>('c').Equals<Char, Char>(target)).Run("foobar".AsStream());
+            Combinator.Fork(p4, p3).ExpectTrue(target => Either.Left<Char, Char>('d').Equals<Char, Char>(target)).Run("foobar".AsStream());
 
             var success = Prims.Return<Char, Char>(default(Char));
             var failure = Prims.Fail<Char, Char>();

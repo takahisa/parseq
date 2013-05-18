@@ -29,10 +29,18 @@ namespace Parseq
 {
     public static class OptionExtensions
     {
-        public static Boolean TryGetValue<T>(this IOption<T> self, out T value)
+        public static Boolean TryGetValue<T>(this IOption<T> option, out T value)
         {
-            // TODO: Assumed that self is Option<T> implicitly
-            return ((Option<T>)self).TryGetValue(out value);
+            if (option.HasValue)
+            {
+                value = option.Value;
+                return true;
+            }
+            else
+            {
+                value = default(T);
+                return false;
+            }
         }
 
         public static Boolean Exists<T>(this IOption<T> option)

@@ -45,6 +45,11 @@ namespace Parseq
         , IEquatable<IEither<TLeft, TRight>>
     {
         public abstract Hand TryGetValue(out TLeft left, out TRight right);
+
+        public virtual Boolean Equals(IEither<TLeft, TRight> other)
+        {
+            return this.Equals<TLeft, TRight>(other);
+        }
     }
 
     partial class Either<TLeft, TRight>
@@ -143,33 +148,6 @@ namespace Parseq
                     : Option.Just<TRight>(right);
             }
         }
-
-        public Boolean Equals(IEither<TLeft, TRight> other)
-        {
-            return other != null
-                && this.Left.Equals(other.Left)
-                && this.Right.Equals(other.Right);
-        }
-
-        public virtual Boolean Equals(IOption<TLeft> other)
-        {
-            return this.Left.Equals(other);
-        }
-
-        public virtual Boolean Equals(IOption<TRight> other)
-        {
-            return this.Right.Equals(other);
-        }
-
-        public virtual Boolean Equals(TLeft other)
-        {
-            return this.Left.Equals(other);
-        }
-
-        public virtual Boolean Equals(TRight other)
-        {
-            return this.Right.Equals(other);
-        }
     }
 
     public static class Either
@@ -197,6 +175,48 @@ namespace Parseq
             {
                 return Either.Right<T, TException>(e);
             }
+        }
+
+        public static Boolean Equals<TLeft, TRight>(this IEither<TLeft, TRight> self, IEither<TLeft, TRight> other)
+        {
+            if (self == null)
+                throw new ArgumentNullException("self");
+
+            return other != null
+                && self.Left.Equals(other.Left)
+                && self.Right.Equals(other.Right);
+        }
+
+        public static Boolean Equals<TLeft, TRight>(this IEither<TLeft, TRight> self, IOption<TLeft> other)
+        {
+            if (self == null)
+                throw new ArgumentNullException("self");
+
+            return self.Left.Equals(other);
+        }
+
+        public static Boolean Equals<TLeft, TRight>(this IEither<TLeft, TRight> self, IOption<TRight> other)
+        {
+            if (self == null)
+                throw new ArgumentNullException("self");
+
+            return self.Right.Equals(other);
+        }
+
+        public static Boolean Equals<TLeft, TRight>(this IEither<TLeft, TRight> self, TLeft other)
+        {
+            if (self == null)
+                throw new ArgumentNullException("self");
+
+            return self.Left.Equals(other);
+        }
+
+        public static Boolean Equals<TLeft, TRight>(this IEither<TLeft, TRight> self, TRight other)
+        {
+            if (self == null)
+                throw new ArgumentNullException("self");
+
+            return self.Right.Equals(other);
         }
     }
 }

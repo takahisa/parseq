@@ -29,7 +29,9 @@ namespace Parseq
 {
     public interface IOption<out T>
     {
-        T Perform();
+        Boolean HasValue { get; }
+
+        T Value { get; }
     }
 
     public abstract partial class Option<T>
@@ -37,8 +39,8 @@ namespace Parseq
         , IEquatable<IOption<T>>
         , IEquatable<T>
     {
-        public abstract T Perform();
-        public abstract Boolean TryGetValue(out T value);
+        public abstract Boolean HasValue { get; }
+        public abstract T Value { get; }
     }
 
     partial class Option<T>
@@ -52,20 +54,14 @@ namespace Parseq
                 this._value = value;
             }
 
-            public T Value
+            public override Boolean HasValue
+            {
+                get { return true; }
+            }
+
+            public override T Value
             {
                 get { return _value; }
-            }
-
-            public override T Perform()
-            {
-                return this.Value;
-            }
-
-            public override Boolean TryGetValue(out T value)
-            {
-                value = this.Value;
-                return true;
             }
         }
 
@@ -73,15 +69,14 @@ namespace Parseq
         {
             public None() { }
 
-            public override T Perform()
+            public override Boolean HasValue
             {
-                throw new InvalidOperationException();
+                get { return false; }
             }
 
-            public override Boolean TryGetValue(out T value)
+            public override T Value
             {
-                value = default(T);
-                return false;
+                get { throw new InvalidOperationException(); }
             }
         }
     }
