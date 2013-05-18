@@ -31,8 +31,7 @@ namespace Parseq
 {
     public static class StreamExtensions
     {
-
-        public static Stream<T> Where<T>(this Stream<T> stream, Func<T, Boolean> predicate)
+        public static IStream<T> Where<T>(this IStream<T> stream, Func<T, Boolean> predicate)
         {
             if (stream == null)
                 throw new ArgumentNullException("stream");
@@ -46,12 +45,12 @@ namespace Parseq
             return current;
         }
 
-        public static Stream<T> Where<T>(this Stream<T> stream, Func<Stream<T>, T, Boolean> predicate)
+        public static IStream<T> Where<T>(this IStream<T> stream, Func<IStream<T>, T, Boolean> predicate)
         {
             return stream.Where(_ => predicate(stream, _));
         }
 
-        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<T, U> selector)
+        public static IStream<U> Select<T, U>(this IStream<T> stream, Func<T, U> selector)
         {
             if (stream == null)
                 throw new ArgumentNullException("stream");
@@ -61,17 +60,17 @@ namespace Parseq
             return new StreamMapper<T, U>(stream, selector);
         }
 
-        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<Stream<T>, U> selector)
+        public static IStream<U> Select<T, U>(this IStream<T> stream, Func<IStream<T>, U> selector)
         {
             return stream.Select((T _) => selector(stream));
         }
 
-        public static Stream<U> Select<T, U>(this Stream<T> stream, Func<Stream<T>, T, U> selector)
+        public static IStream<U> Select<T, U>(this IStream<T> stream, Func<IStream<T>, T, U> selector)
         {
             return stream.Select((T _) => selector(stream, _));
         }
 
-        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<T, Stream<U>> selector)
+        public static IStream<U> SelectMany<T, U>(this IStream<T> stream, Func<T, IStream<U>> selector)
         {
             if (stream == null)
                 throw new ArgumentNullException("stream");
@@ -85,17 +84,17 @@ namespace Parseq
                 throw new InvalidOperationException();
         }
 
-        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<Stream<T>, Stream<U>> selector)
+        public static IStream<U> SelectMany<T, U>(this IStream<T> stream, Func<IStream<T>, IStream<U>> selector)
         {
             return stream.SelectMany((T _) => selector(stream));
         }
 
-        public static Stream<U> SelectMany<T, U>(this Stream<T> stream, Func<Stream<T>, T, Stream<U>> selector)
+        public static IStream<U> SelectMany<T, U>(this IStream<T> stream, Func<IStream<T>, T, IStream<U>> selector)
         {
             return stream.SelectMany((T _) => selector(stream, _));
         }
 
-        public static Stream<T> AsStream<T>(this IEnumerable<T> enumerable)
+        public static IStream<T> AsStream<T>(this IEnumerable<T> enumerable)
         {
             return new StreamAdapter<T>(enumerable);
         }
@@ -113,10 +112,10 @@ namespace Parseq
         private class StreamMapper<T, U>
             : Stream<U>
         {
-            private readonly Stream<T> _stream;
+            private readonly IStream<T> _stream;
             private readonly Func<T, U> _selector;
 
-            public StreamMapper(Stream<T> stream, Func<T, U> selector)
+            public StreamMapper(IStream<T> stream, Func<T, U> selector)
             {
                 if (stream == null)
                     throw new ArgumentNullException("stream");
@@ -141,12 +140,12 @@ namespace Parseq
                 return _stream.CanRewind();
             }
 
-            public override Stream<U> Next()
+            public override IStream<U> Next()
             {
                 return new StreamMapper<T, U>(_stream.Next(), _selector);
             }
 
-            public override Stream<U> Rewind()
+            public override IStream<U> Rewind()
             {
                 return new StreamMapper<T, U>(_stream.Rewind(), _selector);
             }
@@ -182,8 +181,8 @@ namespace Parseq
             private readonly IEnumerator<T> _enumerator;
             private readonly IOption<T> _current;
             private readonly Position _position;
-            private IOption<Stream<T>> _upper;
-            private IOption<Stream<T>> _lower;
+            private IOption<IStream<T>> _upper;
+            private IOption<IStream<T>> _lower;
 
             public StreamAdapter(IEnumerable<T> enumerable)
                 : this(enumerable.GetEnumerator())
@@ -199,8 +198,8 @@ namespace Parseq
                         ? Option.Just<T>(enumerator.Current)
                         : Option.None<T>()),
                     new Position(1, 1, 0),
-                    Option.None<Stream<T>>(),
-                    Option.None<Stream<T>>())
+                    Option.None<IStream<T>>(),
+                    Option.None<IStream<T>>())
             {
 
             }
@@ -209,8 +208,8 @@ namespace Parseq
                 IEnumerator<T> enumerator,
                 IOption<T> current,
                 Position position,
-                IOption<Stream<T>> upper,
-                IOption<Stream<T>> lower)
+                IOption<IStream<T>> upper,
+                IOption<IStream<T>> lower)
             {
                 _enumerator = enumerator;
                 _current = current;
@@ -236,8 +235,8 @@ namespace Parseq
                         _position.Column + 1,
                         _position.Index + 1);
 
-                var upper = Option.Just<Stream<T>>(this);
-                var lower = Option.None<Stream<T>>();
+                var upper = Option.Just<IStream<T>>(this);
+                var lower = Option.None<IStream<T>>();
 
                 _lower = Option.Just(new StreamAdapter<T>(
                    _enumerator, _enumerator.MoveNext() ? Option.Just(_enumerator.Current) : Option.None<T>(), position, upper, lower)
@@ -250,18 +249,18 @@ namespace Parseq
                 return _upper.Exists();
             }
 
-            public override Stream<T> Next()
+            public override IStream<T> Next()
             {
-                Stream<T> stream;
+                IStream<T> stream;
                 if (this.CanNext() && _lower.TryGetValue(out stream))
                     return stream;
                 else
                     throw new InvalidOperationException();
             }
 
-            public override Stream<T> Rewind()
+            public override IStream<T> Rewind()
             {
-                Stream<T> stream;
+                IStream<T> stream;
                 if (this.CanRewind() && _upper.TryGetValue(out stream))
                     return stream;
                 else

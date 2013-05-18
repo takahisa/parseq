@@ -31,7 +31,7 @@ namespace Parseq
     {
         public static Reply<TToken, TResult> Run<TToken, TResult>(
             this Parser<TToken, TResult> parser,
-            Stream<TToken> stream)
+            IStream<TToken> stream)
         {
             if (parser == null)
                 throw new ArgumentNullException("parser");
