@@ -38,6 +38,7 @@ namespace Parseq
         : IEither<IOption<TResult>, ErrorMessage>
     {
         IStream<TToken> Stream { get; }
+        ReplyStatus Status { get; }
     }
 
     public abstract partial class Reply<TToken, TResult>
@@ -45,6 +46,7 @@ namespace Parseq
         , IReply<TToken, TResult>
     {
         public abstract IStream<TToken> Stream { get; }
+        public abstract ReplyStatus Status { get; }
         public abstract ReplyStatus TryGetValue(out TResult result, out ErrorMessage error);
     }
 
@@ -67,6 +69,16 @@ namespace Parseq
             public override IStream<TToken> Stream
             {
                 get { return _stream; }
+            }
+
+            public override ReplyStatus Status
+            {
+                get { return ReplyStatus.Success; }
+            }
+
+            public override Hand Hand
+            {
+                get { return Hand.Left; }
             }
 
             public override Hand TryGetValue(out IOption<TResult> left, out ErrorMessage right)
@@ -99,6 +111,16 @@ namespace Parseq
             public override IStream<TToken> Stream
             {
                 get { return _stream; }
+            }
+
+            public override ReplyStatus Status
+            {
+                get { return ReplyStatus.Failure; }
+            }
+
+            public override Hand Hand
+            {
+                get { return Hand.Left; }
             }
 
             public override Hand TryGetValue(out IOption<TResult> left, out ErrorMessage right)
@@ -135,6 +157,16 @@ namespace Parseq
             public override IStream<TToken> Stream
             {
                 get { return _stream; }
+            }
+
+            public override ReplyStatus Status
+            {
+                get { return ReplyStatus.Error; }
+            }
+
+            public override Hand Hand
+            {
+                get { return Hand.Right; }
             }
 
             public override Hand TryGetValue(out IOption<TResult> left, out ErrorMessage right)
