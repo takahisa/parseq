@@ -37,10 +37,12 @@ namespace Parseq
                     left = self.Left.Value;
                     right = default(TRight);
                     return Hand.Left;
-                default: // case Hand.Right:
+                case Hand.Right:
                     left = default(TLeft);
                     right = self.Right.Value;
                     return Hand.Right;
+                default:
+                    throw new ArgumentOutOfRangeException("Hand");
             }
         }
 
@@ -51,9 +53,11 @@ namespace Parseq
                 case Hand.Left:
                     value = self.Left.Value;
                     return true;
-                default: // case Hand.Right:
+                case Hand.Right:
                     value = default(TLeft);
                     return false;
+                default:
+                    throw new ArgumentOutOfRangeException("Hand");
             }
         }
 
