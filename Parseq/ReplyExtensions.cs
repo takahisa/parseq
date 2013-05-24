@@ -31,8 +31,23 @@ namespace Parseq
     {
         public static ReplyStatus TryGetValue<TToken, TResult>(this IReply<TToken, TResult> self, out TResult result, out ErrorMessage error)
         {
-            // TODO: Assumed that self is Reply<TToken, TResult> implicitly
-            return ((Reply<TToken, TResult>)self).TryGetValue(out result, out error);
+            switch (self.Status)
+            {
+                case ReplyStatus.Success:
+                    result = self.Left.Value.Value;
+                    error = null;
+                    return ReplyStatus.Success;
+                case ReplyStatus.Failure:
+                    result = default(TResult);
+                    error = null;
+                    return ReplyStatus.Failure;
+                case ReplyStatus.Error:
+                    result = default(TResult);
+                    error = self.Right.Value;
+                    return ReplyStatus.Error;
+                default:
+                    throw new ArgumentOutOfRangeException("Status");
+            }
         }
 
         public static Boolean TryGetValue<TToken, TResult>(this IReply<TToken, TResult> self, out TResult result)

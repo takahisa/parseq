@@ -35,8 +35,8 @@ namespace Parseq
 
     public interface IEither<out TLeft, out TRight>
     {
+        Hand Hand { get; }
         IOption<TLeft> Left { get; }
-        
         IOption<TRight> Right { get; }
     }
 
@@ -44,6 +44,8 @@ namespace Parseq
         : IEither<TLeft, TRight>
         , IEquatable<IEither<TLeft, TRight>>
     {
+        public abstract Hand Hand { get; }
+
         public abstract Hand TryGetValue(out TLeft left, out TRight right);
 
         public virtual Boolean Equals(IEither<TLeft, TRight> other)
@@ -75,6 +77,11 @@ namespace Parseq
                 get { return Option.None<TRight>(); }
             }
 
+            public override Hand Hand
+            {
+                get { return Hand.Left; }
+            }
+
             public override Hand TryGetValue(out TLeft left, out TRight right)
             {
                 left = _left;
@@ -102,6 +109,11 @@ namespace Parseq
             public override IOption<TRight> Right
             {
                 get { return Option.Just(this._right); }
+            }
+
+            public override Hand Hand
+            {
+                get { return Hand.Right; }
             }
 
             public override Hand TryGetValue(out TLeft left, out TRight right)

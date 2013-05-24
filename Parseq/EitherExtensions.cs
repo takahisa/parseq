@@ -31,20 +31,45 @@ namespace Parseq
     {
         public static Hand TryGetValue<TLeft, TRight>(this IEither<TLeft, TRight> self, out TLeft left, out TRight right)
         {
-            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
-            return ((Either<TLeft, TRight>)self).TryGetValue(out left, out right);
+            switch (self.Hand)
+            {
+                case Hand.Left:
+                    left = self.Left.Value;
+                    right = default(TRight);
+                    return Hand.Left;
+                default: // case Hand.Right:
+                    left = default(TLeft);
+                    right = self.Right.Value;
+                    return Hand.Right;
+            }
         }
 
         public static Boolean TryGetLeft<TLeft, TRight>(this IEither<TLeft, TRight> self, out TLeft value)
         {
-            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
-            return ((Either<TLeft, TRight>)self).TryGetLeft(out value);
+            switch (self.Hand)
+            {
+                case Hand.Left:
+                    value = self.Left.Value;
+                    return true;
+                default: // case Hand.Right:
+                    value = default(TLeft);
+                    return false;
+            }
         }
 
         public static Boolean TryGetRight<TLeft, TRight>(this IEither<TLeft, TRight> self, out TRight value)
         {
-            // TODO: Assumed that self is Either<TLeft, TRight> implicitly
-            return ((Either<TLeft, TRight>)self).TryGetRight(out value);
+            switch (self.Hand)
+            {
+                case Hand.Left:
+                    value = default(TRight);
+                    return false;
+                case Hand.Right:
+                    value = self.Right.Value;
+                    return true;
+                default:
+                    throw new ArgumentOutOfRangeException("Hand");
+            }
         }
 
         public static T Merge<TLeft, TRight, T>(
