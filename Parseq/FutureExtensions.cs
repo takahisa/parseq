@@ -34,8 +34,16 @@ namespace Parseq
     {
         public static Boolean TryGetValue<T>(this IFuture<T> self, out T result)
         {
-            // TODO: Assumed that self is Future<T> implicitly
-            return ((Future<T>)self).TryGetValue(out result);
+            if (self.IsCompleted)
+            {
+                result = self.Apply();
+                return true;
+            }
+            else
+            {
+                result = default(T);
+                return false;
+            }
         }
 
         public static IFuture<U> Select<T, U>(this IFuture<T> future, Func<T, U> selector)
