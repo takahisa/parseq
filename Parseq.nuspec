@@ -3,7 +3,7 @@
   <metadata>
     <title>Parseq - a monadic parser combinator library for C#</title>
     <id>Parseq</id>
-    <version>2.1.0.0</version>
+    <version>2.1.0.1</version>
     <authors>linerlock</authors>
     <owners>linerlock</owners>
     <licenseUrl>https://github.com/linerlock/parseq/blob/master/LICENSE</licenseUrl>

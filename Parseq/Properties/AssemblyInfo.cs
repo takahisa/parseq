@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Parseq")]
 [assembly: AssemblyDescription("Parseq is a monadic parser combinator using LINQ")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Parseq Project")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Parseq")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2012-2013")]
 [assembly: AssemblyTrademark("")]
@@ -38,8 +38,8 @@ using System.Runtime.InteropServices;
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
 [assembly: Guid("3ad5f09f-5951-49f1-afe8-f61553c2eed3")]
-[assembly: AssemblyVersion("2.1.0.0")]
-[assembly: AssemblyFileVersion("2.1.0.0")]
+[assembly: AssemblyVersion("2.1.0.1")]
+[assembly: AssemblyFileVersion("2.1.0.1")]
 
 #pragma warning disable 1699
 #if !NOSIGN
