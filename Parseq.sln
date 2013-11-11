@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parseq", "Parseq\Parseq.csproj", "{3DA79348-7C7D-432B-B415-D5E1D2705CCA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parseq.Silverlight", "Parseq.Silverlight\Parseq.Silverlight.csproj", "{8FC20CBB-88B8-4E6E-90F4-FD355C4B6468}"

@@ -1,9 +1,9 @@
 /TestResults/
 /*.cache
 /*.suo
-/*.user
 /*.nupkg
 bin/
 obj/
 *.vsmdi
 *.testsettings
+*.user
