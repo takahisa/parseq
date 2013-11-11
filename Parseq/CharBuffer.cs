@@ -181,11 +181,6 @@ namespace Parseq
             }
         }
 
-        public override void Close()
-        {
-            this.Dispose(true);
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing && _baseReader != null)

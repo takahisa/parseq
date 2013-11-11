@@ -25,7 +25,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
-
+using System.Threading.Tasks;
 using Parseq;
 
 namespace Parseq
@@ -138,7 +138,7 @@ namespace Parseq
                 _observers = new List<IObserver<T>>();
                 _mediator = new AutoResetEvent(false);
                 _value = Option.None<T>();
-                ThreadPool.QueueUserWorkItem(_ => this.CalculateProc(func));
+                Task.Factory.StartNew(() => this.CalculateProc(func));
             }
 
             public override Boolean IsCompleted
