@@ -90,10 +90,13 @@ namespace Parseq.Test.Combinators
             var failure = Prims.Fail<Char, Unit>();
             var error = Prims.Error<Char, Unit>();
 
-            Prims.Pipe(any, any, Tuple.Create).ExpectSuccess(Tuple.Create('f', 'o')).Run("foobar".AsStream());
-            Prims.Pipe(any, any, any, Tuple.Create).ExpectSuccess(Tuple.Create('f', 'o', 'o')).Run("foobar".AsStream());
-            Prims.Pipe(any, any, any, any, Tuple.Create).ExpectSuccess(Tuple.Create('f', 'o', 'o', 'b')).Run("foobar".AsStream());
-            Prims.Pipe(any, any, any, any, any, Tuple.Create).ExpectSuccess(Tuple.Create('f', 'o', 'o', 'b', 'a')).Run("foobar".AsStream());
+            Prims.Pipe(any, any, Tuple.Create).ExpectSuccess(Tuple.Create('f', 'o')).Run("foobarbaz".AsStream());
+            Prims.Pipe(any, any, any, Tuple.Create).ExpectSuccess(Tuple.Create('f', 'o', 'o')).Run("foobarbaz".AsStream());
+            Prims.Pipe(any, any, any, any, Tuple.Create).ExpectSuccess(Tuple.Create('f', 'o', 'o', 'b')).Run("foobarbaz".AsStream());
+            Prims.Pipe(any, any, any, any, any, Tuple.Create).ExpectSuccess(Tuple.Create('f', 'o', 'o', 'b', 'a')).Run("foobarbaz".AsStream());
+            Prims.Pipe(any, any, any, any, any, any, Tuple.Create).ExpectSuccess(Tuple.Create('f', 'o', 'o', 'b', 'a', 'r')).Run("foobarbaz".AsStream());
+            Prims.Pipe(any, any, any, any, any, any, any, Tuple.Create).ExpectSuccess(Tuple.Create('f', 'o', 'o', 'b', 'a', 'r', 'b')).Run("foobarbaz".AsStream());
+            Prims.Pipe(any, any, any, any, any, any, any, any, Tuple.Create).ExpectSuccess(Tuple.Create('f', 'o', 'o', 'b', 'a', 'r', 'b', 'a')).Run("foobarbaz".AsStream());
 
             Prims.Pipe(failure, failure, Tuple.Create).ExpectFailure().Run("foobar".AsStream());
             Prims.Pipe(success, failure, Tuple.Create).ExpectFailure().Run("foobar".AsStream());
