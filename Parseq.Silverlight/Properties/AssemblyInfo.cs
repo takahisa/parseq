@@ -35,8 +35,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright (c) 2012 - 2013 WATANABE TAKAHISA <x.linerlock@gmail.com> All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("2.1.0.1")]
-[assembly: AssemblyFileVersion("2.1.0.1")]
+[assembly: AssemblyVersion("2.1.1.1")]
+[assembly: AssemblyFileVersion("2.1.1.1")]
 [assembly: CLSCompliant(true)]
 
 #pragma warning disable 1699
