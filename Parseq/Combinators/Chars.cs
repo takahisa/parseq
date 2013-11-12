@@ -132,7 +132,7 @@ namespace Parseq.Combinators
             if (seq == null)
                 throw new ArgumentNullException("seq");
 
-            return Chars.Satisfy(seq.AsEnumerable());
+            return Chars.Satisfy(seq.ToCharArray());
         }
 
         public static Parser<Char, Char> OneOf(params Char[] candidates)
