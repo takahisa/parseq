@@ -253,6 +253,117 @@ namespace Parseq.Combinators
                    select selector(x, y, z, a, b);
         }
 
+        public static Parser<TToken, TResult6> Pipe<TToken, TResult0, TResult1, TResult2, TResult3, TResult4, TResult5, TResult6>(
+            this Parser<TToken, TResult0> parser0,
+            Parser<TToken, TResult1> parser1,
+            Parser<TToken, TResult2> parser2,
+            Parser<TToken, TResult3> parser3,
+            Parser<TToken, TResult4> parser4,
+            Parser<TToken, TResult5> parser5,
+            Func<TResult0, TResult1, TResult2, TResult3, TResult4, TResult5, TResult6> selector)
+        {
+            if (parser0 == null)
+                throw new ArgumentNullException("parser0");
+            if (parser1 == null)
+                throw new ArgumentNullException("parser1");
+            if (parser2 == null)
+                throw new ArgumentNullException("parser2");
+            if (parser3 == null)
+                throw new ArgumentNullException("parser3");
+            if (parser4 == null)
+                throw new ArgumentNullException("parser4");
+            if (parser5 == null)
+                throw new ArgumentNullException("parser5");
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+
+            return from x in parser0
+                   from y in parser1
+                   from z in parser2
+                   from a in parser3
+                   from b in parser4
+                   from c in parser5
+                   select selector(x, y, z, a, b, c);
+        }
+
+        public static Parser<TToken, TResult7> Pipe<TToken, TResult0, TResult1, TResult2, TResult3, TResult4, TResult5, TResult6, TResult7>(
+            this Parser<TToken, TResult0> parser0,
+            Parser<TToken, TResult1> parser1,
+            Parser<TToken, TResult2> parser2,
+            Parser<TToken, TResult3> parser3,
+            Parser<TToken, TResult4> parser4,
+            Parser<TToken, TResult5> parser5,
+            Parser<TToken, TResult6> parser6,
+            Func<TResult0, TResult1, TResult2, TResult3, TResult4, TResult5, TResult6, TResult7> selector)
+        {
+            if (parser0 == null)
+                throw new ArgumentNullException("parser0");
+            if (parser1 == null)
+                throw new ArgumentNullException("parser1");
+            if (parser2 == null)
+                throw new ArgumentNullException("parser2");
+            if (parser3 == null)
+                throw new ArgumentNullException("parser3");
+            if (parser4 == null)
+                throw new ArgumentNullException("parser4");
+            if (parser5 == null)
+                throw new ArgumentNullException("parser5");
+            if (parser6 == null)
+                throw new ArgumentNullException("parser6");
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+
+            return from x in parser0
+                   from y in parser1
+                   from z in parser2
+                   from a in parser3
+                   from b in parser4
+                   from c in parser5
+                   from d in parser6
+                   select selector(x, y, z, a, b, c, d);
+        }
+
+        public static Parser<TToken, TResult8> Pipe<TToken, TResult0, TResult1, TResult2, TResult3, TResult4, TResult5, TResult6, TResult7, TResult8>(
+            this Parser<TToken, TResult0> parser0,
+            Parser<TToken, TResult1> parser1,
+            Parser<TToken, TResult2> parser2,
+            Parser<TToken, TResult3> parser3,
+            Parser<TToken, TResult4> parser4,
+            Parser<TToken, TResult5> parser5,
+            Parser<TToken, TResult6> parser6,
+            Parser<TToken, TResult7> parser7,
+            Func<TResult0, TResult1, TResult2, TResult3, TResult4, TResult5, TResult6, TResult7, TResult8> selector)
+        {
+            if (parser0 == null)
+                throw new ArgumentNullException("parser0");
+            if (parser1 == null)
+                throw new ArgumentNullException("parser1");
+            if (parser2 == null)
+                throw new ArgumentNullException("parser2");
+            if (parser3 == null)
+                throw new ArgumentNullException("parser3");
+            if (parser4 == null)
+                throw new ArgumentNullException("parser4");
+            if (parser5 == null)
+                throw new ArgumentNullException("parser5");
+            if (parser6 == null)
+                throw new ArgumentNullException("parser6");
+            if (parser7 == null)
+                throw new ArgumentNullException("parser7");
+            if (selector == null)
+                throw new ArgumentNullException("selector");
+
+            return from x in parser0
+                   from y in parser1
+                   from z in parser2
+                   from a in parser3
+                   from b in parser4
+                   from c in parser5
+                   from d in parser6
+                   from e in parser7
+                   select selector(x, y, z, a, b, c, d, e);
+        }
+
         public static Parser<TToken, TResult0> Left<TToken, TResult0, TResult1>(
             this Parser<TToken, TResult0> parser0,
             Parser<TToken, TResult1> parser1)
