@@ -25,7 +25,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
-
+using System.Threading.Tasks;
 using Parseq;
 
 namespace Parseq
@@ -89,7 +89,7 @@ namespace Parseq
 
                 _mediator = new AutoResetEvent(false);
                 _value = Option.None<IFuture<T>>();
-                ThreadPool.QueueUserWorkItem(state => this.CalculateProc(func));
+                Task.Factory.StartNew(() => this.CalculateProc(func));
             }
 
             public override IDisposable Subscribe(IObserver<T> observer)
