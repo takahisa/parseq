@@ -111,7 +111,7 @@ namespace Parseq.Combinators
             return Prims.Satisfy<Char>(predicate);
         }
 
-        public static Parser<Char, IEnumerable<Char>> Satisfy(this IEnumerable<Char> seq)
+        public static Parser<Char, IEnumerable<Char>> Satisfy(IEnumerable<Char> seq)
         {
             if (seq == null)
                 throw new ArgumentNullException("seq");
@@ -127,12 +127,12 @@ namespace Parseq.Combinators
             return Chars.Satisfy(seq.AsEnumerable());
         }
 
-        public static Parser<Char, IEnumerable<Char>> Sequence(String seq)
+        public static Parser<Char, IEnumerable<Char>> Sequence(this String seq)
         {
             if (seq == null)
                 throw new ArgumentNullException("seq");
 
-            return Chars.Satisfy(seq.ToCharArray());
+            return Chars.Satisfy(seq.Cast<Char>());
         }
 
         public static Parser<Char, Char> OneOf(params Char[] candidates)
