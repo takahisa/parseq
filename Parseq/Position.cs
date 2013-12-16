@@ -98,6 +98,11 @@ namespace Parseq
             return new Position(x.Line + y.Line, x.Column + y.Column, x.Index + y.Index);
         }
 
+        public static Position operator -(Position x, Position y)
+        {
+            return new Position(x.Line - y.Line, x.Column - y.Column, x.Index - y.Index);
+        }
+
         public static Boolean operator >(Position x, Position y)
         {
             return x.Index > y.Index;
