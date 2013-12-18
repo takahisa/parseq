@@ -99,20 +99,10 @@ namespace Parseq
             return this.Equals(Option.Just(other));
         }
 
-        public override Int32 GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
         public override Boolean Equals(object obj)
         {
             return ((obj is IOption<T>) && this.Equals((IOption<T>)obj))
                 || ((obj is T) && this.Equals((T)obj));
-        }
-
-        public override String ToString()
-        {
-            return base.ToString();
         }
 
         public static implicit operator Option<T>(T value)
