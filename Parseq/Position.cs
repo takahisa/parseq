@@ -83,19 +83,26 @@ namespace Parseq
 
         public override Int32 GetHashCode()
         {
-            return this.Column.GetHashCode()
-                ^ this.Line.GetHashCode()
-                ^ this.Index.GetHashCode();
+            return unchecked(
+                this.Column.GetHashCode() * 171 ^
+                this.Line.GetHashCode() * 218 ^
+                this.Index.GetHashCode()
+            );
         }
 
         public override String ToString()
         {
-            return String.Format("{0}:{1}", this.Line, this.Column);
+            return this.Line + ":" + this.Column;
         }
 
         public static Position operator +(Position x, Position y)
         {
             return new Position(x.Line + y.Line, x.Column + y.Column, x.Index + y.Index);
+        }
+
+        public static Position operator -(Position x, Position y)
+        {
+            return new Position(x.Line - y.Line, x.Column - y.Column, x.Index - y.Index);
         }
 
         public static Boolean operator >(Position x, Position y)
