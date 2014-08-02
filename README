@@ -1,6 +1,36 @@
-Parseq is a monadic parser combinator library for C#.
-The design of Parseq have been affected by FParsec (F#) and Parsec (Haskell) 
-but Parseq is different these libraries, you can create parsers using LINQ.
+Parseq
+====
 
-ParseqはC#向けのモナディックなパーサーコンビネーターライブラリです。
-F#のFParsecやHaskellのParsecの影響を受けて設計されていますが、Parseqはこれらのライブラリと異なりLINQを用いてパーサを構築することが可能です。
+## About
+
+Parseq is a monadic parser combinator library written for C#, It can parse context-sensitive, infinite-lookahead grammers.
+
+## Get Started
+
+- **Install Parseq via Nuget**:
+
+    open your project and launch Nuget Package Manager Console, please type following command.
+
+        PM> Install-Package Parseq
+
+- **Install Parseq via Binary**:
+
+    you can download from [releases](https://github.com/linerlock/parseq/releases)
+
+
+- **Install Parseq via Source code**:
+
+        git clone https://github.com/linerlock/parseq.git
+
+    or download snapshot from [zipball](https://github.com/linerlock/parseq/zipball) | [tarball](https://github.com/linerlock/parseq/tarball)
+
+## Requirements
+
+- Target Framework
+
+    - .Netframework >= 4
+    - Silverlight >= 4
+
+## LICENSE
+
+Parseq is licensed under the MIT. see also: [LICENSE](https://raw.githubusercontent.com/linerlock/parseq/master/LICENSE)
