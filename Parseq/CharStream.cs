@@ -46,7 +46,7 @@ namespace Parseq
         private CharStream(CharBuffer buffer)
             : this(buffer,
                 Option.Try(() =>
-                    !(buffer.EndOfBuffer)
+                    !(buffer.Peek() == CharBuffer.EOF)
                     ? Option.Just<Char>((Char)buffer.Read())
                     : Option.None<Char>()),
                 new Position(1, 1, 0),
@@ -95,7 +95,7 @@ namespace Parseq
             var lower = Option.None<IStream<Char>>();
 
             _lower = Option.Just(new CharStream(
-                _buffer, !(_buffer.EndOfBuffer) ? Option.Just((Char)_buffer.Read()) : Option.None<Char>(), position, upper, lower
+                _buffer, !(_buffer.Peek() == CharBuffer.EOF) ? Option.Just((Char)_buffer.Read()) : Option.None<Char>(), position, upper, lower
             ));
             return true;
         }
