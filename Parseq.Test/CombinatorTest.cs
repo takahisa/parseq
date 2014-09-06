@@ -251,6 +251,13 @@ namespace Parseq.Test
             Combinator.Many(failure, 0, 0)
                 .ExpectSuccess(Enumerable.Empty<Unit>())
                 .Run("foobar".AsStream());
+
+            // Issue #13
+            // Parseq reads only 1024 characters
+            var inputString = String.Concat(Enumerable.Range('a', 2000 /* greater than 1024 */));
+            var issue_13 = Combinator.Many(Chars.Any()).Select(String.Concat);
+            issue_13.ExpectSuccess(String.Concat(inputString));
+            issue_13.Run(Enumerable.Repeat('a', 2000).AsStream());
         }
 
         [TestMethod]
