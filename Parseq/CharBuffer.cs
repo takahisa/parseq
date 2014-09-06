@@ -1,7 +1,5 @@
 ﻿/*
- * Parseq - a monadic parser combinator library for C#
- *
- * Copyright (c) 2012 - 2013 WATANABE TAKAHISA <x.linerlock@gmail.com> All rights reserved.
+ * Copyright (C) 2012 - 2014 Takahisa Watanabe <linerlock@outlook.com> All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,71 +20,99 @@
  * 
  */
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Collections.Generic;
 
 namespace Parseq
 {
-    class CharBuffer
+    internal class CharBuffer
         : System.IO.TextReader
     {
-        private const Int32 DefaultBufferSize = 1024;
-        private const Int32 MinBufferSize = 256;
+        public const Int32 EOF = -1;
+        public const Int32 LF = '\n';
+        public const Int32 DefaultBufferSize = 8;
+        public const Int32 MinimumBufferSize = 1;
 
-        private System.IO.TextReader _baseReader;
-        private Char[] _buffer;
-        private Int32 _bufferPtrBegin;
-        private Int32 _bufferPtrEnd;
-        private Int32 _bufferSize;
+        private System.IO.TextReader baseReader;
+        private Char[] buffer;
+        private Int32 bufferPtr;
+        private Int32 bufferCount;
 
-        public CharBuffer(System.IO.TextReader reader, Int32 bufferSize)
+        public CharBuffer(System.IO.TextReader baseReader, Int32 bufferSize)
         {
-            _baseReader = reader;
-            _bufferPtrBegin = 0;
-            _bufferPtrEnd = 0;
-            _bufferSize = Math.Max(bufferSize, MinBufferSize);
-            _buffer = new Char[bufferSize];
+            if (baseReader == null)
+                throw new ArgumentNullException("baseReader");
 
-            this.FillBuffer();
+            this.baseReader = baseReader;
+            this.buffer = new Char[Math.Max(bufferSize, CharBuffer.MinimumBufferSize)];
+            this.bufferPtr = 0;
+            this.bufferCount = 0;
         }
 
-        public CharBuffer(System.IO.TextReader reader)
-            : this(reader, DefaultBufferSize)
+        public CharBuffer(System.IO.TextReader baseReader)
+            : this(baseReader, DefaultBufferSize)
         {
 
         }
 
-        protected System.IO.TextReader BaseReader
+        void LookAhead(Int32 k)
         {
-            get { return _baseReader; }
+            if (k < 0) throw new ArgumentOutOfRangeException("k");
+
+            if (this.bufferCount - this.bufferPtr > k)
+                return;
+
+            var sourceBuffer = this.buffer;
+            var destinationBuffer = (k >= this.buffer.Length)
+                ? new Char[k + 1]
+                : this.buffer;
+
+            Array.Copy(sourceBuffer, this.bufferPtr, destinationBuffer, 0, sourceBuffer.Length - this.bufferPtr);
+            this.bufferCount -= this.bufferPtr;
+            this.bufferCount += this.baseReader.Read(destinationBuffer, this.bufferCount, destinationBuffer.Length - this.bufferCount);
+            this.bufferPtr = 0;
+            this.buffer = destinationBuffer;
         }
 
-        public Boolean EndOfBuffer
+        public Int32 Peek(Int32 k)
         {
-            get { return _bufferPtrBegin >= _bufferPtrEnd; }
+            if (k < 0) throw new ArgumentOutOfRangeException("k");
+
+            this.LookAhead(k);
+            return (this.bufferPtr + k >= this.bufferCount)
+                ? CharBuffer.EOF
+                : (Int32)this.buffer[this.bufferPtr + k];
         }
 
-        public override Int32 Read()
+        public Int32 Read(Int32 k)
         {
-            return this.Read(0);
-        }
+            if (k < 0) throw new ArgumentOutOfRangeException("k");
 
-        public virtual Int32 Read(Int32 count)
-        {
-            var ch = this.Peek(count);
-            _bufferPtrBegin += (count + 1);
-            return ch;
+            var c = this.Peek(k);
+            if (c != CharBuffer.EOF) { this.bufferPtr += k + 1; }
+
+            return c;
         }
 
         public override Int32 Read(Char[] buffer, Int32 index, Int32 count)
         {
             if (buffer == null)
-                throw new ArgumentNullException();
-            if (index < 0 || count < 0)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentNullException("buffer");
+            if (index < 0)
+                throw new ArgumentOutOfRangeException("index");
+            if (count < 0)
+                throw new ArgumentOutOfRangeException("count");
 
-            return (_bufferPtrBegin += this.Peek(buffer, index, count));
+            this.LookAhead(count);
+            Array.Copy(this.buffer, 0, buffer, index, count = Math.Min(count, this.bufferCount));
+
+            return count;
+        }
+
+        public override Int32 ReadBlock(Char[] buffer, Int32 index, Int32 count)
+        {
+            throw new NotSupportedException();
         }
 
         public override Int32 Peek()
@@ -94,104 +120,46 @@ namespace Parseq
             return this.Peek(0);
         }
 
-        public virtual Int32 Peek(Int32 count)
+        public override Int32 Read()
         {
-            if (count < 0 || count >= _bufferSize)
-                throw new ArgumentOutOfRangeException();
-
-            return !(this.EndOfBuffer)
-                ? _buffer[_bufferPtrBegin + count]
-                : -1;
-        }
-
-        public virtual Int32 Peek(Char[] buffer, Int32 index, Int32 count)
-        {
-            if (buffer == null)
-                throw new ArgumentNullException();
-            if (index < 0 || count < 0)
-                throw new ArgumentOutOfRangeException();
-
-            var bufferedCount = this.Buffering(count);
-            var bufferReadableCount = buffer.Count() - index;
-
-            var readableCount = Math.Min(count, Math.Min(bufferReadableCount, bufferedCount));
-            Array.Copy(_buffer, _bufferPtrBegin, buffer, index, readableCount);
-
-            return readableCount;
+            return this.Read(0);
         }
 
         public override String ReadLine()
         {
             var builder = new StringBuilder();
+            while (true)
+            {
+                var c0 = this.Peek(0);
+                var c1 = this.Peek(1);
+                if (c0 == CharBuffer.EOF) break;
+                if (c0 == '\n' || c0 == '\r' && c1 != '\n') break;
+                builder.Append((Char)c0);
+            }
 
-            if (this.EndOfBuffer)
-                return null;
+            return builder.ToString();
+        }
 
-            Int32 ch;
-            while ((ch = this.Peek()) >= 0)
+        public override String ReadToEnd()
+        {
+            var builder = new StringBuilder();
+            while (this.Peek() != CharBuffer.EOF)
             {
                 builder.Append((Char)this.Read());
-                if (ch == '\n' || (ch == '\r' && this.Peek() != '\n'))
-                    return builder.ToString();
-
             }
             return builder.ToString();
         }
 
-        private void FillBuffer()
+        protected override void Dispose(Boolean disposing)
         {
-
-            _bufferPtrEnd = _baseReader.Read(_buffer, 0, _bufferSize);
-            _bufferPtrBegin = 0;
-        }
-
-        private void ResizeBuffer(Int32 size)
-        {
-            var newBufferSize = Math.Max(size, MinBufferSize);
-            var newBuffer = new Char[newBufferSize];
-
-            Array.Copy(_buffer, 0, newBuffer, 0, _bufferSize);
-            _bufferSize = newBufferSize;
-            _buffer = newBuffer;
-        }
-
-        private Int32 Buffering(Int32 size)
-        {
-            if (size < 0)
-                throw new ArgumentOutOfRangeException();
-            if (size > _bufferSize)
+            if (disposing && this.baseReader != null)
             {
-                this.ResizeBuffer(size);
-                return this.Buffering(size);
-            }
-
-            var bufferedCount = _bufferPtrEnd - _bufferPtrBegin;
-
-            if (bufferedCount >= size)
-                return size;
-            else
-            {
-                var newBuffer = new Char[_bufferSize];
-                Array.Copy(_buffer, _bufferPtrBegin, newBuffer, 0, bufferedCount);
-                _bufferPtrEnd = bufferedCount +
-                    _baseReader.Read(newBuffer, bufferedCount, _bufferSize - bufferedCount);
-                _bufferPtrBegin = 0;
-                _buffer = newBuffer;
-                return Math.Min(size, _bufferPtrEnd);
-            }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && _baseReader != null)
-            {
-                _baseReader.Dispose();
-                _baseReader = null;
-                _buffer = null;
+                this.baseReader.Dispose();
+                this.baseReader = null;
+                this.buffer = null;
             }
 
             base.Dispose(disposing);
         }
     }
 }
-
