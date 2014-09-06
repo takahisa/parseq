@@ -1,7 +1,7 @@
 ﻿/*
- * Parseq - a monadic parser combinator library for C#
- *
- * Copyright (c) 2012 - 2013 WATANABE TAKAHISA <x.linerlock@gmail.com> All rights reserved.
+ * Parseq - monadic parser combinator library for C#
+ * 
+ * Copyright (C) 2012 - 2014 Takahisa Watanabe <linerlock@outlook.com> All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

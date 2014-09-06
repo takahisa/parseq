@@ -3,14 +3,14 @@
     <metadata>
         <id>Parseq</id>
         <version>2.1.1.2</version>
-        <title>Parseq - a monadic parser combinator library for C#</title>
+        <title>Parseq - monadic parser combinator library for C#</title>
         <authors>linerlock</authors>
         <owners>linerlock</owners>
         <licenseUrl>https://github.com/linerlock/parseq/blob/master/LICENSE</licenseUrl>
         <projectUrl>http://github.com/linerlock/parseq</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>a monadic parser combinator library using LINQ</description>
-        <copyright>Copyright 2012-2013</copyright>
+        <description>monadic parser combinator library for C#</description>
+        <copyright>Copyright (C) 2012 - 2014 Takahisa Watanabe</copyright>
         <language>en-US</language>
         <tags>parser combinator parsec csharp</tags>
     </metadata>
