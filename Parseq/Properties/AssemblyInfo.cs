@@ -1,7 +1,7 @@
 ﻿/*
- * Parseq - a monadic parser combinator library for C#
- *
- * Copyright (c) 2012 - 2013 WATANABE TAKAHISA <x.linerlock@gmail.com> All rights reserved.
+ * Parseq - monadic parser combinator library for C#
+ * 
+ * Copyright (C) 2012 - 2014 Takahisa Watanabe <linerlock@outlook.com> All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,12 +29,12 @@ using System.Reflection;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Parseq")]
-[assembly: AssemblyCopyright("Copyright (c) 2012 - 2013 WATANABE TAKAHISA <x.linerlock@gmail.com> All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright (C) 2012 - 2014 Takahisa Watanabe")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: CLSCompliant(true)]
-[assembly: AssemblyVersion("2.1.1.1")]
-[assembly: AssemblyFileVersion("2.1.1.1")]
+[assembly: AssemblyVersion("2.1.1.2")]
+[assembly: AssemblyFileVersion("2.1.1.2")]
 
 #pragma warning disable 1699
 #if !NOSIGN
