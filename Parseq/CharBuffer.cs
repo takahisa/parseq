@@ -32,7 +32,6 @@ namespace Parseq
         : System.IO.TextReader
     {
         public const Int32 EOF = -1;
-        public const Int32 LF = '\n';
         public const Int32 DefaultBufferSize = 8;
         public const Int32 MinimumBufferSize = 1;
 
@@ -132,13 +131,23 @@ namespace Parseq
             var builder = new StringBuilder();
             while (true)
             {
-                var c0 = this.Peek(0);
-                var c1 = this.Peek(1);
-                if (c0 == CharBuffer.EOF) break;
-                if (c0 == '\n' || c0 == '\r' && c1 != '\n') break;
-                builder.Append((Char)c0);
+                switch (this.Peek())
+                {
+                    case CharBuffer.EOF:
+                    case '\n':
+                        this.Read();
+                        goto exit;
+                    case '\r':
+                        if (this.Peek(1) == '\n') this.Read();
+                        this.Read();
+                        goto exit;
+                    default:
+                        builder.Append((Char)this.Read());
+                        break;
+                }
             }
 
+        exit:
             return builder.ToString();
         }
 
@@ -146,9 +155,7 @@ namespace Parseq
         {
             var builder = new StringBuilder();
             while (this.Peek() != CharBuffer.EOF)
-            {
                 builder.Append((Char)this.Read());
-            }
             return builder.ToString();
         }
 
