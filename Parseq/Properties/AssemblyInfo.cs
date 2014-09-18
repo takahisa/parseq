@@ -33,8 +33,8 @@ using System.Reflection;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: CLSCompliant(true)]
-[assembly: AssemblyVersion("2.1.1.4")]
-[assembly: AssemblyFileVersion("2.1.1.4")]
+[assembly: AssemblyVersion("2.1.1.5")]
+[assembly: AssemblyFileVersion("2.1.1.5")]
 
 #pragma warning disable 1699
 #if !NOSIGN
