@@ -254,9 +254,9 @@ namespace Parseq.Test
 
             // Issue #13
             // Parseq reads only 1024 characters
-            var inputString = String.Concat(Enumerable.Range('a', 2000 /* greater than 1024 */));
+            var inputString = String.Concat(Enumerable.Repeat('a', 2000 /* greater than 1024 */));
             var issue_13 = Combinator.Many(Chars.Any()).Select(String.Concat);
-            issue_13.ExpectSuccess(String.Concat(inputString));
+            issue_13 = issue_13.ExpectSuccess(String.Concat(inputString));
             issue_13.Run(Enumerable.Repeat('a', 2000).AsStream());
         }
 
