@@ -103,9 +103,14 @@ namespace Parseq
             return new CharStream(new TextReaderAdapter(enumerable));
         }
 
+        public static CharStream AsStream(this String s)
+        {
+            return new CharStream(new StringReader(s));
+        }
+
         public static CharStream AsStream(this TextReader reader)
         {
-            return new CharStream(new CharBuffer(reader));
+            return new CharStream(reader);
         }
 
         private class StreamMapper<T, U>
