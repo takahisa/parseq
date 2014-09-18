@@ -106,7 +106,7 @@ namespace Parseq
                 throw new ArgumentOutOfRangeException("count");
 
             this.LookAhead(count);
-            Array.Copy(this.buffer, 0, buffer, index, count = Math.Min(count, this.bufferCount));
+            Array.Copy(this.buffer, this.bufferPtr, buffer, index, count = Math.Min(count, this.bufferCount - this.bufferPtr));
             this.bufferPtr += count;
             return count;
         }
