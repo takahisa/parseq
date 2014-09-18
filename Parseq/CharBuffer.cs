@@ -107,7 +107,7 @@ namespace Parseq
 
             this.LookAhead(count);
             Array.Copy(this.buffer, 0, buffer, index, count = Math.Min(count, this.bufferCount));
-
+            this.bufferPtr += count;
             return count;
         }
 
