@@ -35,6 +35,8 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
+    <Compile Include="Delayed.cs" />
+    <Compile Include="Delayed.Extensions.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="Either.Extensions.cs" />
     <Compile Include="Option.cs" />
