@@ -20,12 +20,28 @@
  * 
  */
 using System;
+using System.IO;
 using System.Collections.Generic;
 
 namespace Parseq
 {
     public static partial class TokenStream
     {
+        public static CharStream AsStream(this String inputString)
+        {
+            return new CharStream(inputString);
+        }
+
+        public static CharStream AsStream(this TextReader inputStringReader)
+        {
+            return new CharStream(inputStringReader);
+        }
+
+        public static CharStream AsStream(this IEnumerable<Char> enumerable)
+        {
+            return TokenStream.AsStream(new TextReaderAdapter(enumerable));
+        }
+
         public static ITokenStream<T> AsStream<T>(this IEnumerable<T> enumerable)
         {
             return new TokenStreamImpl<T>(enumerable);
@@ -71,6 +87,61 @@ namespace Parseq
             public ITokenStream<T> MoveNext()
             {
                 return this.restStream.Force();
+            }
+        }
+
+        class TextReaderAdapter
+            : TextReader
+        {
+            public const Int32 EOF = -1;
+
+            private IEnumerator<Char> enumerator;
+            private IOption<Char> current;
+
+            public TextReaderAdapter(IEnumerable<Char> enumerable)
+                : this(enumerable.GetEnumerator())
+            {
+
+            }
+
+            public TextReaderAdapter(IEnumerator<Char> enumerator)
+            {
+                this.enumerator = enumerator;
+                this.current = this.enumerator.MoveNext()
+                    ? Option.Some<Char>(this.enumerator.Current)
+                    : Option.None<Char>();
+            }
+
+            public override Int32 Peek()
+            {
+                if (this.enumerator == null)
+                    throw new ObjectDisposedException("enumerator");
+                
+                return this.current.Case(
+                    none: () => EOF,
+                    some: value => (Int32)value);
+            }
+
+            public override Int32 Read()
+            {
+                if (this.enumerator == null)
+                    throw new ObjectDisposedException("enumerator");
+
+                var c = this.Peek();
+
+                this.current = this.enumerator.MoveNext()
+                    ? Option.Some<Char>(this.enumerator.Current)
+                    : Option.None<Char>();
+                return c;
+            }
+
+            protected override void Dispose(Boolean disposing)
+            {
+                if (disposing && this.enumerator != null)
+                {
+                    this.enumerator.Dispose();
+                    this.enumerator = null;
+                }
             }
         }
     }
