@@ -46,40 +46,32 @@ namespace Parseq
         public class LeftImpl<TLeft, TRight>
             : IEither<TLeft, TRight>
         {
-            public TLeft Value
-            {
-                get;
-                private set;
-            }
+            private readonly TLeft value;
 
             public LeftImpl(TLeft value)
             {
-                this.Value = value;
+                this.value = value;
             }
 
             public TResult Case<TResult>(Func<TLeft, TResult> left, Func<TRight, TResult> right)
             {
-                return left(this.Value);
+                return left(this.value);
             }
         }
 
         public class RightImpl<TLeft, TRight>
             : IEither<TLeft, TRight>
         {
-            public TRight Value
-            {
-                get;
-                private set;
-            }
+            private readonly TRight value;
 
             public RightImpl(TRight value)
             {
-                this.Value = value;
+                this.value = value;
             }
 
             public TResult Case<TResult>(Func<TLeft, TResult> left, Func<TRight, TResult> right)
             {
-                return right(this.Value);
+                return right(this.value);
             }
         }
     }
