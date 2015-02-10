@@ -49,6 +49,12 @@
     <Compile Include="Seq.cs" />
     <Compile Include="Seq.Extensions.cs" />
     <Compile Include="SingletonClassHelper.cs" />
+    <Compile Include="TokenStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TokenStream.Extensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Unit.cs" />
   </ItemGroup>
   <ItemGroup />
