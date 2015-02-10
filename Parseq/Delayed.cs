@@ -46,40 +46,32 @@ namespace Parseq
         class ValueImpl<T>
             : IDelayed<T>
         {
-            public T Value
-            {
-                get;
-                private set;
-            }
+            private readonly T value;
 
             public ValueImpl(T value)
             {
-                this.Value = value;
+                this.value = value;
             }
 
             public T Force()
             {
-                return this.Value;
+                return this.value;
             }
         }
 
         class ValueFactoryImpl<T>
             : IDelayed<T>
         {
-            public System.Lazy<T> DelyedValue
-            {
-                get;
-                private set;
-            }
+            private readonly System.Lazy<T> lazyValue;
 
             public ValueFactoryImpl(Func<T> valueFactory)
             {
-                this.DelyedValue = new Lazy<T>(valueFactory);
+                this.lazyValue = new Lazy<T>(valueFactory);
             }
 
             public T Force()
             {
-                return this.DelyedValue.Value;
+                return this.lazyValue.Value;
             }
         }
     }
