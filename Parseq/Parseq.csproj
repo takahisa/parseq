@@ -35,6 +35,8 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
+    <Compile Include="Either.cs" />
+    <Compile Include="Either.Extensions.cs" />
     <Compile Include="Option.cs" />
     <Compile Include="Option.Extensions.cs" />
     <Compile Include="Pair.cs" />
