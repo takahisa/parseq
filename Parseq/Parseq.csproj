@@ -36,6 +36,7 @@
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Unit.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
