@@ -40,6 +40,7 @@
     <Compile Include="Position.cs" />
     <Compile Include="PositionConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SingletonClassHelper.cs" />
     <Compile Include="Unit.cs" />
   </ItemGroup>
   <ItemGroup />
