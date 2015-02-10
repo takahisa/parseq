@@ -35,6 +35,8 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
+    <Compile Include="Pair.cs" />
+    <Compile Include="Pair.Extensions.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="PositionConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
