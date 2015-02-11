@@ -25,12 +25,11 @@ using System.Collections.Generic;
 namespace Parseq
 {
     public interface ISeq<T>
+        : IEnumerable<T>
     {
         TResult Case<TResult>(
             Func<TResult> empty,
             Func<IPair<T, IDelayed<ISeq<T>>>, TResult> headAndTail);
-
-        IEnumerable<T> AsEnumerable();
     }
 
     public partial class Seq
@@ -70,9 +69,14 @@ namespace Parseq
                 return empty();
             }
 
-            public IEnumerable<T> AsEnumerable()
+            public IEnumerator<T> GetEnumerator()
             {
                 yield break;
+            }
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                return this.GetEnumerator();
             }
         }
 
@@ -91,12 +95,17 @@ namespace Parseq
                 return headAndTail(this.headAndTail);
             }
 
-            public IEnumerable<T> AsEnumerable()
+            public IEnumerator<T> GetEnumerator()
             {
                 yield return this.headAndTail.Item0;
 
-                foreach (var item in this.headAndTail.Item1.Force().AsEnumerable())
+                foreach (var item in this.headAndTail.Item1.Force())
                     yield return item;
+            }
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                return this.GetEnumerator();
             }
         }
     }
