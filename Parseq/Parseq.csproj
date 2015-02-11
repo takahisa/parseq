@@ -45,6 +45,8 @@
     <Compile Include="Option.Extensions.cs" />
     <Compile Include="Pair.cs" />
     <Compile Include="Pair.Extensions.cs" />
+    <Compile Include="Parser.cs" />
+    <Compile Include="Parser.Extensions.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="PositionConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
