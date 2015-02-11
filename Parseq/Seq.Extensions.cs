@@ -20,6 +20,7 @@
  * 
  */
 using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -100,47 +101,79 @@ namespace Parseq
             this IDelayed<ISeq<T>> delayedSeq0,
                  IDelayed<ISeq<T>> delayedSeq1)
         {
-            return Delayed.SelectMany(delayedSeq0, seq0 =>
+            return Delayed.FlatMap(delayedSeq0, seq0 =>
                 seq0.Case(
                     empty: () => delayedSeq1,
                     headAndTail: pair =>
                         Seq.Cons(pair.Item0, Delayed.Return(() => pair.Item1.Force()))));
         }
 
+        public static IDelayed<ISeq<T1>> Map<T0, T1>(
+            this IDelayed<ISeq<T0>> delayedSeq,
+                 Func<T0, T1> func)
+        {
+            return delayedSeq.Select(func);
+        }
+
+        public static IDelayed<ISeq<T1>> FlatMap<T0, T1>(
+            this IDelayed<ISeq<T0>> delayedSeq,
+                 Func<T0, IDelayed<ISeq<T1>>> func)
+        {
+            return delayedSeq.SelectMany(func);
+        }
+
+        public static IDelayed<ISeq<T>> Filter<T>(
+            this IDelayed<ISeq<T>> delayedSeq,
+                 Func<T, Boolean> predicate)
+        {
+            return delayedSeq.Filter(predicate);
+        }
+
+        public static IEnumerable<T> AsEnumerable<T>(
+            this IDelayed<ISeq<T>> delayedSeq)
+        {
+            foreach (var item in delayedSeq.Select(seq => seq.AsEnumerable()).Force())
+                yield return item;
+        }
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static class SeqExtensions
+    {
         public static IDelayed<ISeq<T>> Where<T>(
             this IDelayed<ISeq<T>> delayedSeq,
                  Func<T, Boolean> predicate)
         {
-            return Delayed.SelectMany(delayedSeq, seq =>
+            return Delayed.FlatMap(delayedSeq, seq =>
                 seq.Case(
                     empty: () => Seq.Empty<T>(),
                     headAndTail: pair => predicate(pair.Item0)
-                        ? Seq.Cons(pair.Item0, Delayed.Return(() => Seq.Where(pair.Item1, predicate).Force()))
-                        : Delayed.Return(() => Seq.Where(pair.Item1, predicate).Force())));
+                        ? Seq.Cons(pair.Item0, Delayed.Return(() => pair.Item1.Where(predicate).Force()))
+                        : Delayed.Return(() => pair.Item1.Where(predicate).Force())));
         }
 
         public static IDelayed<ISeq<T1>> Select<T0, T1>(
             this IDelayed<ISeq<T0>> delayedSeq,
                  Func<T0, T1> selector)
         {
-            return Delayed.SelectMany(delayedSeq, seq =>
+            return Delayed.FlatMap(delayedSeq, seq =>
                 seq.Case(
-                    empty: () => 
+                    empty: () =>
                         Seq.Empty<T1>(),
                     headAndTail: pair =>
-                        Seq.Cons(selector(pair.Item0), Delayed.Return(() => Seq.Select(pair.Item1, (selector)).Force()))));
+                        Seq.Cons(selector(pair.Item0), Delayed.Return(() =>pair.Item1.Select(selector)).Force())));
         }
 
         public static IDelayed<ISeq<T1>> SelectMany<T0, T1>(
             this IDelayed<ISeq<T0>> delayedSeq,
                  Func<T0, IDelayed<ISeq<T1>>> selector)
         {
-            return Delayed.SelectMany(delayedSeq, seq =>
+            return Delayed.FlatMap(delayedSeq, seq =>
                 seq.Case(
                     empty: () =>
                         Seq.Empty<T1>(),
                     headAndTail: pair =>
-                        Seq.Concat(selector(pair.Item0), Delayed.Return(() => Seq.SelectMany(pair.Item1, selector).Force()))));
+                        Seq.Concat(selector(pair.Item0), Delayed.Return(() => pair.Item1.SelectMany(selector).Force()))));
         }
 
         public static IDelayed<ISeq<T2>> SelectMany<T0, T1, T2>(
