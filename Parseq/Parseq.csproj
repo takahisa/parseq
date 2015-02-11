@@ -48,6 +48,8 @@
     <Compile Include="Position.cs" />
     <Compile Include="PositionConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reply.cs" />
+    <Compile Include="Reply.Extensions.cs" />
     <Compile Include="Seq.cs" />
     <Compile Include="Seq.Extensions.cs" />
     <Compile Include="SingletonClassHelper.cs" />
