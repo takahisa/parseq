@@ -20,6 +20,7 @@
  * 
  */
 using System;
+using System.ComponentModel;
 
 namespace Parseq
 {
@@ -50,7 +51,11 @@ namespace Parseq
                 return Either.Left<TException, T>(exception);
             }
         }
+    }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static class EitherExtensions
+    {
         public static IEither<TException, T1> Select<TException, T0, T1>(
             this IEither<TException, T0> either,
                  Func<T0, T1> selector)

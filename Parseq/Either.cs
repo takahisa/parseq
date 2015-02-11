@@ -43,7 +43,7 @@ namespace Parseq
 
     public partial class Either
     {
-        public class LeftImpl<TLeft, TRight>
+        class LeftImpl<TLeft, TRight>
             : IEither<TLeft, TRight>
         {
             private readonly TLeft value;
@@ -59,7 +59,7 @@ namespace Parseq
             }
         }
 
-        public class RightImpl<TLeft, TRight>
+        class RightImpl<TLeft, TRight>
             : IEither<TLeft, TRight>
         {
             private readonly TRight value;

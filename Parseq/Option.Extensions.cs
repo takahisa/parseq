@@ -20,6 +20,7 @@
  * 
  */
 using System;
+using System.ComponentModel;
 
 namespace Parseq
 {
@@ -35,6 +36,31 @@ namespace Parseq
                 : none();
         }
 
+        public static IOption<T1> Map<T0, T1>(
+            this IOption<T0> option,
+                 Func<T0, T1> func)
+        {
+            return option.Select(func);
+        }
+
+        public static IOption<T1> FlatMap<T0, T1>(
+            this IOption<T0> option,
+                 Func<T0, IOption<T1>> func)
+        {
+            return option.SelectMany(func);
+        }
+
+        public static IOption<T> Filter<T>(
+            this IOption<T> option,
+                 Func<T, Boolean> predicate)
+        {
+            return option.Where(predicate);
+        }
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static class OptionExtensions
+    {
         public static IOption<T> Where<T>(
             this IOption<T> option,
                  Func<T, Boolean> predicate)
@@ -43,14 +69,14 @@ namespace Parseq
                 ? Option.Some<T>(option.Value)
                 : Option.None<T>();
         }
-
+        
         public static IOption<T1> Select<T0, T1>(
             this IOption<T0> option,
                  Func<T0, T1> selector)
         {
             return option.Case(
                 none: Option.None<T1>,
-                some: value => 
+                some: value =>
                     Option.Some<T1>(selector(value)));
         }
 

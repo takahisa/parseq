@@ -20,10 +20,30 @@
  * 
  */
 using System;
+using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace Parseq
 {
     public static partial class Delayed
+    {
+        public static IDelayed<T1> Map<T0, T1>(
+            this IDelayed<T0> value,
+                 Func<T0, T1> func)
+        {
+            return value.Select(func);
+        }
+
+        public static IDelayed<T1> FlatMap<T0, T1>(
+            this IDelayed<T0> value,
+                 Func<T0, IDelayed<T1>> func)
+        {
+            return value.SelectMany(func);
+        }
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static class DelayedExtensions
     {
         public static IDelayed<T1> Select<T0, T1>(
             this IDelayed<T0> value,

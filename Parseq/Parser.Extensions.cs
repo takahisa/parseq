@@ -34,9 +34,11 @@ namespace Parseq
             {
                 return parser(stream);
             }
-            catch(FailFastImpl<TToken, T> reply)
+            catch (FailFastException<TToken> exception)
             {
-                return reply;
+                return Reply.Failure<TToken, T>(
+                    exception.RestStream,
+                    exception.Message);
             }
         }
 
@@ -55,64 +57,52 @@ namespace Parseq
         public static Parser<TToken, T> FailFast<TToken, T>(String errorMessage)
         {
             return stream =>
-            { throw new Parser.FailFastImpl<TToken, T>(stream, errorMessage); };
+                { throw new Parser.FailFastException<TToken>(stream, errorMessage); };
         }
     }
 
     public static partial class Parser
     {
-        class FailFastImpl<TToken, T>
+        class FailFastException<TToken>
             : Exception
-            , IReply<TToken, T>
         {
-            private readonly ITokenStream<TToken> restStream;
-            private readonly String errorMessage;
-
-            public FailFastImpl(ITokenStream<TToken> restStream, String errorMessage)
+            public ITokenStream<TToken> RestStream
             {
-                this.restStream = restStream;
-                this.errorMessage = errorMessage;
+                get;
+                private set;
             }
 
-            public TResult Case<TResult>(
-                Func<ITokenStream<TToken>, String, TResult> failure,
-                Func<ITokenStream<TToken>, T, TResult> success)
+            public FailFastException(ITokenStream<TToken> restStream, String errorMessage)
+                : base(errorMessage)
             {
-                return failure(this.restStream, this.errorMessage);
-            }
-
-            TResult IEither<String, T>.Case<TResult>(
-                Func<String, TResult> left,
-                Func<T, TResult> right)
-            {
-                return left(this.errorMessage);
+                this.RestStream = restStream;
             }
         }
     }
 
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class ParserExtensions
     {
         public static Parser<TToken, T1> Select<TToken, T0, T1>(
             this Parser<TToken, T0> parser,
                  Func<T0, T1> selector)
         {
-            return stream0 => parser(stream0).Case(
-                failure: (stream1, errorMessage) =>
-                    Reply.Failure<TToken, T1>(stream1, errorMessage),
-                success: (stream1, value) =>
-                    Reply.Success<TToken, T1>(stream1, selector(value)));
+            return stream => parser(stream).Case(
+                failure: (restStream, errorMessage) =>
+                    Reply.Failure<TToken, T1>(restStream, errorMessage),
+                success: (restStream, value) =>
+                    Reply.Success<TToken, T1>(restStream, selector(value)));
         }
 
         public static Parser<TToken, T1> SelectMany<TToken, T0, T1>(
             this Parser<TToken, T0> parser,
                  Func<T0, Parser<TToken, T1>> selector)
         {
-            return stream0 => parser(stream0).Case(
-                failure: (stream1, errorMessage) =>
-                    Reply.Failure<TToken, T1>(stream1, errorMessage),
-                success: (stream1, value) =>
-                    selector(value)(stream1));
+            return stream => parser(stream).Case(
+                failure: (restStream, errorMessage) =>
+                    Reply.Failure<TToken, T1>(restStream, errorMessage),
+                success: (restStream, value) =>
+                    selector(value)(restStream));
         }
 
         public static Parser<TToken, T2> SelectMany<TToken, T0, T1, T2>(
