@@ -59,6 +59,45 @@ namespace Parseq
             return stream =>
                 { throw new Parser.FailFastException<TToken>(stream, errorMessage); };
         }
+
+        public static Parser<TToken, T1> Map<TToken, T0, T1>(
+            this Parser<TToken, T0> parser,
+                 Func<T0, T1> func)
+        {
+            return parser.Select(func);
+        }
+
+        public static Parser<TToken, T1> FlatMap<TToken, T0, T1>(
+            this Parser<TToken, T0> parser,
+                 Func<T0, Parser<TToken, T1>> func)
+        {
+            return parser.SelectMany(func);
+        }
+
+        public static Parser<TToken, T1> Bind<TToken, T0, T1>(
+            this Parser<TToken, T0> parser,
+                 Func<T0, Parser<TToken, T1>> func)
+        {
+            return parser.SelectMany(func);
+        }
+
+        public static Parser<TToken, T0> Bindl<TToken, T0, T1>(
+            this Parser<TToken, T0> parser0,
+                 Parser<TToken, T1> parser1)
+        {
+            return from value0 in parser0
+                   from value1 in parser1
+                   select value0;
+        }
+
+        public static Parser<TToken, T1> Bindr<TToken, T0, T1>(
+            this Parser<TToken, T0> parser0,
+                 Parser<TToken, T1> parser1)
+        {
+            return from value0 in parser0
+                   from value1 in parser1
+                   select value1;
+        }
     }
 
     public static partial class Parser
