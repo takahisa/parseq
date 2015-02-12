@@ -37,6 +37,8 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
     <Compile Include="CharStream.cs" />
     <Compile Include="CharStream.Reader.cs" />
+    <Compile Include="Combinator.cs" />
+    <Compile Include="Combinator.Internal.cs" />
     <Compile Include="Delayed.cs" />
     <Compile Include="Delayed.Extensions.cs" />
     <Compile Include="Either.cs" />
