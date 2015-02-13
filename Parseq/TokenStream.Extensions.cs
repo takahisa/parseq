@@ -69,7 +69,7 @@ namespace Parseq
             }
 
             public TokenStreamImpl(IEnumerator<T> enumerator)
-                : this(enumerator, new Position(1, 1))
+                : this(enumerator, Position.Zero)
             {
 
             }

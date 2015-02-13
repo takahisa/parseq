@@ -27,6 +27,8 @@ namespace Parseq
         : IComparable<Position>
         , IEquatable<Position>
     {
+        public readonly static Position Zero = new Position(1, 1);    
+
         public Int32 Line
         {
             get;

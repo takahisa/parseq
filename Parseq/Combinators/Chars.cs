@@ -57,7 +57,7 @@ namespace Parseq.Combinators
 
         public static Parser<Char, IEnumerable<Char>> Sequence(IEnumerable<Char> enumerble)
         {
-            return Combinator.Sequence(enumerble.Select(Chars.Char));
+            return Combinator.Attempt(Combinator.Sequence(enumerble.Select(Chars.Char)));
         }
 
         public static Parser<Char, IEnumerable<Char>> Sequence(params Char[] charArray)
