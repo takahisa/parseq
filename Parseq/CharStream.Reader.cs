@@ -39,7 +39,7 @@ namespace Parseq
                 if (baseReader == null)
                     throw new ArgumentNullException("baseReader");
 
-                this.currentPosition = new Position(1, 1);
+                this.currentPosition = Position.Zero;
                 this.baseReader = baseReader;
             }
 
