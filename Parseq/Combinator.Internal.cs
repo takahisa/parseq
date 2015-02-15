@@ -59,7 +59,7 @@ namespace Parseq
         {
             return stream => parser(stream).Case(
                     failure: (restStream, errorMessage) =>
-                        Reply.Success<TToken, IDelayed<ISeq<T>>>(restStream, Seq.Empty<T>()),
+                        Reply.Success<TToken, IDelayed<ISeq<T>>>(stream, Seq.Empty<T>()),
                     success: (restStream, head) =>
                         InternalCombinator.Many0(parser).Select(tail => Seq.Cons(head, tail))(restStream));
         }
