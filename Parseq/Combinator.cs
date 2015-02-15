@@ -198,7 +198,7 @@ namespace Parseq
                     failure: (restStream, errorMessage) =>
                         Reply.Failure<TToken, T>(stream, errorMessage),
                     success: (restStream, value) =>
-                        Reply.Success<TToken, T>(stream, value));
+                        Reply.Success<TToken, T>(restStream, value));
         }
 
         public static Parser<TToken, Unit> And<TToken, T>(
@@ -343,6 +343,12 @@ namespace Parseq
             IDelayed<Parser<TToken, T>> delayedParser)
         {
             return stream => delayedParser.Force()(stream);
+        }
+
+        public static Parser<TToken, Unit> Ignore<TToken, T>(
+            this Parser<TToken, T> parser)
+        {
+            return parser.Map(_ => Unit.Instance);
         }
     }
 }

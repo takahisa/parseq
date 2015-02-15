@@ -49,10 +49,13 @@ namespace Parseq
                 throw new ObjectDisposedException("reader");
 
             this.reader = reader;
-            this.Current = (this.reader.Peek() == CharStream.Reader.EOF)
+            var currentPosition = this.reader.CurrentPosition;
+            var current = (this.reader.Peek() == CharStream.Reader.EOF)
                 ? Option.None<IPair<Char, Position>>()
                 : Option.Some<IPair<Char, Position>>(
-                    Pair.Return<Char, Position>((Char)this.reader.Read(), this.reader.CurrentPosition));
+                    Pair.Return<Char, Position>((Char)this.reader.Read(), currentPosition));
+
+            this.Current = current;
             this.restStream = Delayed.Return(() => 
                 new CharStream(this.reader));
         }

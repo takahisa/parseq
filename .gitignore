@@ -1,4 +1,5 @@
-/TestResults/
+/TestResults
+/packages
 /*.cache
 /*.suo
 /*.nupkg
