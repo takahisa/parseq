@@ -162,5 +162,43 @@ namespace Parseq
                     select func(lhs, rhs))
                     .Or(Parser.Return<TToken, T>(lhs));
         }
+
+        public static Parser<TToken, IDelayed<ISeq<T>>> Append<TToken, T>(
+            Parser<TToken, IDelayed<ISeq<T>>> parser0,
+            Parser<TToken, IDelayed<ISeq<T>>> parser1)
+        {
+            return parser0.Pipe(parser1, Seq.Concat);
+        }
+
+        public static Parser<TToken, IDelayed<ISeq<T>>> Append<TToken, T>(
+            Parser<TToken, IDelayed<ISeq<T>>> parser0,
+            Parser<TToken, T> parser1)
+        {
+            return InternalCombinator.Append(
+                parser0,
+                parser1.Map(Seq.Singleton));
+        }
+
+        public static Parser<TToken, IDelayed<ISeq<T>>> Append<TToken, T>(
+            Parser<TToken, IDelayed<ISeq<T>>> parser0,
+            Parser<TToken, IOption<IDelayed<ISeq<T>>>> parser1)
+        {
+            return InternalCombinator.Append(
+                parser0, 
+                parser1.Map(optionValue => optionValue.Case(
+                    none: Seq.Empty<T>,
+                    some: value => value)));
+        }
+
+        public static Parser<TToken, IDelayed<ISeq<T>>> Append<TToken, T>(
+            Parser<TToken, IDelayed<ISeq<T>>> parser0,
+            Parser<TToken, IOption<T>> parser1)
+        {
+            return InternalCombinator.Append(
+                parser0, 
+                parser1.Map(optionValue => optionValue.Case(
+                    none: Seq.Empty<T>,
+                    some: Seq.Singleton<T>)));
+        }
     }
 }

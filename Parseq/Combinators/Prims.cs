@@ -31,7 +31,12 @@ namespace Parseq.Combinators
         {
             return stream => stream.Current.HasValue
                 ? Reply.Failure<TToken, Unit>(stream, "Failure: Prims.EndOfInput")
-                : Reply.Success<TToken, Unit>(stream, Unit.Instance);
+                : Reply.Success<TToken, Unit>(stream, Parseq.Unit.Instance);
+        }
+
+        public static Parser<TToken, Unit> Unit<TToken>()
+        {
+            return Parser.Return<TToken, Unit>(Parseq.Unit.Instance);
         }
 
         public static Parser<TToken, TToken> Any<TToken>()
@@ -78,6 +83,45 @@ namespace Parseq.Combinators
             where TToken : IEquatable<TToken>
         {
             return Prims.NoneOf(candidates.AsEnumerable());
+        }
+
+        public static Parser<TToken, IEnumerable<T>> Empty<TToken, T>()
+        {
+            return Parser.Return<TToken, IEnumerable<T>>(Enumerable.Empty<T>());
+        }
+
+        public static Parser<TToken, IEnumerable<T>> Append<TToken, T>(
+            this Parser<TToken, IEnumerable<T>> parser0,
+                 Parser<TToken, IEnumerable<T>> parser1)
+        {
+            return InternalCombinator.Append(parser0.Map(Seq.Of), parser1.Map(Seq.Of))
+                .Map(Seq.AsEnumerable);
+        }
+
+        public static Parser<TToken, IEnumerable<T>> Append<TToken, T>(
+            this Parser<TToken, IEnumerable<T>> parser0,
+                 Parser<TToken, T> parser1)
+        {
+            return InternalCombinator.Append(parser0.Map(Seq.Of), parser1)
+                .Map(Seq.AsEnumerable);
+        }
+
+        public static Parser<TToken, IEnumerable<T>> Append<TToken, T>(
+            this Parser<TToken, IEnumerable<T>> parser0,
+                 Parser<TToken, IOption<IEnumerable<T>>> parser1)
+        {
+            return InternalCombinator.Append(
+                parser0.Map(Seq.Of),
+                parser1.Map(optionValue => optionValue.Map(Seq.Of)))
+                .Map(Seq.AsEnumerable);
+        }
+
+        public static Parser<TToken, IEnumerable<T>> Append<TToken, T>(
+            this Parser<TToken, IEnumerable<T>> parser0,
+                 Parser<TToken, IOption<T>> parser1)
+        {
+            return InternalCombinator.Append(parser0.Map(Seq.Of), parser1)
+                .Map(Seq.AsEnumerable);
         }
     }
 }

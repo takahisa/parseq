@@ -28,10 +28,22 @@ namespace Parseq
     public static partial class Combinator
     {
         public static Parser<TToken, IEnumerable<T>> Sequence<TToken, T>(
+            params Parser<TToken, T>[] parsers)
+        {
+            return Combinator.Sequence(parsers.AsEnumerable());
+        }
+
+        public static Parser<TToken, IEnumerable<T>> Sequence<TToken, T>(
             this IEnumerable<Parser<TToken, T>> parsers)
         {
             return InternalCombinator.Sequence(Seq.Of(parsers))
                 .Select(delayedSeq => delayedSeq.AsEnumerable());
+        }
+
+        public static Parser<TToken, T> Choice<TToken, T>(
+            params Parser<TToken, T>[] parsers)
+        {
+            return Combinator.Choice(parsers.AsEnumerable());
         }
 
         public static Parser<TToken, T> Choice<TToken, T>(
