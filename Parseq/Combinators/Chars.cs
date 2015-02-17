@@ -65,10 +65,9 @@ namespace Parseq.Combinators
             return Chars.Sequence(charArray.AsEnumerable());
         }
 
-        public static Parser<Char, String> Sequence(String s)
+        public static Parser<Char, IEnumerable<Char>> Sequence(String s)
         {
-            return Chars.Sequence(s.ToCharArray())
-                .Select(enumerable => new String(enumerable.ToArray()));
+            return Chars.Sequence(s.ToCharArray());
         }
 
         public static Parser<Char, Char> OneOf(IEnumerable<Char> candidates)
