@@ -178,7 +178,7 @@ namespace Parseq
         {
             return stream => parser0(stream).Case(
                     failure: (restStream, errorMessage) =>
-                        parser1(restStream),
+                        parser1(stream),
                     success: (restStream, value) =>
                         Reply.Success<TToken, T>(restStream, value));
         }
