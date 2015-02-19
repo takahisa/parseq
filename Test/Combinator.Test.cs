@@ -26,7 +26,7 @@ using NUnit.Framework;
 using Parseq;
 using Parseq.Combinators;
 
-namespace Test
+namespace Test.Parseq
 {
     [TestFixture]
     public class CombinatorTest
