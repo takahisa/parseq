@@ -39,6 +39,7 @@
     <Compile Include="CharStream.Reader.cs" />
     <Compile Include="Combinator.cs" />
     <Compile Include="Combinator.Internal.cs" />
+    <Compile Include="Combinator.Internal.Optimized.cs" />
     <Compile Include="Combinators\Chars.cs" />
     <Compile Include="Combinators\Prims.cs" />
     <Compile Include="Delayed.cs" />
