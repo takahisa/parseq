@@ -105,7 +105,7 @@ namespace Parseq
                 seq0.Case(
                     empty: () => delayedSeq1,
                     headAndTail: pair =>
-                        Seq.Cons(pair.Item0, Delayed.Return(() => pair.Item1.Force()))));
+                        Seq.Cons(pair.Item0, Delayed.Return(() => Seq.Concat(pair.Item1, delayedSeq1).Force()))));
         }
 
         public static IDelayed<ISeq<T1>> Map<T0, T1>(
