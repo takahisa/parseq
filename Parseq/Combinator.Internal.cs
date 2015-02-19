@@ -25,7 +25,7 @@ using System.Linq;
 
 namespace Parseq
 {
-    internal static class InternalCombinator
+    internal static partial class InternalCombinator
     {
         public static Parser<TToken, IDelayed<ISeq<T>>> Sequence<TToken, T>(
             IDelayed<ISeq<Parser<TToken, T>>> parsers)

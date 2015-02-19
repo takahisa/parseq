@@ -36,8 +36,12 @@ namespace Parseq
         public static Parser<TToken, IEnumerable<T>> Sequence<TToken, T>(
             this IEnumerable<Parser<TToken, T>> parsers)
         {
-            return InternalCombinator.Sequence(Seq.Of(parsers))
-                .Select(delayedSeq => delayedSeq.AsEnumerable());
+            /*
+             * InternalCombinator.Sequence(Seq.Of(parsers))
+             *   .Select(delayedSeq => delayedSeq.AsEnumerable());
+             */
+
+            return InternalCombinator.Sequence_Optimized(parsers);
         }
 
         public static Parser<TToken, T> Choice<TToken, T>(
@@ -49,85 +53,129 @@ namespace Parseq
         public static Parser<TToken, T> Choice<TToken, T>(
             this IEnumerable<Parser<TToken, T>> parsers)
         {
-            return InternalCombinator.Choice(Seq.Of(parsers));
+            /*
+             * return InternalCombinator.Choice(Seq.Of(parsers));
+             */
+
+            return InternalCombinator.Choice_Optimized(parsers);
         }
 
         public static Parser<TToken, IEnumerable<T>> Repeat<TToken, T>(
             this Parser<TToken, T> parser,
                  Int32 count)
         {
-            return InternalCombinator.Repeat(parser, count)
-                    .Select(delayedSeq => delayedSeq.AsEnumerable());
+            /*
+             * return InternalCombinator.Repeat(parser, count)
+             *       .Select(delayedSeq => delayedSeq.AsEnumerable());
+             */
+
+            return InternalCombinator.Repeat_Optimized(parser, count);
         }
 
         public static Parser<TToken, IEnumerable<T>> Many0<TToken, T>(
             this Parser<TToken, T> parser)
         {
-            return InternalCombinator.Many0(parser)
-                    .Select(delayedSeq => delayedSeq.AsEnumerable());
+            /*
+             * return InternalCombinator.Many0(parser)
+             *       .Select(delayedSeq => delayedSeq.AsEnumerable());
+             */
+
+            return InternalCombinator.Many0_Optimized(parser);
         }
 
         public static Parser<TToken, IEnumerable<T>> Many1<TToken, T>(
             this Parser<TToken, T> parser)
         {
-            return InternalCombinator.Many1(parser)
-                    .Select(delayedSeq => delayedSeq.AsEnumerable());
+            /*
+             * return InternalCombinator.Many1(parser)
+             *       .Select(delayedSeq => delayedSeq.AsEnumerable());
+             */
+
+            return InternalCombinator.Many1_Optimized(parser);
         }
 
         public static Parser<TToken, IEnumerable<T>> ManyTill<TToken, T>(
             this Parser<TToken, T> parser,
                  Parser<TToken, Unit> terminator)
         {
-            return InternalCombinator.ManyTill(parser, terminator)
-                .Select(delayedSeq => delayedSeq.AsEnumerable());
+            /*
+             * return InternalCombinator.ManyTill(parser, terminator)
+                   .Select(delayedSeq => delayedSeq.AsEnumerable());
+             */
+
+            return InternalCombinator.ManyTill_Optimized(parser, terminator);
         }
 
         public static Parser<TToken, IEnumerable<T>> SepBy0<TToken, T>(
             this Parser<TToken, T> parser,
                  Parser<TToken, Unit> sep)
         {
-            return InternalCombinator.SepBy0(parser, sep)
-                    .Select(delayedSeq => delayedSeq.AsEnumerable());
+            /*
+             * return InternalCombinator.SepBy0(parser, sep)
+             *     .Select(delayedSeq => delayedSeq.AsEnumerable());
+             */
+
+            return InternalCombinator.SepBy0_Optimized(parser, sep);
         }
 
         public static Parser<TToken, IEnumerable<T>> SepBy1<TToken, T>(
             this Parser<TToken, T> parser,
                  Parser<TToken, Unit> sep)
         {
-            return InternalCombinator.SepBy1(parser, sep)
-                    .Select(delayedSeq => delayedSeq.AsEnumerable());
+            /*
+             * return InternalCombinator.SepBy1(parser, sep)
+             *     .Select(delayedSeq => delayedSeq.AsEnumerable());
+             */
+
+            return InternalCombinator.SepBy1_Optimized(parser, sep);
         }
 
         public static Parser<TToken, IEnumerable<T>> EndBy0<TToken, T>(
             this Parser<TToken, T> parser,
                  Parser<TToken, Unit> sep)
         {
-            return InternalCombinator.EndBy0(parser, sep)
-                .Select(delayedSeq => delayedSeq.AsEnumerable());
+            /*
+             * return InternalCombinator.EndBy0(parser, sep)
+             *     .Select(delayedSeq => delayedSeq.AsEnumerable());
+             */
+
+            return InternalCombinator.EndBy0_Optimized(parser, sep);
         }
 
         public static Parser<TToken, IEnumerable<T>> EndBy1<TToken, T>(
             this Parser<TToken, T> parser,
                  Parser<TToken, Unit> sep)
         {
-            return InternalCombinator.EndBy1(parser, sep)
-                .Select(delayedSeq => delayedSeq.AsEnumerable());
+            /*
+             * return InternalCombinator.EndBy1(parser, sep)
+             *     .Select(delayedSeq => delayedSeq.AsEnumerable());
+             */
+
+            return InternalCombinator.EndBy1_Optimized(parser, sep);
         }
 
         public static Parser<TToken, IEnumerable<T>> SepEndBy0<TToken, T>(
             this Parser<TToken, T> parser,
                  Parser<TToken, Unit> sep)
         {
-            return InternalCombinator.SepEndBy0(parser, sep)
-                .Select(delayedSeq => delayedSeq.AsEnumerable());
+            /*
+             * return InternalCombinator.SepEndBy0(parser, sep)
+             *     .Select(delayedSeq => delayedSeq.AsEnumerable());
+             */
+
+            return InternalCombinator.SepEndBy0_Optimized(parser, sep);
         }
 
         public static Parser<TToken, IEnumerable<T>> SepEndBy1<TToken, T>(
             this Parser<TToken, T> parser,
                  Parser<TToken, Unit> sep)
         {
-            return InternalCombinator.SepEndBy1(parser, sep)
-                .Select(delayedSeq => delayedSeq.AsEnumerable());
+            /*
+             * return InternalCombinator.SepEndBy1(parser, sep)
+             *     .Select(delayedSeq => delayedSeq.AsEnumerable());
+             */
+
+            return InternalCombinator.SepEndBy1_Optimized(parser, sep);
         }
         
         public static Parser<TToken, Unit> NotFollowedBy<TToken, T>(
