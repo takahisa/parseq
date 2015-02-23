@@ -20,12 +20,6 @@
  * 
  */
 #pragma warning disable 1699
-#define NOSIGN
-
-#if !NOSIGN
-[assembly: AssemblyKeyFile(@"../Parseq.snk")]
-[assembly: AssemblyDelaySign(false)]
-#endif
 
 using System.Resources;
 using System.Reflection;
@@ -45,3 +39,8 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("3.0.0.0")]
 [assembly: AssemblyFileVersion("3.0.0.0")]
+
+#if !NOSIGN
+[assembly: AssemblyKeyFile(@"../Parseq.snk")]
+[assembly: AssemblyDelaySign(false)]
+#endif
