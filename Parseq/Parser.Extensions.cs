@@ -100,6 +100,34 @@ namespace Parseq
                    from value1 in parser1
                    select value1;
         }
+
+        public static Parser<TToken, T> DoWhenSuccess<TToken, T>(
+            this Parser<TToken, T> parser,
+                 Action<T> action)
+        {
+            IReply<TToken, T> reply;
+            return stream => (reply = parser(stream)).Case(
+                failure: (restStream, errorMessage) => reply,
+                success: (restStream, value) =>
+                    {
+                        action(value);
+                        return reply;
+                    });
+        }
+
+        public static Parser<TToken, T> DoWhenFailure<TToken, T>(
+            this Parser<TToken, T> parser,
+                 Action<String> action)
+        {
+            IReply<TToken, T> reply;
+            return stream => (reply = parser(stream)).Case(
+                failure: (restStream, errorMessage) =>
+                {
+                    action(errorMessage);
+                    return reply;
+                },
+                success: (restStream, value) => reply);
+        }
     }
 
     public static partial class Parser
