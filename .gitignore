@@ -8,3 +8,5 @@ obj/
 *.vsmdi
 *.testsettings
 *.user
+*.userprefs
+
