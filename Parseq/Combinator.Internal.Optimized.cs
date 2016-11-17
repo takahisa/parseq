@@ -98,14 +98,12 @@ namespace Parseq
             {
                 var resultStream = stream;
                 var resultValue = new List<T>();
-                String errorMessage = null;
                 while(true)
                 {
                     var successful = parser(resultStream)
                         .Case(
                             failure: (restStream, value) =>
                             {
-                                errorMessage = value;
                                 return false;
                             },
                             success: (restStream, value) =>
