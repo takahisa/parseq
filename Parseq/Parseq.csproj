@@ -46,6 +46,7 @@
     <Compile Include="Delayed.Extensions.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="Either.Extensions.cs" />
+    <Compile Include="FixedPoint.cs" />
     <Compile Include="Option.cs" />
     <Compile Include="Option.Extensions.cs" />
     <Compile Include="Pair.cs" />
