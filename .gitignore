@@ -9,4 +9,4 @@ obj/
 *.testsettings
 *.user
 *.userprefs
-
+/.vs
