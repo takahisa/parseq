@@ -1,80 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E6E45410-C1EF-44FC-ABD6-3FBBE2A44DB1}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Parseq</RootNamespace>
-    <AssemblyName>Parseq</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile328</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>3.0.1.0</Version>
+    <Authors>takahisa watanabe &lt;takahisa.wt@gmail.com&gt;</Authors>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageProjectUrl>http://github.com/takahisa/parseq</PackageProjectUrl>
+    <RepositoryUrl>http://github.com/takahisa/parseq</RepositoryUrl>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
-    <Compile Include="CharStream.cs" />
-    <Compile Include="CharStream.Reader.cs" />
-    <Compile Include="Combinator.cs" />
-    <Compile Include="Combinator.Internal.cs" />
-    <Compile Include="Combinator.Internal.Optimized.cs" />
-    <Compile Include="Combinators\Chars.cs" />
-    <Compile Include="Combinators\Prims.cs" />
-    <Compile Include="Delayed.cs" />
-    <Compile Include="Delayed.Extensions.cs" />
-    <Compile Include="Either.cs" />
-    <Compile Include="Either.Extensions.cs" />
-    <Compile Include="Option.cs" />
-    <Compile Include="Option.Extensions.cs" />
-    <Compile Include="Pair.cs" />
-    <Compile Include="Pair.Extensions.cs" />
-    <Compile Include="Parser.cs" />
-    <Compile Include="Parser.Extensions.cs" />
-    <Compile Include="Position.cs" />
-    <Compile Include="PositionConverter.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Reply.cs" />
-    <Compile Include="Reply.Extensions.cs" />
-    <Compile Include="Seq.cs" />
-    <Compile Include="Seq.Extensions.cs" />
-    <Compile Include="SingletonClassHelper.cs" />
-    <Compile Include="TokenStream.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="TokenStream.Extensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Unit.cs" />
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>
