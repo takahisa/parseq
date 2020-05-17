@@ -1,6 +1,8 @@
 Parseq
 ====
 
+[![takahisa](https://circleci.com/gh/takahisa/parseq.svg?style=shield)](https://circleci.com/gh/takahisa/parseq)
+
 ## About
 
 Parseq is a monadic parser combinator library written for C#, It can parse context-sensitive, infinite-lookahead grammers.
